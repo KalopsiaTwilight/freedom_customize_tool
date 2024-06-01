@@ -1,34 +1,41 @@
 /**
  * This file will automatically be loaded by webpack and run in the "renderer" context.
  * To learn more about the differences between the "main" and the "renderer" context in
- * Electron, visit:
- *
- * https://electronjs.org/docs/latest/tutorial/process-model
- *
- * By default, Node.js integration in this file is disabled. When enabling Node.js integration
- * in a renderer process, please be aware of potential security implications. You can read
- * more about security risks here:
- *
- * https://electronjs.org/docs/tutorial/security
- *
- * To enable Node.js integration in this file, open up `main.js` and enable the `nodeIntegration`
- * flag:
- *
- * ```
- *  // Create the browser window.
- *  mainWindow = new BrowserWindow({
- *    width: 800,
- *    height: 600,
- *    webPreferences: {
- *      nodeIntegration: true
- *    }
- *  });
- * ```
  */
 import "@fortawesome/fontawesome-free/js/all";
 import 'bootstrap'
+import 'gasparesganga-jquery-loading-overlay'
 import './shared/app.scss';
 
-$( "body" ).addClass( "bg-info" );
+window.jQuery = $;
+window.$ = $;
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
+$.LoadingOverlaySetup({
+    background: "rgba(190,190,190, 0.8)"
+});
+
+$.LoadingOverlay("show");
+// window.ipcRenderer.on("server-running", () => {
+window.api.getExpressAppUrl().then(uri => {
+    const checkServerRunning = setInterval(() => {
+        fetch(uri)
+            .then((response) => {
+                console.log("EXPRESS RETURNED: " + response.status)
+                if (response.status === 200) {
+                    clearInterval(checkServerRunning);
+                    $.LoadingOverlay("hide");
+                    $.getScript(`${uri}/zam/modelviewer/live/viewer/viewer.min.js`).then(() => {
+                        if (!window.CONTENT_PATH) {
+                            window.CONTENT_PATH = `${uri}/zam/modelviewer/live/`
+                        }
+                        require("./app/customItem")
+                    });
+                }
+            })
+            .catch(() => { })
+    }, 1000)
+})
+
+window.ipcRenderer.on("express-log", (_e, data: string) => {
+    console.log(data);
+})

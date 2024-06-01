@@ -11,9 +11,14 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
+import { expressPort } from "./package.json"
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    extraResource: [
+      "./.webpack/x64/main/express_app.js"
+    ]
   },
   rebuildConfig: {},
   makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
@@ -21,6 +26,8 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
+      port: 8249,
+      devContentSecurityPolicy: `default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' http://localhost:${expressPort} data:; connect-src http://localhost:${expressPort} ws://localhost:8249; style-src-elem http://wow.zamimg.com 'unsafe-inline';`,
       renderer: {
         config: rendererConfig,
         entryPoints: [
@@ -31,7 +38,7 @@ const config: ForgeConfig = {
             preload: {
               js: './src/preload.ts',
             },
-          },
+          }
         ],
       },
     }),

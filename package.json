@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "Tool to customize stuff",
   "main": ".webpack/main",
+  "expressPort": "3012",
   "scripts": {
     "start": "electron-forge start",
     "debug": "electron-forge start -- --remote-debugging-port=9223",
@@ -22,6 +23,7 @@
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-webpack": "^7.4.0",
     "@electron/fuses": "^1.8.0",
+    "@types/express-http-proxy": "^1.6.6",
     "@types/jquery": "^3.5.30",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
@@ -53,6 +55,10 @@
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
     "electron-squirrel-startup": "^1.0.1",
-    "jquery": "^3.7.1"
+    "express": "^4.19.2",
+    "express-http-proxy": "^2.0.0",
+    "gasparesganga-jquery-loading-overlay": "^2.1.7",
+    "jquery": "^3.7.1",
+    "node-fetch": "^3.3.2"
   }
 }
