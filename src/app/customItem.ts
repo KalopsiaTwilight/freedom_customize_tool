@@ -1383,7 +1383,7 @@ function loadItem() {
     $.LoadingOverlay("show");
 
     $.ajax({
-        url: "/zam/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",
+        url: window.EXPRESS_URI + "/zam/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",
         method: "GET",
         error: function () {
             $.LoadingOverlay("hide");
