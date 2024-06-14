@@ -1360,7 +1360,7 @@ async function reloadCharacterModel() {
         type: 2,
         contentPath: window.CONTENT_PATH,
         container: $("#model_3d"),
-        aspect: 1,
+        aspect: ($("#model_3d").width() / 600),
         hd: true,
         items: [],
         charCustomization: {
