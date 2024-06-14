@@ -1794,3 +1794,5 @@ $(document).ready(function () {
     // loadAvailableCharacters();
     reloadCharacterModel();
 })
+
+$(window).on("resize", debounce(reloadCharacterModel));
