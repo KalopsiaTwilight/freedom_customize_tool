@@ -1,0 +1,40 @@
+import { ipcMain } from "electron";
+import { Database } from "sqlite3";
+
+import { getAsync, allAsync, execAsync } from "../utils";
+
+export const CallDbAllChannel = "dbAll";
+export const CallDbGetChannel = "dbGet";
+export const CallDbExecChannel = "dbExec";
+
+export interface DbResponse {
+  error?: Error,
+  result?: unknown
+}
+
+export const setupDbIpc = (db: Database) => {
+  ipcMain.handle(CallDbAllChannel, async (_, query: string, ...params: any[]) => {
+    try {
+      const resp = await allAsync(db, query, ...params);
+      return { result: resp, error: undefined }
+    } catch (error) {
+      return { result: undefined, error }
+    }
+  });
+  ipcMain.handle(CallDbGetChannel, async (_, query: string, ...params: any[]) => {
+    try {
+      const resp = await getAsync(db, query, ...params);
+      return { result: resp, error: undefined }
+    } catch (error) {
+      return { result: undefined, error }
+    }
+  });
+  ipcMain.handle(CallDbExecChannel, async (_, query: string) => {
+    try {
+      const resp = await execAsync(db, query);
+      return { result: resp, error: undefined }
+    } catch (error) {
+      return { result: undefined, error }
+    }
+  });
+}

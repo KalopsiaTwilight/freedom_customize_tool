@@ -17,7 +17,8 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     extraResource: [
-      "./.webpack/x64/main/express_app.js"
+      "./.webpack/x64/main/express_app.js",
+      "./src/packaged/app.db"
     ]
   },
   rebuildConfig: {},

@@ -17,6 +17,7 @@ $.LoadingOverlaySetup({
 $.LoadingOverlay("show");
 // window.ipcRenderer.on("server-running", () => {
 window.api.getExpressAppUrl().then(uri => {
+    window.EXPRESS_URI = uri;
     const checkServerRunning = setInterval(() => {
         fetch(uri)
             .then((response) => {

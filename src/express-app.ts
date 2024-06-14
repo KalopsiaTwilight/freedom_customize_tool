@@ -1,9 +1,15 @@
 import express from "express";
 import proxy from "express-http-proxy";
 import http from "http";
+import cors from "cors"
 import { expressPort } from "../package.json";
 
 const app = express();
+app.use(cors({
+    origin: "*",
+    allowedHeaders: "*",
+    methods: "*",
+}))
 app.set("port", expressPort)
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
@@ -21,10 +27,34 @@ app.use('/zam', proxy("wow.zamimg.com", {
         return proxyReqOpts;
     },
     filter: function (req, res) {
-        // TODO: Filter out custom items
+        const armorRegex = /live\/meta\/armor\/\d+\/(\d+)/
+        const matchResult = armorRegex.exec(req.path);
+        if (matchResult) {
+            if (parseInt(matchResult[1]) >= 900000) {
+                return false;
+            }
+        }
         return req.method === 'GET';
     }
 }))
+
+app.use(express.json());
+let itemData = {};
+app.post('/customItem', (req, res) => {
+    let idStr = "9";
+    for (let i = 0; i < 5;i++)
+    {
+        idStr += Math.floor(Math.random() * 10);
+    }
+    const id = parseInt(idStr);
+    itemData = req.body;
+    res.send(JSON.stringify({
+        Id: id
+    }))
+})
+app.get("/zam/modelviewer/live/meta/armor/*", (req,res) => {
+    res.send(JSON.stringify(itemData));
+});
 app.use('/', (req, res) => {
     res.send('OK');
 })
@@ -39,8 +69,6 @@ function shutdown() {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-server.listen(expressPort);
+server.listen(expressPort, 'localhost');
 server.on("listening", () => console.log(`Listening on: ${expressPort}`));
 server.on("close", () => console.log("Express server closed."));
-
-console.log("I am executing!");

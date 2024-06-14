@@ -227,7 +227,7 @@ export class WowModelViewer extends ZamModelViewer {
     setCustomItem(slot: number, itemData: ZamItemData) {
         const viewer = this;
         $.ajax({
-            url: "https://mm.wowfreedom-rp.com/Tools/CreateOrUpdateCustomItem?id=",
+            url: `${window.EXPRESS_URI}/customItem`,
             method: "POST",
             dataType: "json",
             contentType: "application/json; charset=utf-8",

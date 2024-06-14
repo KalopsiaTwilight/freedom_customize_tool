@@ -4,8 +4,14 @@ import {
     getRaceName, getClassName, intToByteArray, byteToHexCode, getColorStringFromNumber,
 } from "./wow-data-utils"
 
+import { TextureFileData, ModelResourceData, ItemToDisplayIdData } from "../db";
+
 if (!window.WH) {
-    window.WH = {}
+    window.WH = {
+        WebP: {
+            getImageExtension: () => ".webp"
+        }
+    }
     window.WH.debug = console.log;
     window.WH.defaultAnimation = `Stand`
     window.WH.Wow = {
@@ -610,44 +616,56 @@ export interface ItemGeoSetData {
 let helmetGeoVisMale = [] as ItemGeoSetData[];
 let helmetGeoVisFemale = [] as ItemGeoSetData[];
 let flags = 0;
-// let characters = [];
 
 function onSearchTexture() {
-    $.ajax({
-        url: "https://mm.wowfreedom-rp.com/Data/TextureFiles?search=" + $("#ci_texture_textureFile").val(),
-        method: "GET",
-        success: function (data) {
-            $("#ci_texture_textureResults").empty();
-            for (const texture of data) {
-                const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-                itemElem.text(texture.FileName);
-                itemElem.on("click", function () {
-                    $("#ci_texture_textureFile").val(texture.FileName);
-                    $("#ci_texture_fileId").val(texture.Id);
-                    $("#ci_texture_textureResults").empty();
-                    $("#addTextureBtn").removeAttr('disabled');
-                });
-                const li = $("<li>");
-                li.append(itemElem);
-                $("#ci_texture_textureResults").append(li);
-            }
+    window.db.all(`
+        SELECT * FROM texturefiles 
+        WHERE fileName like '%'|| ?1 || '%'
+        OR fileId LIKE '%' || ?1 || '%'
+        LIMIT 5`, 
+        $("#ci_texture_textureFile").val()
+    ).then((resp) => {
+        if (resp.error) {
+            throw resp.error;
+        }
+        const data = resp.result as TextureFileData[];
+        $("#ci_texture_textureResults").empty();
+        for (const texture of data) {
+            const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
+            itemElem.text(texture.fileName);
+            itemElem.on("click", function () {
+                $("#ci_texture_textureFile").val(texture.fileName);
+                $("#ci_texture_fileId").val(texture.fileId);
+                $("#ci_texture_textureResults").empty();
+                $("#addTextureBtn").removeAttr('disabled');
+            });
+            const li = $("<li>");
+            li.append(itemElem);
+            $("#ci_texture_textureResults").append(li);
         }
     });
 }
 
 function onSearchItem() {
-    $.ajax({
-        url: "https://mm.wowfreedom-rp.com/Data/ItemDisplayData?search=" + $("#ci_item_search").val(),
-        method: "GET",
-        success: function (data) {
-            $("#ci_item_searchResults").empty();
+    window.db.all(`
+        SELECT * FROM item_to_displayid 
+        WHERE itemName like '%'|| ?1 || '%'
+        OR itemId LIKE '%' || ?1 || '%'
+        LIMIT 5`, 
+        $("#ci_item_search").val()
+    ).then((resp) => {
+        if (resp.error) {
+            throw resp.error;
+        }
+        const data = resp.result as ItemToDisplayIdData[];
+        $("#ci_item_searchResults").empty();
             for (const item of data) {
                 const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-                itemElem.text(item.ItemName);
+                itemElem.text(item.itemName);
                 itemElem.on("click", function () {
-                    $("#ci_item_search").val(item.ItemName);
-                    $("#ci_item_displayId").val(item.DisplayId);
-                    $("#ci_item_inventoryType").val(item.InventoryType);
+                    $("#ci_item_search").val(item.itemName);
+                    $("#ci_item_displayId").val(item.itemDisplayId);
+                    $("#ci_item_inventoryType").val(item.inventoryType);
 
                     $("#ci_item_searchResults").empty();
                     $("#loadItemBtn").removeAttr('disabled');
@@ -656,53 +674,64 @@ function onSearchItem() {
                 li.append(itemElem);
                 $("#ci_item_searchResults").append(li);
             }
-        }
-    });
+    })
 }
 
 function onSearchComponentModel() {
-    $.ajax({
-        url: "https://mm.wowfreedom-rp.com/Data/ComponentModels?search=" + $("#ci_componentmodel_modelfile").val(),
-        method: "GET",
-        success: function (data) {
-            $("#ci_componentmodel_searchResults").empty();
-            for (const item of data) {
-                const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-                itemElem.text(item.FileName);
-                itemElem.on("click", function () {
-                    $("#ci_componentmodel_modelfile").val(item.FileName);
-                    $("#ci_componentmodel_fileId").val(item.Id);
+    window.db.all(`
+        SELECT * FROM modelresources 
+        WHERE fileName like '%'|| ?1 || '%'
+        OR fileId LIKE '%' || ?1 || '%'
+        LIMIT 5`, 
+        $("#ci_componentmodel_modelfile").val()
+    ).then((resp) => {
+        if (resp.error) {
+            throw resp.error;
+        }
+        const data = resp.result as ModelResourceData[];
+        $("#ci_componentmodel_searchResults").empty();
+        for (const item of data) {
+            const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
+            itemElem.text(item.fileName);
+            itemElem.on("click", function () {
+                $("#ci_componentmodel_modelfile").val(item.fileName);
+                $("#ci_componentmodel_fileId").val(item.fileId);
 
-                    $("#ci_componentmodel_searchResults").empty();
-                    $("#addComponentModelBtn").removeAttr('disabled');
-                });
-                const li = $("<li>");
-                li.append(itemElem);
-                $("#ci_componentmodel_searchResults").append(li);
-            }
+                $("#ci_componentmodel_searchResults").empty();
+                $("#addComponentModelBtn").removeAttr('disabled');
+            });
+            const li = $("<li>");
+            li.append(itemElem);
+            $("#ci_componentmodel_searchResults").append(li);
         }
     });
 }
 
 function onSearchComponentTexture() {
-    $.ajax({
-        url: "https://mm.wowfreedom-rp.com/Data/TextureFiles?search=" + $("#ci_componenttexture_file").val(),
-        method: "GET",
-        success: function (data) {
-            $("#ci_componenttexture_searchResults").empty();
-            for (const texture of data) {
-                const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-                itemElem.text(texture.FileName);
-                itemElem.on("click", function () {
-                    $("#ci_componenttexture_file").val(texture.FileName);
-                    $("#ci_componenttexture_fileId").val(texture.Id);
-                    $("#ci_componenttexture_searchResults").empty();
-                    $("#addComponentTextureBtn").removeAttr('disabled');
-                });
-                const li = $("<li>");
-                li.append(itemElem);
-                $("#ci_componenttexture_searchResults").append(li);
-            }
+    window.db.all(`
+        SELECT * FROM texturefiles 
+        WHERE fileName like '%'|| ?1 || '%'
+        OR fileId LIKE '%' || ?1 || '%'
+        LIMIT 5`, 
+        $("#ci_componenttexture_file").val()
+    ).then((resp) => {
+        if (resp.error) {
+            throw resp.error;
+        }
+        const data = resp.result as TextureFileData[];
+        $("#ci_componenttexture_searchResults").empty();
+        for (const texture of data) {
+            const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
+            itemElem.text(texture.fileName);
+            itemElem.on("click", function () {
+                $("#ci_componenttexture_file").val(texture.fileName);
+                $("#ci_componenttexture_fileId").val(texture.fileId);
+                $("#ci_componenttexture_searchResults").empty();
+                $("#addComponentTextureBtn").removeAttr('disabled');
+            });
+            const li = $("<li>");
+            li.append(itemElem);
+            $("#ci_componenttexture_searchResults").append(li);
         }
     });
 }
@@ -837,35 +866,10 @@ function onModelGenderChange() {
     reloadCharacterModel();
 }
 
-// function onLoadCharacter() {
-//     const index = parseInt($("#ci_character_select").val().toString(), 10);
-//     const char = characters[index];
-
-//     $.LoadingOverlay("show");
-//     $.ajax({
-//         method: "GET",
-//         url: "https://mm.wowfreedom-rp.com/Character/CharacterCustomizations?characterId=" + char.Id,
-//         success: function (data) {
-//             character.gender = char.Gender;
-//             character.race = char.Race;
-
-//             $("#ci_model_gender").val(character.gender);
-//             $("#ci_model_race").val(character.race);
-
-//             character.customizations = data.map(c => ({
-//                 optionId: c.CustomizationOptionId,
-//                 choiceId: c.CustomizationChoiceId
-//             }));
-//             reloadCharacterModel();
-//             $.LoadingOverlay("hide");
-//         }
-//     });
-// }
-
 function onRandomizeItem() {
     onRandomizeGeosetData();
     $.LoadingOverlay("show");
-    let promises: JQuery.jqXHR<any>[] = [];
+    let promises: Promise<void>[] = [];
     const texturePromises = randomizeTextures();
     promises = promises.concat(texturePromises);
     promises = promises.concat(randomizeComponentModel("0"));
@@ -936,23 +940,31 @@ function onRandomizeComponent2Texture() {
     })
 }
 
-function randomizeTextures(): JQuery.jqXHR<any>[] {
+function randomizeTextures(): Promise<void>[] {
     const inventorySlot = parseInt($("#ci_inventoryslot").val().toString(), 10);
     const sections = getComponentSectionsForInventoryType(inventorySlot);
     const promises = [];
     for (const section of sections) {
-        promises.push($.ajax({
-            method: "GET",
-            url: "https://mm.wowfreedom-rp.com/Data/RandomTextureFile",
-            success: function (data) {
-                itemMaterials[section] = [{
-                    fileName: data.FileName,
-                    fileId: data.Id,
-                    gender: 3,
-                    race: 0,
-                    class: 0
-                }]
+        promises.push(window.db.get(`
+            SELECT r1.fileId, r1.fileName
+            FROM texturefiles AS r1 
+            JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
+            WHERE r1.fileId >= r2.fileId
+            ORDER BY r1.fileId ASC
+            LIMIT 1`, 
+            Math.random()
+        ).then((resp) => {
+            if (resp.error) {
+                throw resp.error;
             }
+            const data = resp.result as TextureFileData;
+            itemMaterials[section] = [{
+                fileName: data.fileName,
+                fileId: data.fileId,
+                gender: 3,
+                race: 0,
+                class: 0
+            }]
         }));
     }
     return promises;
@@ -966,34 +978,49 @@ function randomizeComponentModel(slot: string) {
         loops = 2;
     }
     for (let i = 0; i < loops; i++) {
-        const promise = $.ajax({
-            method: "GET",
-            url: "https://mm.wowfreedom-rp.com/Data/RandomComponentModel",
-            success: function (data) {
-                itemComponentModels[slot].models = [{
-                    fileName: data.FileName,
-                    fileId: data.Id,
-                    gender: 3,
-                    race: 0,
-                    class: 0,
-                    extraData: inventorySlot === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS ? i : -1
-                }]
+        promises.push(window.db.get(`
+            SELECT r1.fileId, r1.fileName
+            FROM modelresources AS r1 
+            JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM modelresources)) AS fileId) AS r2
+            WHERE r1.fileId >= r2.fileId
+            ORDER BY r1.fileId ASC
+            LIMIT 1`, 
+            Math.random()
+        ).then((resp) => {
+            if (resp.error) {
+                throw resp.error;
             }
-        });
-        promises.push(promise);
+            const data = resp.result as ModelResourceData;
+            itemComponentModels[slot].models = [{
+                fileName: data.fileName,
+                fileId: data.fileId,
+                gender: 3,
+                race: 0,
+                class: 0,
+                extraData: inventorySlot === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS ? i : -1
+            }]
+        }));
     }
     return promises;
 }
 
 function randomizeComponentTexture(slot: string) {
-    const promise = $.ajax({
-        method: "GET",
-        url: "https://mm.wowfreedom-rp.com/Data/RandomTextureFile",
-        success: function (data) {
-            itemComponentModels[slot].texture = {
-                name: data.FileName,
-                id: data.Id
-            }
+    const promise = window.db.get(`
+        SELECT r1.fileId, r1.fileName
+        FROM texturefiles AS r1 
+        JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
+        WHERE r1.fileId >= r2.fileId
+        ORDER BY r1.fileId ASC
+        LIMIT 1`, 
+        Math.random()
+    ).then((resp) => {
+        if (resp.error) {
+            throw resp.error;
+        }
+        const data = resp.result as TextureFileData;
+        itemComponentModels[slot].texture = {
+            name: data.fileName,
+            id: data.fileId
         }
     });
     return [promise];
@@ -1349,20 +1376,6 @@ async function reloadCharacterModel() {
     previewCustomItem();
 }
 
-// function loadAvailableCharacters() {
-//     $.ajax({
-//         url: "https://mm.wowfreedom-rp.com/Character/ListCharacters",
-//         method: "GET",
-//         success: function (data) {
-//             $("#ci_character_select").empty();
-//             characters = data;
-//             for (let i = 0; i < characters.length; i++) {
-//                 $("#ci_character_select").append($("<option value='" + i + "'>" + characters[i].Name + "</option>"))
-//             }
-//         }
-//     });
-// }
-
 function loadItem() {
     let inventoryType = parseInt($("#ci_item_inventoryType").val().toString(), 10);
     let displayId = parseInt($("#ci_item_displayId").val().toString(), 10)
@@ -1370,7 +1383,7 @@ function loadItem() {
     $.LoadingOverlay("show");
 
     $.ajax({
-        url: "https://mm.wowfreedom-rp.com/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",
+        url: "/zam/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",
         method: "GET",
         error: function () {
             $.LoadingOverlay("hide");
@@ -1390,25 +1403,32 @@ function loadItem() {
             itemMaterials = {};
             for (const section in data.ComponentTextures) {
                 for (const texture of data.TextureFiles[data.ComponentTextures[section]])
-                    promises.push($.ajax({
-                        url: "https://mm.wowfreedom-rp.com/Data/TextureFiles?search=" + texture.FileDataId,
-                        method: "GET",
-                        success: function (data) {
-                            const textureData = {
-                                fileName: data[0].FileName,
-                                fileId: data[0].Id,
-                                race: texture.Race,
-                                class: texture.Class,
-                                gender: texture.Gender
-                            }
-                            if (itemMaterials[section]) {
-                                itemMaterials[section].push(textureData);
-                            } else {
-                                itemMaterials[section] = [textureData];
-                            }
-                            reloadTexturesComponents();
+                {
+                    promises.push(window.db.get(`
+                        SELECT * FROM texturefiles 
+                        WHERE fileId = ?1
+                        LIMIT 1`, 
+                        texture.FileDataId
+                    ).then((resp) => {
+                        if (resp.error) {
+                            throw resp.error;
                         }
+                        const data = resp.result as TextureFileData;
+                        const textureData = {
+                            fileName: data.fileName,
+                            fileId: data.fileId,
+                            race: texture.Race,
+                            class: texture.Class,
+                            gender: texture.Gender
+                        }
+                        if (itemMaterials[section]) {
+                            itemMaterials[section].push(textureData);
+                        } else {
+                            itemMaterials[section] = [textureData];
+                        }
+                        reloadTexturesComponents();
                     }));
+                }
             }
             reloadTexturesComponents();
 
@@ -1433,35 +1453,45 @@ function loadItem() {
             for (const componentId in data.ComponentModels) {
                 const models = data.ModelFiles[data.ComponentModels[componentId]];
                 for (const modelData of models) {
-                    promises.push($.ajax({
-                        url: "https://mm.wowfreedom-rp.com/Data/ComponentModels?search=" + modelData.FileDataId,
-                        method: "GET",
-                        success: function (data) {
-                            const model = {
-                                fileName: data[0].FileName,
-                                fileId: data[0].Id,
-                                race: modelData.Race,
-                                class: modelData.Class,
-                                gender: modelData.Gender,
-                                extraData: modelData.ExtraData
-                            }
-                            itemComponentModels[componentId].models.push(model);
-                            reloadComponentModelsComponents();
+                    promises.push(window.db.get(`
+                        SELECT * FROM modelresources 
+                        WHERE fileId = ?1
+                        LIMIT 1`, 
+                        modelData.FileDataId
+                    ).then((resp) => {
+                        if (resp.error) {
+                            throw resp.error;
                         }
+                        const data = resp.result as TextureFileData;
+                        const model = {
+                            fileName: data.fileName,
+                            fileId: data.fileId,
+                            race: modelData.Race,
+                            class: modelData.Class,
+                            gender: modelData.Gender,
+                            extraData: modelData.ExtraData
+                        }
+                        itemComponentModels[componentId].models.push(model);
+                        reloadComponentModelsComponents();
                     }));
                 }
                 let textureId = (componentId === "0") ? data.Textures["2"] : data.Textures2["2"];
-                promises.push($.ajax({
-                    url: "https://mm.wowfreedom-rp.com/Data/TextureFiles?search=" + textureId,
-                    method: "GET",
-                    success: function (data) {
-                        const textureData = {
-                            name: data[0].FileName,
-                            id: data[0].Id
-                        }
-                        itemComponentModels[componentId].texture = textureData;
-                        reloadComponentModelsComponents();
+                promises.push(window.db.get(`
+                    SELECT * FROM texturefiles 
+                    WHERE fileId = ?1
+                    LIMIT 1`, 
+                    textureId
+                ).then((resp) => {
+                    if (resp.error) {
+                        throw resp.error;
                     }
+                    const data = resp.result as TextureFileData;
+                    const textureData = {
+                        name: data.fileName,
+                        id: data.fileId
+                    }
+                    itemComponentModels[componentId].texture = textureData;
+                    reloadComponentModelsComponents();
                 }));
             }
 

@@ -1,9 +1,16 @@
 import { WoWModelViewer } from "../app/wow-model-viewer"
+import { DbResponse } from "../ipc"
 
 declare interface WoWHeadConfig {
     debug?: (...data: any[]) => void;
     defaultAnimation?: string;
     Wow?: WoWDataCollection;
+    WebP?: WebpOptions;
+}
+
+declare interface WebpOptions 
+{
+    getImageExtension(): string;
 }
 
 declare interface WoWDataCollection 
@@ -91,17 +98,25 @@ declare interface ElectronIpcRenderer {
     on: (channel: string, listener: (event: any, ...args: any[]) => void);
 }
 
+declare interface DbApi {
+    all: (query: string, ...params: any[]) => Promise<DbResponse>
+    exec: (query: string) => Promise<DbResponse>
+    get: (query: string, ...params: any[]) => Promise<DbResponse>
+}
+
 declare global {
     interface Window {
         jQuery: any
         $: any
         CONTENT_PATH: string
+        EXPRESS_URI: string
         WOTLK_TO_RETAIL_DISPLAY_ID_API: string
         WH: WoWHeadConfig
         model: WoWModelViewer
         models: ZamModelViewerInitData
         api: ElectronApi
-        ipcRenderer: ElectronIpcRenderer
+        ipcRenderer: ElectronIpcRenderer,
+        db: DbApi
     }
 
     interface JQueryStatic {
