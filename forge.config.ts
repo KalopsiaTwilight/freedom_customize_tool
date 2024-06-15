@@ -18,7 +18,8 @@ const config: ForgeConfig = {
     asar: true,
     extraResource: [
       "./.webpack/x64/main/express_app.js",
-      "./src/packaged/app.db"
+      "./src/packaged/app.db",
+      "../WDBXEditor2/publish/DBXPatchTool.exe"
     ]
   },
   rebuildConfig: {},

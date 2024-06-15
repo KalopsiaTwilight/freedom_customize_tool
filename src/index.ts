@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, utilityProcess } from 'electron';
+import log from 'electron-log/main'
 import path from "path";
 import { name, expressPort } from "../package.json";
 import * as sqlite3 from "sqlite3";
@@ -19,17 +20,8 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const appName = app.getPath("exe");
-const dbPath = appName.endsWith(`${name}.exe`)
-  ? path.join(process.resourcesPath, "app.db")
-  : "./src/packaged/app.db";
-const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, err => {
-  if (err) {
-      throw err;
-  }
-});
-
-// TODO: Implement proper logging instead of forwarding to renderer
+const isReleaseVer = app.getPath("exe").endsWith(`${name}.exe`);
+log.initialize();
 
 const createWindow = async(): Promise<void> => {
   // Create the browser window.
@@ -43,40 +35,27 @@ const createWindow = async(): Promise<void> => {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   
+  // Start express server
   const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))
   await sleep(3000);
   try {
-    const expressPath = appName.endsWith(`${name}.exe`)
+    const expressPath = isReleaseVer
       ? path.join(process.resourcesPath, "express_app.js")
       : "./.webpack/main/express_app.js";
   
-    mainWindow.webContents.send("express-log", "Starting express process: " + expressPath)
+    log.info("Starting express process: " + expressPath);
     const expressAppProcess = utilityProcess.fork(expressPath, [], {
       stdio: "pipe",
     });
-    [expressAppProcess.stdout, expressAppProcess.stderr].forEach(redirectOutput);
-    
-    mainWindow.webContents.send("express-log", "Express running as pid: " + expressAppProcess.pid)
+    log.info("Express running as pid: " + expressAppProcess.pid)
     mainWindow.on("closed", () => {
       mainWindow = null;
       expressAppProcess.kill()
     })
   } catch(error: any) {
-    mainWindow.webContents.send("express-log", error.toString())
+    log.error(error);
   }
-
 };
-
-
-function redirectOutput(stream: NodeJS.ReadableStream | null) {
-  if (stream) {
-    stream.on("data", (data: any) => {
-      console.log(data.toString())
-      mainWindow.webContents.send("express-log", data.toString());
-    });
-  }
-}
-
 
 const expressUrl = `http://localhost:${expressPort}`
 // This method will be called when Electron has finished
@@ -84,8 +63,17 @@ const expressUrl = `http://localhost:${expressPort}`
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
   createWindow();
-  console.log("Main is ready!");
+  log.info("Main is ready!");
   ipcMain.handle("get-express-app-url", () => expressUrl)
+
+  const dbPath = isReleaseVer
+    ? path.join(process.resourcesPath, "app.db")
+    : "./src/packaged/app.db";
+  const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, err => {
+    if (err) {
+        throw err;
+    }
+  });
   setupDbIpc(db);
 });
 

@@ -12,7 +12,7 @@ if (!window.WH) {
             getImageExtension: () => ".webp"
         }
     }
-    window.WH.debug = console.log;
+    window.WH.debug = () => {};
     window.WH.defaultAnimation = `Stand`
     window.WH.Wow = {
         ItemFeatureFlags: {

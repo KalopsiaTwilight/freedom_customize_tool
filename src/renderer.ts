@@ -1,11 +1,10 @@
-/**
- * This file will automatically be loaded by webpack and run in the "renderer" context.
- * To learn more about the differences between the "main" and the "renderer" context in
- */
+import log from "electron-log/renderer"
+
 import "@fortawesome/fontawesome-free/js/all";
 import 'bootstrap'
 import 'gasparesganga-jquery-loading-overlay'
 import './shared/app.scss';
+
 
 window.jQuery = $;
 window.$ = $;
@@ -21,7 +20,7 @@ window.api.getExpressAppUrl().then(uri => {
     const checkServerRunning = setInterval(() => {
         fetch(uri)
             .then((response) => {
-                console.log("EXPRESS RETURNED: " + response.status)
+                log.info("EXPRESS RETURNED: " + response.status)
                 if (response.status === 200) {
                     clearInterval(checkServerRunning);
                     $.LoadingOverlay("hide");
@@ -35,8 +34,4 @@ window.api.getExpressAppUrl().then(uri => {
             })
             .catch(() => { })
     }, 1000)
-})
-
-window.ipcRenderer.on("express-log", (_e, data: string) => {
-    console.log(data);
 })

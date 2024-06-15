@@ -1,7 +1,10 @@
+import log from "electron-log/node"
 import express from "express";
 import proxy from "express-http-proxy";
 import http from "http";
 import cors from "cors"
+
+// TODO: FIND RANDOM AVAILABLE PORT
 import { expressPort } from "../package.json";
 
 const app = express();
@@ -62,7 +65,7 @@ app.use('/', (req, res) => {
 const server = http.createServer(app);
 
 function shutdown() {
-    console.log("Shutting down Express server...");
+    log.info("[EXPRESS] Shutting down Express server...");
     server.close();
 }
 
@@ -70,5 +73,5 @@ process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
 server.listen(expressPort, 'localhost');
-server.on("listening", () => console.log(`Listening on: ${expressPort}`));
-server.on("close", () => console.log("Express server closed."));
+server.on("listening", () => log.info(`[EXPRESS] Listening on: ${expressPort}`));
+server.on("close", () => log.info("[EXPRESS] Express server closed."));
