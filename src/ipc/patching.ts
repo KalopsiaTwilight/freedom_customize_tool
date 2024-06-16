@@ -1,19 +1,21 @@
 import { ipcMain, IpcMainInvokeEvent } from "electron";
 import log from "electron-log/main"
+import Store from "electron-store"
 import fs from "node:fs"
 import path from "node:path"
 import { spawnSync } from "node:child_process"
 
-import { ItemData, ItemGeoSetData, Patch, PatchResult } from "../models"
+import { AppDataStore, ItemData, ItemGeoSetData, Patch, PatchResult } from "../models"
 import { inventoryTypeToItemId, inventoryTypeToItemSlot } from "../utils";
 import { CallApplyPatchChannel } from "./channels";
 
 
-const clientPath = "C:\\FreedomWoW\\Client\\files\\dbfilesclient"
 let patchToolPath = "";
+let appStore: Store<AppDataStore>;
 
-export const setupPatchingIpc = (toolPath: string) => {
+export const setupPatchingIpc = (toolPath: string, store: Store<AppDataStore>) => {
     patchToolPath = toolPath;
+    appStore = store;
     ipcMain.handle(CallApplyPatchChannel, applyPatch);
 }
 
@@ -23,7 +25,8 @@ async function applyPatch(_: IpcMainInvokeEvent, itemData: ItemData, itemName: s
     const patchPath = path.join(process.resourcesPath, "custom_item.json")
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
 
-    const child = spawnSync(patchToolPath, [patchPath, clientPath], {
+    const clientFilesPath = path.join(appStore.get('freedomWoWRootDir'), "files\\dbfilesclient");
+    const child = spawnSync(patchToolPath, [patchPath, clientFilesPath], {
         shell: true,
         cwd: process.resourcesPath,
         windowsHide: true,

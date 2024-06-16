@@ -1,13 +1,15 @@
 import log from "electron-log/renderer"
 
 import "@fortawesome/fontawesome-free/js/all";
-import 'bootstrap'
 import 'gasparesganga-jquery-loading-overlay'
 import './shared/app.scss';
+import { OnFirstStartChannel } from "./ipc/channels";
 
 
 window.jQuery = $;
 window.$ = $;
+
+import 'bootstrap'
 
 $.LoadingOverlaySetup({
     background: "rgba(190,190,190, 0.8)"
@@ -34,4 +36,15 @@ window.api.getExpressAppUrl().then(uri => {
             })
             .catch(() => { })
     }, 1000)
+})
+window.ipcRenderer.on(OnFirstStartChannel, (_, obj: any) => {
+    $("#firstTimeConfigModal").modal('show');
+    $("#ftc_wowPath").val(obj.suggestedDir);
+    if (obj.launchWoWAfterPatch) {
+        $("#ftc_launchWoWAfterPatch").attr('checked', 'true');
+    }
+});
+
+$("#setFirstTimeConfig").on("click", function () {
+    window.api.setupConfig($("#ftc_wowPath").val() as string, $("#ftc_launchWoWAfterPatch").is(':checked'))
 })

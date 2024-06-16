@@ -93,12 +93,17 @@ declare interface JqueryLoadingOverlayOptions {
 declare interface ElectronApi {
     getExpressAppUrl: () => Promise<string>
     applyItemPatch: (item: ItemData, name: string) => Promise<PatchResult>
+    setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
 }
 
 declare interface DbApi {
     all: (query: string, ...params: any[]) => Promise<DbResponse>
     exec: (query: string) => Promise<DbResponse>
     get: (query: string, ...params: any[]) => Promise<DbResponse>
+}
+
+declare interface ElectronIpcRenderer {
+    on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
 }
 
 declare global {
@@ -113,6 +118,7 @@ declare global {
         models: ZamModelViewerInitData
         api: ElectronApi
         db: DbApi
+        ipcRenderer: ElectronIpcRenderer
     }
 
     interface JQueryStatic {
