@@ -4,7 +4,11 @@ import {
     getRaceName, getClassName, intToByteArray, byteToHexCode, getColorStringFromNumber,
 } from "./wow-data-utils"
 
-import { TextureFileData, ModelResourceData, ItemToDisplayIdData } from "../db";
+import { 
+    TextureFileData, ModelResourceData, ItemToDisplayIdData, ItemGeoSetData, 
+    ItemMaterialContainer, ItemComponentModelContainer, ItemData
+} from "../models";
+import { debounce } from "../utils"
 
 if (!window.WH) {
     window.WH = {
@@ -542,16 +546,6 @@ if (!window.WH) {
         }
     }
 }
-const WH = window.WH
-
-
-function debounce(func: Function) {
-    let timer: number;
-    return (...args : any[]) => {
-        clearTimeout(timer);
-        timer = window.setTimeout(() => { func.apply(this, args); }, 250);
-    };
-}
 
 const character = {
     "race": 11,
@@ -571,27 +565,10 @@ const character = {
     ]
 };
 
-export interface ItemMaterialData {
-    fileName: string;
-    fileId: number;
-    gender: number;
-    race: number;
-    class: number;
-}
-let itemMaterials: { [key: string]: ItemMaterialData[] } = {}
 
-export interface ItemComponentModelModelData extends ItemMaterialData {
-    extraData: number;
-}
+let itemMaterials: ItemMaterialContainer = {}
 
-export interface ItemComponentModelData {
-    texture: {
-        id: number;
-        name: string;
-    }
-    models: ItemComponentModelModelData[];
-}
-let itemComponentModels: {[key: string]: ItemComponentModelData} = {
+let itemComponentModels: ItemComponentModelContainer = {
     "0": {
         texture: {
             id: -1,
@@ -609,10 +586,6 @@ let itemComponentModels: {[key: string]: ItemComponentModelData} = {
 };
 let particleColors: number[][] = [];
 
-export interface ItemGeoSetData {
-    group: number;
-    race: number;
-}
 let helmetGeoVisMale = [] as ItemGeoSetData[];
 let helmetGeoVisFemale = [] as ItemGeoSetData[];
 let flags = 0;
@@ -1714,8 +1687,15 @@ function previewCustomItem() {
 
 function exportToFile() {
     var a = document.createElement("a");
+    var file = new Blob([JSON.stringify(getItemData())], { type: "application/json" });
+    a.href = URL.createObjectURL(file);
+    a.download = "myCustomItem.json";
+    a.click();
+}
+
+function getItemData() {
     const inventoryType = parseInt($("#ci_inventoryslot").val().toString(), 10);
-    const data = {
+    const data: ItemData = {
         inventoryType,
         itemMaterials,
         itemComponentModels,
@@ -1730,14 +1710,10 @@ function exportToFile() {
     for (let i = 0; i < sets.length; i++) {
         data.geoSetGroup[i] = parseInt($("#ci_geoset_" + sets[i]).val().toString(), 10);
     }
-
-    var file = new Blob([JSON.stringify(data)], { type: "application/json" });
-    a.href = URL.createObjectURL(file);
-    a.download = "myCustomItem.json";
-    a.click();
+    return data;
 }
 
-$(document).ready(function () {
+$(function () {
     $("#previewBtn").on("click", previewCustomItem);
 
     $("#ci_inventoryslot").on("change", onInventorySlotChange);
@@ -1788,6 +1764,23 @@ $(document).ready(function () {
     $("#component2RandomizeModelBtn").on("click", onRandomizeComponent2Model);
     $("#component1RandomizeTextureBtn").on("click", onRandomizeComponent1Texture);
     $("#component2RandomizeTextureBtn").on("click", onRandomizeComponent2Texture);
+
+    $("#patchWoWBtn").on("click", () => {
+        $.LoadingOverlay("show");
+        window.api.applyItemPatch(getItemData(), "My Awesome Item").then((output) => {
+            $.LoadingOverlay("hide");
+            if (output.resultCode != 0) {
+                $("#alertError")
+                    .empty()
+                    .append("Something went wrong applying the patch to the WoW clientfiles. Please contact a developer for help!")
+                    .show();
+            } else {
+                $("#alertError")
+                    .empty()
+                    .hide();
+            }
+        });
+    });
 
     reloadFlagsComponents();
     reloadHelmetGeovisComponents();

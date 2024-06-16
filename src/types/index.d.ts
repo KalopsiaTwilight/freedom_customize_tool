@@ -1,5 +1,5 @@
 import { WoWModelViewer } from "../app/wow-model-viewer"
-import { DbResponse } from "../ipc"
+import { DbResponse, PatchResult } from "../models"
 
 declare interface WoWHeadConfig {
     debug?: (...data: any[]) => void;
@@ -92,10 +92,7 @@ declare interface JqueryLoadingOverlayOptions {
 
 declare interface ElectronApi {
     getExpressAppUrl: () => Promise<string>
-}
-
-declare interface ElectronIpcRenderer {
-    on: (channel: string, listener: (event: any, ...args: any[]) => void);
+    applyItemPatch: (item: ItemData, name: string) => Promise<PatchResult>
 }
 
 declare interface DbApi {
@@ -115,7 +112,6 @@ declare global {
         model: WoWModelViewer
         models: ZamModelViewerInitData
         api: ElectronApi
-        ipcRenderer: ElectronIpcRenderer,
         db: DbApi
     }
 

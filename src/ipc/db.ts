@@ -2,15 +2,7 @@ import { ipcMain } from "electron";
 import { Database } from "sqlite3";
 
 import { getAsync, allAsync, execAsync } from "../utils";
-
-export const CallDbAllChannel = "dbAll";
-export const CallDbGetChannel = "dbGet";
-export const CallDbExecChannel = "dbExec";
-
-export interface DbResponse {
-  error?: Error,
-  result?: unknown
-}
+import { CallDbAllChannel, CallDbExecChannel, CallDbGetChannel } from "./channels";
 
 export const setupDbIpc = (db: Database) => {
   ipcMain.handle(CallDbAllChannel, async (_, query: string, ...params: any[]) => {

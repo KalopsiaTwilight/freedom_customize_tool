@@ -14,3 +14,8 @@ export interface TextureFileData {
     fileName: string, 
     fileId: number
 }
+
+export interface DbResponse {
+    error?: Error,
+    result?: unknown
+  }
