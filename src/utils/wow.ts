@@ -30,3 +30,19 @@ export function inventoryTypeToItemId(type: number) {
         case 19: { return 259432; }
     }
 }
+
+export function inventoryTypeToItemSlotName(type: number) {
+    switch(type) {
+        case 1: { return "Head";}
+        case 3: { return "Shoulders";}
+        case 4: { return "Shirt";}
+        case 5: { return "Chest"; }
+        case 6: { return "Waist"; }
+        case 7: { return "Legs"; }
+        case 8: { return "Feet"; }
+        case 9: { return "Wrists"; }
+        case 10: { return "Hands"; }
+        case 16: { return "Back"; }
+        case 19: { return "Tabard"; }
+    }
+}

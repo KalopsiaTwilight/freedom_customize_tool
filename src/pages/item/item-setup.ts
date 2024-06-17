@@ -62,17 +62,7 @@ export default async function load() {
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");
         window.api.applyItemPatch("My Awesome Item").then((output) => {
-            $.LoadingOverlay("hide");
-            if (output.resultCode != 0) {
-                $("#alertError")
-                    .empty()
-                    .append("Something went wrong applying the patch to the WoW clientfiles. Please contact a developer for help!")
-                    .show();
-            } else {
-                $("#alertError")
-                    .empty()
-                    .hide();
-            }
+
         });
     });
 
@@ -108,7 +98,6 @@ function onWindowResize(defaultChar: CharacterModelData) {
 export function unload() {
     $(window).off("resize", windowResizeFn);
 }
-
 
 export async function reloadAllSections(inventorySlot: number) {
     $("#ci_inventoryslot").val(inventorySlot);

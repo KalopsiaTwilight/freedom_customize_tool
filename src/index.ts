@@ -145,7 +145,7 @@ async function setupIpc() {
   const toolPath = isReleaseVer
     ? path.join(process.resourcesPath, "DBXPatchTool.exe")
     : path.resolve("../WDBXEditor2/publish/DBXPatchTool.exe");
-  setupPatchingIpc(toolPath, store);
+  setupPatchingIpc(mainWindow, toolPath, store);
 
   const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))
   await sleep(3000);

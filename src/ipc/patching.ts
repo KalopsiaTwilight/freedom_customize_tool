@@ -1,49 +1,57 @@
-import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent } from "electron";
 import log from "electron-log/main"
 import Store from "electron-store"
 import fs from "node:fs"
 import path from "node:path"
-import { spawnSync } from "node:child_process"
+import { spawn } from "node:child_process"
 
 import { AppDataStore, ItemData, ItemGeoSetData, Patch, PatchResult } from "../models"
 import { inventoryTypeToItemId, inventoryTypeToItemSlot } from "../utils";
-import { CallApplyPatchChannel } from "./channels";
+import { CallApplyPatchChannel, OnPatchToolExitChannel } from "./channels";
 
 
 let patchToolPath = "";
 let appStore: Store<AppDataStore>;
+let mainWindow: BrowserWindow;
 
-export const setupPatchingIpc = (toolPath: string, store: Store<AppDataStore>) => {
+export const setupPatchingIpc = (renderWindow: BrowserWindow, toolPath: string, store: Store<AppDataStore>) => {
+    mainWindow = renderWindow;
     patchToolPath = toolPath;
     appStore = store;
     ipcMain.handle(CallApplyPatchChannel, applyPatch);
 }
 
-async function applyPatch(_: IpcMainInvokeEvent, itemName: string): Promise<PatchResult> {
+async function applyPatch(_: IpcMainInvokeEvent, itemName: string) {
     const itemData = appStore.get('itemData');
     const settings = appStore.get('settings');
-    
+
     const patch = itemDataToPatch(itemData, itemName);
     
     const patchPath = path.join(process.resourcesPath, "custom_item.json")
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
 
     const clientFilesPath = path.join(settings.freedomWoWRootDir, "files\\dbfilesclient");
-    const child = spawnSync(patchToolPath, [patchPath, clientFilesPath], {
+    const child = spawn(patchToolPath, [patchPath, clientFilesPath], {
         shell: true,
         cwd: process.resourcesPath,
         windowsHide: true,
         stdio: 'pipe'
     })
 
-    if (child.status != 0) {
-        log.warn("DBXPatchingTool exited with code: " + child.status);
-        log.warn(child.stdout.toString() + child.stderr.toString());
-    }
-    return {
-        resultCode: child.status,
-        message: child.stdout.toString()
-    }
+    let stdOut = "";
+    let stdErr = "";
+    child.stdout.on('data', (data) => { stdOut += data; });
+    child.stderr.on('data', (data) => { stdErr += data; });
+    child.on('exit', (exitCode, signal) => {
+        if (exitCode != 0) {
+            log.warn("DBXPatchingTool exited with code: " + exitCode);
+            log.warn(stdOut + stdErr);
+        }
+        mainWindow.webContents.send(OnPatchToolExitChannel, {
+            resultCode: exitCode,
+            message: stdOut
+        })
+    })
 }
 
 function itemDataToPatch(itemData: ItemData, itemName: string): Patch 
