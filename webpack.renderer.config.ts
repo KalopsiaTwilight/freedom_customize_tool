@@ -39,6 +39,11 @@ rules.push({
       loader: "file-loader",
     }
   ]
+}, {
+  test: /\.html$/,
+  use: [{
+    loader: "html-loader"
+  }]
 });
 
 plugins.push(new webpack.ProvidePlugin({
@@ -53,6 +58,6 @@ export const rendererConfig: Configuration = {
   },
   plugins,
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', 'scss'],
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.scss', '.html'],
   },
 };

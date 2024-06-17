@@ -1,5 +1,5 @@
-import { WoWModelViewer } from "../app/wow-model-viewer"
-import { DbResponse, PatchResult } from "../models"
+import { WoWModelViewer } from "../pages/item/wow-model-viewer"
+import { AppDataStore, DbResponse, PatchResult } from "../models"
 
 declare interface WoWHeadConfig {
     debug?: (...data: any[]) => void;
@@ -92,7 +92,7 @@ declare interface JqueryLoadingOverlayOptions {
 
 declare interface ElectronApi {
     getExpressAppUrl: () => Promise<string>
-    applyItemPatch: (item: ItemData, name: string) => Promise<PatchResult>
+    applyItemPatch: (name: string) => Promise<PatchResult>
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
 }
 
@@ -106,6 +106,12 @@ declare interface ElectronIpcRenderer {
     on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
 }
 
+type StoreApiKey = keyof AppDataStore;
+declare interface StoreApi {
+    get<Key extends keyof AppDataStore>(key: Key): Promise<AppDataStore[Key]>,
+    set<Key extends keyof AppDataStore>(key: StoreApiKey, obj: AppDataStore[Key]): Promise<void>
+}
+
 declare global {
     interface Window {
         jQuery: any
@@ -115,9 +121,9 @@ declare global {
         WOTLK_TO_RETAIL_DISPLAY_ID_API: string
         WH: WoWHeadConfig
         model: WoWModelViewer
-        models: ZamModelViewerInitData
         api: ElectronApi
         db: DbApi
+        store: StoreApi
         ipcRenderer: ElectronIpcRenderer
     }
 

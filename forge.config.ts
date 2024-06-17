@@ -29,7 +29,7 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       port: 8249,
-      devContentSecurityPolicy: `default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' http://localhost:${expressPort} data:; connect-src http://localhost:${expressPort} ws://localhost:8249; style-src-elem http://wow.zamimg.com 'unsafe-inline';`,
+      devContentSecurityPolicy: `default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' http://localhost:${expressPort} data:; connect-src http://localhost:${expressPort} http://localhost:8249 ws://localhost:8249; style-src-elem http://wow.zamimg.com 'unsafe-inline';`,
       renderer: {
         config: rendererConfig,
         entryPoints: [

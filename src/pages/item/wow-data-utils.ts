@@ -83,50 +83,9 @@ function getClassName(classId: number) {
     }
 }
 
-function intToByteArray(input: number) {
-    var byteArray = [0, 0, 0, 0];
-    for (var i = 0; i < byteArray.length; i++) {
-        var byte = input & 0xff;
-        byteArray[i] = byte;
-        input = (input - byte) / 256;
-    }
-    return byteArray;
-};
-
-function getColorStringFromNumber(input: number) {
-    const [b,g,r,a] = intToByteArray(input);
-
-    return `rgba(${r},${g},${b},${(a/255).toFixed(2)})`
-}
-
-function byteArrayToInt(byteArray: number[]) {
-    var value = 0;
-    for (var i = byteArray.length - 1; i >= 0; i--) {
-        value = (value * 256) + byteArray[i];
-    }
-    return value;
-};
-
-function rgbaToInt(r: number, g: number, b: number, a: number) {
-    return byteArrayToInt([b, g, r, a]);
-}
-
-function byteToHexCode(num: number) {
-    let code = num.toString(16);
-    if (code.length === 1) {
-        return '0' + code;
-    } else {
-        return code;
-    }
-}
-
 export {
     getGeoSetsForInventoryType,
-    rgbaToInt,
     getComponentSectionsForInventoryType,
     getRaceName,
     getClassName,
-    intToByteArray,
-    byteToHexCode,
-    getColorStringFromNumber,
 }

@@ -1,7 +1,7 @@
 declare class ZamModelViewer {
     renderer?: ZamRenderer
     method?: (methodName: string, ...args: any[]) => void;
-
+    destroy: () => void;
     async constructor(data: ZamModelViewerInitData)
 }
 

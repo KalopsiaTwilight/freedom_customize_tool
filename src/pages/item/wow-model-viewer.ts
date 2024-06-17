@@ -287,8 +287,6 @@ async function generateModels(aspect: number, containerSelector: string, model: 
         hd: true,
         ...modelOptions
     }
-    window.models = models
-
     // eslint-disable-next-line no-undef
     const wowModelViewer = await new WowModelViewer(models)
     if (fullOptions) {

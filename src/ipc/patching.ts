@@ -19,7 +19,8 @@ export const setupPatchingIpc = (toolPath: string, store: Store<AppDataStore>) =
     ipcMain.handle(CallApplyPatchChannel, applyPatch);
 }
 
-async function applyPatch(_: IpcMainInvokeEvent, itemData: ItemData, itemName: string): Promise<PatchResult> {
+async function applyPatch(_: IpcMainInvokeEvent, itemName: string): Promise<PatchResult> {
+    const itemData = await appStore.get('itemData');
     const patch = itemDataToPatch(itemData, itemName);
     
     const patchPath = path.join(process.resourcesPath, "custom_item.json")

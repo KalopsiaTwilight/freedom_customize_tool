@@ -4,6 +4,7 @@ export const CallDbExecChannel = "db:exec";
 
 export const CallApplyPatchChannel = "patching:apply";
 
-export const CallSetFirstTimeConfigChannel = "ftc:setup"
+export const CallGetStoreKeyChannel = "store:get"
+export const CallSetStoreKeyChannel = "store:set"
 
 export const OnFirstStartChannel = "on:first-start"
