@@ -20,13 +20,15 @@ export const setupPatchingIpc = (toolPath: string, store: Store<AppDataStore>) =
 }
 
 async function applyPatch(_: IpcMainInvokeEvent, itemName: string): Promise<PatchResult> {
-    const itemData = await appStore.get('itemData');
+    const itemData = appStore.get('itemData');
+    const settings = appStore.get('settings');
+    
     const patch = itemDataToPatch(itemData, itemName);
     
     const patchPath = path.join(process.resourcesPath, "custom_item.json")
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
 
-    const clientFilesPath = path.join(appStore.get('freedomWoWRootDir'), "files\\dbfilesclient");
+    const clientFilesPath = path.join(settings.freedomWoWRootDir, "files\\dbfilesclient");
     const child = spawnSync(patchToolPath, [patchPath, clientFilesPath], {
         shell: true,
         cwd: process.resourcesPath,

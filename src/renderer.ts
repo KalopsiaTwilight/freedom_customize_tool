@@ -3,7 +3,8 @@ import 'gasparesganga-jquery-loading-overlay'
 import './shared/app.scss';
 import { OnFirstStartChannel } from "./ipc/channels";
 
-import { loadPage as loadItemPage } from "./pages/item/item"
+import { loadPage as loadItemPage, unloadPage as unloadItemPage} from "./pages/item"
+import { loadPage as loadPrefPage } from "./pages/preferences"
 
 
 window.jQuery = $;
@@ -15,19 +16,50 @@ $.LoadingOverlaySetup({
     background: "rgba(190,190,190, 0.8)"
 });
 
-loadItemPage();
-window.ipcRenderer.on(OnFirstStartChannel, (_, obj: any) => {
-    $("#firstTimeConfigModal").modal('show');
-    $("#ftc_wowPath").val(obj.suggestedDir);
-    if (obj.launchWoWAfterPatch) {
-        $("#ftc_launchWoWAfterPatch").attr('checked', 'true');
-    }
-});
+let currentPage = "#item";
 
-$("#setFirstTimeConfig").on("click", function () {
-    window.store.set("freedomWoWRootDir", $("#ftc_wowPath").val().toString());
-    window.store.set("launchWoWAfterPatch", $("#ftc_launchWoWAfterPatch").is(':checked'));
+$(function () {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    tooltipTriggerList.forEach(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    
+    window.ipcRenderer.on(OnFirstStartChannel, (_, obj: any) => {
+        $("#firstTimeConfigModal").modal('show');
+        $("#ftc_wowPath").val(obj.suggestedDir);
+        if (obj.launchWoWAfterPatch) {
+            $("#ftc_launchWoWAfterPatch").attr('checked', 'true');
+        }
+    });
+
+    $("#setFirstTimeConfig").on("click", async function () {
+        const pref = await window.store.get('settings');
+        pref.freedomWoWRootDir = $("#ftc_wowPath").val().toString();
+        pref.launchWoWAfterPatch = $("#ftc_launchWoWAfterPatch").is(':checked');
+        await window.store.set("settings", pref);
+    })
+
+    
+    $("nav a").each((_, elem) => {
+        $(elem).on("click", function () {
+            if (currentPage !== this.getAttribute("href")) {
+                unloadPage();
+                currentPage = this.getAttribute("href");
+                loadPage();
+            }
+        })
+    })
+    
+    loadPage();
 })
 
-const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+function loadPage() {
+    switch(currentPage) {
+        case "#item": loadItemPage(); break;
+        case "#preferences": loadPrefPage(); break;
+    }
+}
+
+function unloadPage() {
+    switch(currentPage) {
+        case "#item": unloadItemPage(); break;
+    }
+}

@@ -93,8 +93,15 @@ async function setupIpc() {
 
   const store = new Store<AppDataStore>({
     defaults: {
-      freedomWoWRootDir: '',
-      launchWoWAfterPatch: true,
+      settings: {
+        freedomWoWRootDir: '',
+        launchWoWAfterPatch: true,
+        previewCharacter: {
+          "race": 11,
+          "gender": 1,
+          "customizations": []
+        }
+      },
       itemData: {
         itemMaterials: {},
         itemComponentModels: {
@@ -119,26 +126,10 @@ async function setupIpc() {
         flags: 0,
         inventoryType: 1,
         geoSetGroup: [0, 0, 0, 0, 0]
-      },
-      previewCharacter: {
-        "race": 11,
-        "gender": 1,
-        "customizations": [
-          ({ optionId: 133, choiceId: 1959 }),
-          ({ optionId: 134, choiceId: 1963 }),
-          ({ optionId: 135, choiceId: 1983 }),
-          ({ optionId: 136, choiceId: 2000 }),
-          ({ optionId: 137, choiceId: 2011 }),
-          ({ optionId: 619, choiceId: 6978 }),
-          ({ optionId: 689, choiceId: 7703 }),
-          ({ optionId: 697, choiceId: 7764 }),
-          ({ optionId: 699, choiceId: 7791 }),
-          ({ optionId: 701, choiceId: 7796 }),
-          ({ optionId: 778, choiceId: 8643 })
-        ]
       }
     }
   })
+  log.info("Initializing app data store from path: " + store.path);
   setUpStoreIpc(store);
 
   const dbPath = isReleaseVer
@@ -158,8 +149,9 @@ async function setupIpc() {
 
   const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))
   await sleep(3000);
-  if (!store.get("freedomWoWRootDir")) {
-    const freedomClientSettingsPath = path.join(app.getPath("appData"), "../Local/WoWFreedomClient/appstate.json");
+  const settings = store.get('settings')
+  if (!settings.freedomWoWRootDir) {
+    const freedomClientSettingsPath = path.resolve(app.getPath("appData"), "../Local/WoWFreedomClient/appstate.json");
     let suggestedPath = '';
     if (fs.existsSync(freedomClientSettingsPath)) {
       const settingsFile = await fs.promises.readFile(freedomClientSettingsPath);
@@ -168,7 +160,7 @@ async function setupIpc() {
     }
     mainWindow.webContents.send(OnFirstStartChannel, {
       suggestedDir: suggestedPath,
-      launchWoWAfterPatch: store.get('launchWoWAfterPatch')
+      launchWoWAfterPatch: settings.launchWoWAfterPatch
     })
   }
 }

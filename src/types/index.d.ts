@@ -125,6 +125,7 @@ declare global {
         db: DbApi
         store: StoreApi
         ipcRenderer: ElectronIpcRenderer
+        ZamModelViewer?: class
     }
 
     interface JQueryStatic {

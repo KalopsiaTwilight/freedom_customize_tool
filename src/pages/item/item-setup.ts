@@ -1,4 +1,5 @@
 import { debounce } from "../../utils";
+import { CharacterModelData } from "../../models";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onAddTexture, onSearchTexture, reloadTextures } from "./item-texture";
@@ -11,7 +12,9 @@ import { reloadFlagsComponents } from "./item-feature-flags";
 import { reloadGeosetDisplay } from "./item-geoset-display";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
 
-$(async function () {
+let windowResizeFn: () => void;
+
+export default async function load() {
     $("#ci_inventoryslot").on("change", onInventorySlotChange);
 
     $("#ci_texture_textureFile").on("keyup", debounce(onSearchTexture));
@@ -77,11 +80,17 @@ $(async function () {
     await reloadAllSections(itemData.inventoryType)
 
     // Load character
-    const defaultChar = await window.store.get('previewCharacter');
-    $("#ci_model_gender").val(defaultChar.gender);
-    $("#ci_model_race").val(defaultChar.race);
-    reloadCharacterModel(defaultChar);
-    $(window).on("resize", debounce(() => {
+    const settings = await window.store.get('settings');
+    $("#ci_model_gender").val(settings.previewCharacter.gender);
+    $("#ci_model_race").val(settings.previewCharacter.race);
+    reloadCharacterModel(settings.previewCharacter);
+
+    windowResizeFn = onWindowResize(settings.previewCharacter);
+    $(window).on("resize", windowResizeFn);
+}
+
+function onWindowResize(defaultChar: CharacterModelData) {
+    return debounce(() => {
         const currentRace = parseInt($("#ci_model_race").val().toString(), 10);
         const currentGender = parseInt($("#ci_model_gender").val().toString(), 10);
         if (currentGender != defaultChar.gender || currentRace != defaultChar.race) {
@@ -93,8 +102,12 @@ $(async function () {
         } else {
             reloadCharacterModel(defaultChar);
         }
-    }));
-})
+    })
+}
+
+export function unload() {
+    $(window).off("resize", windowResizeFn);
+}
 
 
 export async function reloadAllSections(inventorySlot: number) {

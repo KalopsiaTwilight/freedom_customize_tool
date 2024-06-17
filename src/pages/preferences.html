@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-sm-12 col-md-10 col-lg-8 col-xl-6">
+        <div class="mb-3">
+            <label for="pref_wowPath" class="form-label">Path To Freedom WoW</label>
+            <input type="text" class="form-control" id="pref_wowPath">
+            <p class="form-text">
+                To allow the customize tool to patch your custom item into the preview items, we need the path to
+                your client files.
+                This folder should have the 'Arctium WoW Launcher.exe' in it and it should be the same path as the
+                Freedom Launcher
+                shows under Settings->Install Directory.
+            </p>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="pref_launchWoWAfterPatch">
+            <label class="form-check-label" for="pref_launchWoWAfterPatch">
+                Launch WoW after applying preview patch?
+            </label>
+        </div>
+        <p class="form-text">
+            This setting determines wether the tool will start WoW after patching the custom item into your client
+            files,
+            so you can immediately preview the item in-game.
+        </p>
+        <div class="row mb-3">
+            <label class="form-label">Model Preview Options</label>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="pref_model_race" class="form-label">Race</label>
+                    <div class="input-group">
+                        <select id="pref_model_race" class="form-select">
+                            <option value="1">Human</option>
+                            <option value="2">Orc</option>
+                            <option value="3">Dwarf</option>
+                            <option value="4">Night Elf</option>
+                            <option value="5">Undead</option>
+                            <option value="6">Tauren</option>
+                            <option value="7">Gnome</option>
+                            <option value="8">Troll</option>
+                            <option value="10">Blood Elf</option>
+                            <option value="11">Draenei</option>
+                            <option value="22">Worgen</option>
+                            <option value="24">Pandaren</option>
+                            <option value="27">Nightborne</option>
+                            <option value="28">Highmountain Tauren</option>
+                            <option value="29">Void Elf</option>
+                            <option value="30">Lightforged Draenei</option>
+                            <option value="31">Zandalari Troll</option>
+                            <option value="32">Kul Tiran</option>
+                            <option value="34">Dark Iron Dwarf</option>
+                            <option value="35">Vulpera</option>
+                            <option value="36">Mag'har Orc</option>
+                            <option value="37">Mechagnome</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="form-group">
+                    <label for="pref_model_gender" class="form-label">Gender</label>
+                    <div class="input-group">
+                        <select id="pref_model_gender" class="form-select" value="1">
+                            <option value="0">Male</option>
+                            <option value="1">Female</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <p class="form-text">
+                This determines what model will be used to display the custom item by default on startup.
+            </p>
+        </div>
+        <button id="pref_saveBtn" type="button" class="btn btn-primary">Save settings</button>
+    </div>
+</div>

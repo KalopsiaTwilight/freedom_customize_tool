@@ -12,12 +12,12 @@
     <div class="container-fluid">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Custom Item</a>
+          <a href="#item" class="nav-link active" aria-current="page">Custom Item</a>
         </li>
       </ul>
-      <button class="btn btn-outline-secondary" type="button" data-bs-toggle="tooltip" data-bs-title="Set Preferences">
+      <a href="#preferences" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-title="Set Preferences">
         <i class="fa-solid fa-sliders"></i>
-      </button>
+      </a>
     </div>
   </nav>
   
@@ -37,7 +37,7 @@
             <label for="ftc_wowPath" class="form-label">Path To Freedom WoW</label>
             <input id="ftc_wowPath" type="text" class="form-control" autocomplete="false">
           </div>
-          <p class="small small">
+          <p class="form-text">
             To allow the customize tool to patch your custom item into the preview items, we need the path to your client files. 
             This folder should have the 'Arctium WoW Launcher.exe' in it and it should be the same path as the Freedom Launcher 
             shows under Settings->Install Directory.
@@ -48,7 +48,7 @@
               Launch WoW after applying preview patch?
             </label>
           </div>
-          <p class="small">
+          <p class="form-text">
             This setting determines wether the tool will start WoW after patching the custom item into your client files, 
             so you can immediately preview the item in-game. 
           </p>

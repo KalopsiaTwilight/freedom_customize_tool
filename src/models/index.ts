@@ -5,9 +5,14 @@ export * from "./item"
 export * from "./patching"
 
 export interface AppDataStore {
+    itemData: ItemData;
+    settings: AppSettings;
+}
+
+export interface AppSettings
+{
     freedomWoWRootDir: string;
     launchWoWAfterPatch: boolean;
-    itemData: ItemData;
     previewCharacter: CharacterModelData;
 }
 
