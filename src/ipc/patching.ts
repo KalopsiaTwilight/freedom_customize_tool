@@ -272,15 +272,15 @@ function itemDataToPatch(itemData: ItemData, itemName: string): Patch
         ]
     });
 
-    for(const section in itemData.itemMaterials) {
-        const fileId = itemData.itemMaterials[section][0].fileId;
+    for(const sectionStr in itemData.itemMaterials) {
+        const fileId = itemData.itemMaterials[sectionStr][0].fileId;
         output.Lookup.push({
             Filename: "TextureFileData.db2",
             Field: "FileDataID",
             SearchValue: fileId,
             SaveReferences: [
                 {
-                    Name: `_ItemMaterial_${section}_.MaterialResourcesId`,
+                    Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
                     Field: "MaterialResourcesID",
                 }
             ],
@@ -294,10 +294,10 @@ function itemDataToPatch(itemData: ItemData, itemName: string): Patch
             Record: [
                 {
                     ColumnName: "ComponentSection",
-                    Value: section,
+                    Value: parseInt(sectionStr, 10),
                 }, {
-                    ColumnName: "MaterialResourcesId",
-                    ReferenceId: `_ItemMaterial_${section}_.MaterialResourcesId`,
+                    ColumnName: "MaterialResourcesID",
+                    ReferenceId: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
                 }, {
                     ColumnName: "ItemDisplayInfoID",
                     ReferenceId: "_ItemDisplayInfo.Id",
