@@ -72,6 +72,6 @@ function shutdown() {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-server.listen(expressPort, 'localhost');
+server.listen(parseInt(expressPort), 'localhost');
 server.on("listening", () => log.info(`[EXPRESS] Listening on: ${expressPort}`));
 server.on("close", () => log.info("[EXPRESS] Express server closed."));
