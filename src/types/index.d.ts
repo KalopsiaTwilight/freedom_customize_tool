@@ -92,7 +92,7 @@ declare interface JqueryLoadingOverlayOptions {
 
 declare interface ElectronApi {
     getExpressAppUrl: () => Promise<string>
-    applyItemPatch: (name: string) => Promise<void>
+    applyItemPatch: () => Promise<void>
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
 }
 

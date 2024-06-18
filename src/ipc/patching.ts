@@ -21,11 +21,11 @@ export const setupPatchingIpc = (renderWindow: BrowserWindow, toolPath: string, 
     ipcMain.handle(CallApplyPatchChannel, applyPatch);
 }
 
-async function applyPatch(_: IpcMainInvokeEvent, itemName: string) {
+async function applyPatch() {
     const itemData = appStore.get('itemData');
     const settings = appStore.get('settings');
 
-    const patch = itemDataToPatch(itemData, itemName);
+    const patch = itemDataToPatch(itemData);
     
     const patchPath = path.join(process.resourcesPath, "custom_item.json")
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
@@ -54,7 +54,7 @@ async function applyPatch(_: IpcMainInvokeEvent, itemName: string) {
     })
 }
 
-function itemDataToPatch(itemData: ItemData, itemName: string): Patch 
+function itemDataToPatch(itemData: ItemData): Patch 
 {    // Convert ItemData to Patch
     const output: Patch = {
         Add: [],
@@ -69,7 +69,7 @@ function itemDataToPatch(itemData: ItemData, itemName: string): Patch
         RecordId: itemId,
         Record: [{
             ColumnName: "Display_lang",
-            Value: itemName
+            Value: itemData.name
         }]
     })
     // Add geoset records for helmets

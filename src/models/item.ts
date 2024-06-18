@@ -32,6 +32,7 @@ export interface ItemComponentModelContainer {
 }
 
 export interface ItemData {
+    name: string,
     inventoryType: number,
     itemMaterials: ItemMaterialContainer
     itemComponentModels: ItemComponentModelContainer

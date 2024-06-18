@@ -103,6 +103,7 @@ async function setupIpc() {
         }
       },
       itemData: {
+        name: "My Awesome Item",
         itemMaterials: {},
         itemComponentModels: {
           "0": {

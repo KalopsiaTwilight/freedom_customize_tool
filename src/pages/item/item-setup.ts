@@ -15,6 +15,14 @@ import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./
 let windowResizeFn: () => void;
 
 export default async function load() {
+    const itemData = await window.store.get('itemData');
+    $("#ci_name").val(itemData.name);
+    $("#ci_name").on("change", async () => { 
+        const itemData = await window.store.get('itemData');
+        itemData.name = $("#ci_name").val().toString();
+        await window.store.set("itemData", itemData);
+    }) 
+
     $("#ci_inventoryslot").on("change", onInventorySlotChange);
 
     $("#ci_texture_textureFile").on("keyup", debounce(onSearchTexture));
@@ -61,12 +69,9 @@ export default async function load() {
 
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");
-        window.api.applyItemPatch("My Awesome Item").then((output) => {
-
-        });
+        window.api.applyItemPatch();
     });
 
-    const itemData = await window.store.get('itemData');
     await reloadAllSections(itemData.inventoryType)
 
     // Load character

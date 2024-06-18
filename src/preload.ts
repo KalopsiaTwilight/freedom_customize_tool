@@ -8,7 +8,7 @@ import {
 
 contextBridge.exposeInMainWorld("api", {
 	getExpressAppUrl: () => ipcRenderer.invoke("get-express-app-url"),
-	applyItemPatch: (name: string) => ipcRenderer.invoke(CallApplyPatchChannel, name),
+	applyItemPatch: () => ipcRenderer.invoke(CallApplyPatchChannel),
 });
 
 contextBridge.exposeInMainWorld("db", {
