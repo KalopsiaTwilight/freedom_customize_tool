@@ -1,5 +1,5 @@
 import { ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
-import { notifyError } from "../../utils";
+import { notifyError } from "../../utils/alerts";
 
 import { reloadAllSections } from "./item-setup";
 import { randomizeComponentModel, reloadComponentModels } from "./item-component-models";

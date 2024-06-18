@@ -1,6 +1,6 @@
 import { support } from "jquery";
 import { ModelResourceData } from "../../models";
-import { notifyError } from "../../utils";
+import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getRaceName } from "./wow-data-utils";
 

@@ -1,4 +1,4 @@
-import { notifyError } from "../../utils";
+import { notifyError } from "../../utils/alerts";
 import { ItemMaterialData, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
