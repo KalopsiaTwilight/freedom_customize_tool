@@ -3,7 +3,7 @@ import log from "electron-log/main"
 import Store from "electron-store"
 import fs from "node:fs"
 import path from "node:path"
-import { spawn } from "node:child_process"
+import { exec, spawn } from "node:child_process"
 
 import { AppDataStore, ItemData, ItemGeoSetData, Patch, PatchResult } from "../models"
 import { inventoryTypeToItemId, inventoryTypeToItemSlot } from "../utils";
@@ -31,11 +31,9 @@ async function applyPatch() {
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
 
     const clientFilesPath = path.join(settings.freedomWoWRootDir, "files\\dbfilesclient");
-    const child = spawn(patchToolPath, [patchPath, clientFilesPath], {
-        shell: true,
+    const child = exec(`"${patchToolPath}" "${patchPath}" "${clientFilesPath}"`, {
         cwd: process.resourcesPath,
-        windowsHide: true,
-        stdio: 'pipe'
+        windowsHide: true
     })
 
     let stdOut = "";
@@ -51,6 +49,16 @@ async function applyPatch() {
             resultCode: exitCode,
             message: stdOut
         })
+
+        if (settings.launchWoWAfterPatch) {
+            const launcherPath = path.join(settings.freedomWoWRootDir, "Arctium WoW Launcher.exe")
+            spawn(`"${launcherPath}"`, {
+                cwd: settings.freedomWoWRootDir,
+                shell: true,
+                windowsHide: false,
+                detached: true
+            })
+        }
     })
 }
 
@@ -281,6 +289,9 @@ function itemDataToPatch(itemData: ItemData): Patch
     });
 
     for(const sectionStr in itemData.itemMaterials) {
+        if (itemData.itemMaterials[sectionStr].length === 0) {
+            continue;
+        } 
         const fileId = itemData.itemMaterials[sectionStr][0].fileId;
         output.Lookup.push({
             Filename: "TextureFileData.db2",
