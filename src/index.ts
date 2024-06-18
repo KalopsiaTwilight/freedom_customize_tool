@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, utilityProcess, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, utilityProcess, dialog, Menu } from 'electron';
 import log from 'electron-log/main'
 import Store from "electron-store"
 import path from "node:path";
@@ -36,6 +36,7 @@ const createWindow = async (): Promise<void> => {
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
+    
   });
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -65,6 +66,7 @@ const expressUrl = `http://localhost:${expressPort}`
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
+  setUpMenu();
   createWindow();
   setupIpc();
   log.info("Main is ready!");
@@ -172,3 +174,40 @@ async function setupIpc() {
   }
 }
 
+// Setup menu
+function setUpMenu() {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        ...(isReleaseVer 
+            ? [{ type: 'separator' }] 
+            : [{ role: 'toggleDevTools' },{ type: 'separator' }]) as Electron.MenuItemConstructorOptions[],
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        { role: 'close' }
+      ]
+    }
+  ]
+  
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}
