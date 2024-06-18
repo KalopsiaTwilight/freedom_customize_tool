@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Freedom Customize Tool</title>
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval' http://localhost:3012; connect-src http://localhost:3012 ws://localhost:8249; object-src 'none'; style-src-elem http://wow.zamimg.com file://wow.zamimg.com 'unsafe-inline'; img-src blob: data:">
+  <meta http-equiv="Content-Security-Policy"
+    content="script-src 'self' 'unsafe-eval' http://localhost:3012; connect-src http://localhost:3012 ws://localhost:8249; object-src 'none'; style-src-elem http://wow.zamimg.com file://wow.zamimg.com 'unsafe-inline'; img-src blob: data:">
 </head>
 
 <body>
@@ -20,26 +21,30 @@
       </a>
     </div>
   </nav>
-  
+
   <main id="pageContent">
 
   </main>
 
-  <div class="modal fade" id="firstTimeConfigModal" tabindex="-1" aria-labelledby="firstTimeConfigModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal fade" id="firstTimeConfigModal" tabindex="-1" aria-labelledby="firstTimeConfigModalLabel"
+    aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="firstTimeConfigModalLabel">First Start Setup</h1>
         </div>
         <div class="modal-body">
-          <p>Hi there! It looks like you're starting the customize tool for the first time. Before you get started, we'd like to ask you to go over the default settings for the tool.</p>
+          <p>Hi there! It looks like you're starting the customize tool for the first time. Before you get started, we'd
+            like to ask you to go over the default settings for the tool.</p>
           <div class="form-group">
             <label for="ftc_wowPath" class="form-label">Path To Freedom WoW</label>
             <input id="ftc_wowPath" type="text" class="form-control" autocomplete="false">
           </div>
           <p class="form-text">
-            To allow the customize tool to patch your custom item into the preview items, we need the path to your client files. 
-            This folder should have the 'Arctium WoW Launcher.exe' in it and it should be the same path as the Freedom Launcher 
+            To allow the customize tool to patch your custom item into the preview items, we need the path to your
+            client files.
+            This folder should have the 'Arctium WoW Launcher.exe' in it and it should be the same path as the Freedom
+            Launcher
             shows under Settings->Install Directory.
           </p>
           <div class="form-check">
@@ -49,12 +54,62 @@
             </label>
           </div>
           <p class="form-text">
-            This setting determines wether the tool will start WoW after patching the custom item into your client files, 
-            so you can immediately preview the item in-game. 
+            This setting determines wether the tool will start WoW after patching the custom item into your client
+            files,
+            so you can immediately preview the item in-game.
+          </p>
+          <div class="row">
+            <label class="form-label">Model Preview Options</label>
+            <div class="col-6">
+              <div class="form-group">
+                <label for="ftc_model_race" class="form-label">Race</label>
+                <div class="input-group">
+                  <select id="ftc_model_race" class="form-select">
+                    <option value="1">Human</option>
+                    <option value="2">Orc</option>
+                    <option value="3">Dwarf</option>
+                    <option value="4">Night Elf</option>
+                    <option value="5">Undead</option>
+                    <option value="6">Tauren</option>
+                    <option value="7">Gnome</option>
+                    <option value="8">Troll</option>
+                    <option value="10">Blood Elf</option>
+                    <option value="11">Draenei</option>
+                    <option value="22">Worgen</option>
+                    <option value="24">Pandaren</option>
+                    <option value="27">Nightborne</option>
+                    <option value="28">Highmountain Tauren</option>
+                    <option value="29">Void Elf</option>
+                    <option value="30">Lightforged Draenei</option>
+                    <option value="31">Zandalari Troll</option>
+                    <option value="32">Kul Tiran</option>
+                    <option value="34">Dark Iron Dwarf</option>
+                    <option value="35">Vulpera</option>
+                    <option value="36">Mag'har Orc</option>
+                    <option value="37">Mechagnome</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="form-group">
+                <label for="ftc_model_gender" class="form-label">Gender</label>
+                <div class="input-group">
+                  <select id="ftc_model_gender" class="form-select" value="1">
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="form-text">
+            This determines what model will be used to display the custom item by default on startup.
           </p>
         </div>
         <div class="modal-footer">
-          <button id="setFirstTimeConfig" type="button" class="btn btn-primary" data-bs-dismiss="modal">Set Preferences</button>
+          <button id="setFirstTimeConfig" type="button" class="btn btn-primary" data-bs-dismiss="modal">Set
+            Preferences</button>
         </div>
       </div>
     </div>

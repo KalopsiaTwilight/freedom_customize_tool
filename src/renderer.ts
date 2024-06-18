@@ -28,12 +28,21 @@ $(function () {
         if (obj.launchWoWAfterPatch) {
             $("#ftc_launchWoWAfterPatch").attr('checked', 'true');
         }
+        $("#ftc_model_race").val(obj.previewCharacter.race);
+        $("#ftc_model_gender").val(obj.previewCharacter.gender);
     });
 
     $("#setFirstTimeConfig").on("click", async function () {
         const pref = await window.store.get('settings');
         pref.freedomWoWRootDir = $("#ftc_wowPath").val().toString();
         pref.launchWoWAfterPatch = $("#ftc_launchWoWAfterPatch").is(':checked');
+        pref.previewCharacter.gender = parseInt($("#ftc_model_gender").val().toString());
+        pref.previewCharacter.race = parseInt($("#ftc_model_race").val().toString());
+
+        $("#ci_model_race").val($("#ftc_model_race").val())
+        $("#ci_model_gender").val($("#ftc_model_gender").val())
+
+        $("#ci_model_race").trigger('change');
         await window.store.set("settings", pref);
     })
 

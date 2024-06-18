@@ -161,7 +161,8 @@ async function setupIpc() {
     }
     mainWindow.webContents.send(OnFirstStartChannel, {
       suggestedDir: suggestedPath,
-      launchWoWAfterPatch: settings.launchWoWAfterPatch
+      launchWoWAfterPatch: settings.launchWoWAfterPatch,
+      previewCharacter: settings.previewCharacter
     })
   }
 }
