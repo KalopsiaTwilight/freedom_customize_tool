@@ -7,6 +7,7 @@ export interface ItemToDisplayIdData {
 
 export interface ModelResourceData {
     fileName: string, 
+    filePath: string,
     fileId: number
 }
 
