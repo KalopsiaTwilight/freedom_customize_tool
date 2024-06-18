@@ -15,6 +15,7 @@ import { expressPort } from "./package.json"
 
 const config: ForgeConfig = {
   packagerConfig: {
+    icon: "./app_icon.ico",
     asar: true,
     extraResource: [
       "./.webpack/x64/main/express_app.js",
@@ -23,7 +24,9 @@ const config: ForgeConfig = {
     ]
   },
   rebuildConfig: {},
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
+  makers: [new MakerSquirrel({
+    setupIcon: "./app_icon.ico"
+  })],
   plugins: [
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
