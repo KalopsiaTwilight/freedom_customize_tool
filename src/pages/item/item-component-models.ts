@@ -41,7 +41,7 @@ export async function reloadComponentModels() {
             formGroup.append($("<label for='ci_componentModel" + id + "_" + i + "' class='form-label'>" + label + "</label>"));
             const inputGroup = $("<div class='input-group' />");
             const input = $("<input id='ci_componentModel" + id + "_" + i + "' class='form-control' readonly type='text' />");
-            input.val(model.fileName);
+            input.val(`${model.fileId} - ${model.fileName}`);
             inputGroup.append(input);
             const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
             removeButton.on("click", onRemoveComponentModel(idStr, i));
@@ -111,7 +111,7 @@ export async function onSearchComponentModel() {
     $("#ci_componentmodel_searchResults").empty();
     for (const item of data) {
         const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-        itemElem.text(item.fileName);
+        itemElem.text(`${item.fileId} - ${item.fileName}`);
         itemElem.on("click", function () {
             $("#ci_componentmodel_modelfile").val(item.fileName);
             $("#ci_componentmodel_fileId").val(item.fileId);

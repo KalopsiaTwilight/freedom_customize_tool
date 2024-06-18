@@ -22,7 +22,7 @@ export async function reloadComponentTextures() {
             formGroup.append($("<label for='ci_componentModelTexture_" + id + "' class='form-label'>Texture File</label>"));
             const inputGroup = $("<div class='input-group' />");
             const input = $("<input id='ci_componentModelTexture_" + id + "' class='form-control' readonly type='text' />");
-            input.val(data.texture.name);
+            input.val(`${data.texture.id} - ${data.texture.name}`);
             inputGroup.append(input);
             const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
             removeButton.on("click", onRemoveComponentTexture(idStr));
@@ -90,7 +90,7 @@ export async function onSearchComponentTexture() {
     $("#ci_componenttexture_searchResults").empty();
     for (const texture of data) {
         const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-        itemElem.text(texture.fileName);
+        itemElem.text(`${texture.fileId} - ${texture.fileName}`);
         itemElem.on("click", function () {
             $("#ci_componenttexture_file").val(texture.fileName);
             $("#ci_componenttexture_fileId").val(texture.fileId);
