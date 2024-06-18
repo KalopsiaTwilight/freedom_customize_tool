@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, utilityProcess } from 'electron';
+import { app, BrowserWindow, ipcMain, utilityProcess, dialog } from 'electron';
 import log from 'electron-log/main'
 import Store from "electron-store"
 import path from "node:path";
@@ -7,7 +7,7 @@ import { name, expressPort } from "../package.json";
 import * as sqlite3 from "sqlite3";
 
 import { setupDbIpc, setupPatchingIpc } from './ipc';
-import { OnFirstStartChannel } from './ipc/channels';
+import { CallFolderSelectDialog, OnFirstStartChannel } from './ipc/channels';
 import { AppDataStore } from './models';
 import { setUpStoreIpc } from './ipc/store';
 
@@ -87,8 +87,13 @@ app.on('activate', () => {
   }
 });
 
+// Setup IPC
 async function setupIpc() {
-  // Setup IPC
+  ipcMain.handle(CallFolderSelectDialog, () => {
+    return dialog.showOpenDialogSync(mainWindow, {
+      properties: ['openDirectory']
+    })
+  })
   ipcMain.handle("get-express-app-url", () => expressUrl)
 
   const store = new Store<AppDataStore>({

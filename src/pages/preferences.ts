@@ -25,5 +25,12 @@ export async function loadPage() {
         $.LoadingOverlay("hide");
     })
 
+    $("#pref_openFolder").on("click", async function () {
+        const folders = await window.api.selectFolder();
+        if (folders) {
+            $("#pref_wowPath").val(folders[0]);
+        }
+    })
+
     $.LoadingOverlay("hide");
 }

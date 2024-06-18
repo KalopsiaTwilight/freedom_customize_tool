@@ -32,6 +32,13 @@ $(function () {
         $("#ftc_model_gender").val(obj.previewCharacter.gender);
     });
 
+    $("#ftc_openFolder").on("click", async function () {
+        const folders = await window.api.selectFolder();
+        if (folders) {
+            $("#ftc_wowPath").val(folders[0]);
+        }
+    })
+
     $("#setFirstTimeConfig").on("click", async function () {
         const pref = await window.store.get('settings');
         pref.freedomWoWRootDir = $("#ftc_wowPath").val().toString();

@@ -7,5 +7,7 @@ export const CallApplyPatchChannel = "patching:apply";
 export const CallGetStoreKeyChannel = "store:get"
 export const CallSetStoreKeyChannel = "store:set"
 
+export const CallFolderSelectDialog = "dialog:folder";
+
 export const OnFirstStartChannel = "on:first-start"
 export const OnPatchToolExitChannel = "on:patch-tool-exit"

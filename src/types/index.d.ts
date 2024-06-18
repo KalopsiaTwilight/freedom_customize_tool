@@ -94,6 +94,7 @@ declare interface ElectronApi {
     getExpressAppUrl: () => Promise<string>
     applyItemPatch: () => Promise<void>
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
+    selectFolder: () => Promise<string[] | undefined>
 }
 
 declare interface DbApi {
