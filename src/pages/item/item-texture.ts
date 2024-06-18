@@ -1,3 +1,4 @@
+import { notifyError } from "../../utils";
 import { ItemMaterialData, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
@@ -77,12 +78,19 @@ function onRemoveTexture(section: number, texture: ItemMaterialData) {
 }
 
 export async function onAddTexture() {
+    const fileId = parseInt($("#ci_texture_fileId").val().toString(), 10);
+    const modelSupported = await testZamSupportTexture(fileId);
+    if (!modelSupported) {
+        notifyError("Oops! Looks like the texture you selected isn't supported anymore, please select a new texture.")
+        return;
+    }
+
     const itemData = await window.store.get('itemData');
 
     const section = parseInt($("#ci_texture_componentsection").val().toString(), 10);
     const textureData = {
         fileName: $("#ci_texture_textureFile").val().toString(),
-        fileId: parseInt($("#ci_texture_fileId").val().toString(), 10),
+        fileId,
         gender: 3,
         race: 0,
         class: 0,
@@ -140,19 +148,26 @@ export async function randomizeTextures() {
     const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
 
     for (const section of sections) {
-        const resp = await window.db.get(`
-            SELECT r1.fileId, r1.fileName
-            FROM texturefiles AS r1 
-            JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
-            WHERE r1.fileId >= r2.fileId
-            ORDER BY r1.fileId ASC
-            LIMIT 1`, 
-            Math.random()
-        );
-        if (resp.error) {
-            throw resp.error;
+        let data: TextureFileData | null = null;
+        while(!data) {
+            const resp = await window.db.get(`
+                SELECT r1.fileId, r1.fileName
+                FROM texturefiles AS r1 
+                JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
+                WHERE r1.fileId >= r2.fileId
+                ORDER BY r1.fileId ASC
+                LIMIT 1`, 
+                Math.random()
+            );
+            if (resp.error) {
+                throw resp.error;
+            }
+            data = resp.result as TextureFileData;
+            const supported = await testZamSupportTexture(data.fileId);
+            if (!supported) {
+                data = null;
+            }
         }
-        const data = resp.result as TextureFileData;
         itemData.itemMaterials[section] = [{
             fileName: data.fileName,
             fileId: data.fileId,
@@ -164,3 +179,8 @@ export async function randomizeTextures() {
     await window.store.set('itemData', itemData);
 }
 
+async function testZamSupportTexture(fileId: number) {
+    const uri = `${window.EXPRESS_URI}/zam/modelviewer/live/textures/${fileId}.webp`
+    const resp = await fetch(uri);
+    return resp.ok;
+}

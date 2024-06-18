@@ -1,4 +1,6 @@
+import { support } from "jquery";
 import { ModelResourceData } from "../../models";
+import { notifyError } from "../../utils";
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getRaceName } from "./wow-data-utils";
 
@@ -71,11 +73,18 @@ function onRemoveComponentModel(idStr: string, i: number) {
 }
 
 export async function onAddComponentModel() {
+    const fileId = parseInt($("#ci_componentmodel_fileId").val().toString(), 10)
+    const modelSupported = await testZamSupportComponentModel(fileId);
+    if (!modelSupported) {
+        notifyError("Oops! Looks like the component model you selected isn't supported anymore, please select a new model.")
+        return;
+    }
+
     const itemData = await window.store.get('itemData');
     const componentId = $("#ci_component_id").val().toString();
     const modelData = {
         fileName: $("#ci_componentmodel_modelfile").val().toString(),
-        fileId: parseInt($("#ci_componentmodel_fileId").val().toString(), 10),
+        fileId,
         gender: 3,
         race: 0,
         class: 0,
@@ -140,19 +149,27 @@ export async function randomizeComponentModel(slot: string) {
         loops = 2;
     }
     for (let i = 0; i < loops; i++) {
-        const resp = await window.db.get(`
-            SELECT r1.fileId, r1.fileName
-            FROM modelresources AS r1 
-            JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM modelresources)) AS fileId) AS r2
-            WHERE r1.fileId >= r2.fileId
-            ORDER BY r1.fileId ASC
-            LIMIT 1`, 
-            Math.random()
-        );
-        if (resp.error) {
-            throw resp.error;
+        let data: ModelResourceData | null = null;
+            while (!data) {
+                const resp = await window.db.get(`
+                SELECT r1.fileId, r1.fileName
+                FROM modelresources AS r1 
+                JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM modelresources)) AS fileId) AS r2
+                WHERE r1.fileId >= r2.fileId
+                ORDER BY r1.fileId ASC
+                LIMIT 1`, 
+                Math.random()
+            );
+            if (resp.error) {
+                throw resp.error;
+            }
+            data = resp.result as ModelResourceData;
+            const supported = await testZamSupportComponentModel(data.fileId);
+            if (!supported) {
+                data = null;
+            }
         }
-        const data = resp.result as ModelResourceData;
+       
         itemData.itemComponentModels[slot].models = [{
             fileName: data.fileName,
             fileId: data.fileId,
@@ -163,4 +180,10 @@ export async function randomizeComponentModel(slot: string) {
         }]
     }
     await window.store.set('itemData', itemData);
+}
+
+async function testZamSupportComponentModel(componentId: number) {
+    const uri = `${window.EXPRESS_URI}/zam/modelviewer/live/mo3/${componentId}.mo3`
+    const resp = await fetch(uri);
+    return resp.ok;
 }
