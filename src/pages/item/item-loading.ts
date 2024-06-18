@@ -1,4 +1,5 @@
 import { ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
+import { notifyError } from "../../utils";
 
 import { reloadAllSections } from "./item-setup";
 import { randomizeComponentModel, reloadComponentModels } from "./item-component-models";
@@ -194,7 +195,7 @@ export async function loadFile() {
                 await previewCustomItem();
                 $.LoadingOverlay("hide");
             } catch {
-                $("#alertError").text("Could not load data from file.").show();
+                notifyError("Could not load data from file.")
                 $.LoadingOverlay("hide");
             }
             // document.removeChild(fileInput);

@@ -2,7 +2,7 @@ import log from "electron-log/renderer"
 
 import { PatchResult } from "../models";
 import { OnPatchToolExitChannel } from "../ipc/channels";
-import { inventoryTypeToItemId, inventoryTypeToItemSlotName } from "../utils";
+import { inventoryTypeToItemId, inventoryTypeToItemSlotName, notifyError, notifySuccess } from "../utils";
 
 import html from "./item.html"
 import { setUpWowHeadConfig } from "./item/wowhead-setup"
@@ -18,18 +18,12 @@ export async function loadPage() {
     if (!window.ZamModelViewer) {
         window.ipcRenderer.on(OnPatchToolExitChannel, async (_, output: PatchResult) => {
             if (output.resultCode != 0) {
-                $("#alertError")
-                    .text("Something went wrong applying the patch to the WoW clientfiles. Please contact a developer for help!")
-                    .show();
-                $("#alertSuccess").empty().hide();
+                notifyError("Something went wrong applying the patch to the WoW clientfiles. Please contact a developer for help!")
             } else {
                 const itemData = await window.store.get('itemData');
                 const itemId = inventoryTypeToItemId(itemData.inventoryType);
                 const itemName = "Custom Item TestItem - " + inventoryTypeToItemSlotName(itemData.inventoryType)
-                $("#alertError").empty().hide();
-                $("#alertSuccess")
-                    .text(`Succesfully applied patch! Add item ${itemId} [${itemName}] to your character to view the item in-game!`)
-                    .show();
+                notifySuccess(`Succesfully applied patch! Add item ${itemId} [${itemName}] to your character to view the item in-game!`);
             }
             $.LoadingOverlay("hide");
         })

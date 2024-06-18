@@ -1,5 +1,6 @@
 export * from "./db"
 export * from "./wow"
+export * from "./alerts"
 
 export function debounce(func: Function) {
     let timer: number;
