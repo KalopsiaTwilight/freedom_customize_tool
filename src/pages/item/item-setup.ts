@@ -2,10 +2,10 @@ import { debounce } from "../../utils";
 import { CharacterModelData } from "../../models";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
-import { onAddTexture, onSearchTexture, reloadTextures } from "./item-texture";
+import { onSearchTexture, reloadTextures } from "./item-texture";
 import { exportToFile, loadFile, loadItem, onRandomizeItem, onSearchItem } from "./item-loading";
-import { onAddComponentTexture, onRandomizeComponent1Texture, onRandomizeComponent2Texture, onSearchComponentTexture, reloadComponentTextures } from "./item-component-textures";
-import { onRandomizeComponent1Model, onRandomizeComponent2Model, onSearchComponentModel, reloadComponentModels } from "./item-component-models";
+import { onSearchComponentTexture, reloadComponentTextures } from "./item-component-textures";
+import { onSearchComponentModel, reloadComponentModels } from "./item-component-models";
 import { onSetParticleColors, reloadParticleColorComponents } from "./item-particle-colors";
 import { onAddGeoSetOverride, reloadHelmetGeovisComponents } from "./item-helmet-geovis";
 import { reloadFlagsComponents } from "./item-feature-flags";
@@ -25,29 +25,10 @@ export default async function load() {
 
     $("#ci_inventoryslot").on("change", onInventorySlotChange);
 
-    $("#ci_texture_textureFile").on("keyup", debounce(onSearchTexture));
-    $("#addTextureBtn").on("click", onAddTexture);
-
-    $("#ci_item_search").on("keyup", debounce(onSearchItem));
-    $("#loadItemBtn").on("click", loadItem);
-
-    $("#component1AddModelBtn").on("click", function () {
-        $("#ci_component_id").val("0")
-        $("#ci_componentmodel_modelfile").val("");
-        onSearchComponentModel();
-    });
-    $("#component1AddTextureBtn").on("click", function () {
-        $("#ci_component_id").val("0")
-    });
-    $("#component2AddModelBtn").on("click", function () {
-        $("#ci_component_id").val("1")
-        $("#ci_componentmodel_modelfile").val("");
-        onSearchComponentModel();
-    });
-    $("#component2AddTextureBtn").on("click", function () {
-        $("#ci_component_id").val("1")
-    });
-
+    $("#ci_texture_textureFile").on("keyup", debounce(() => {
+        $("#ci_preview_page").val(0);
+        onSearchTexture();
+    }));
     $("#ci_componenttexture_file").on("keyup", debounce(() => {
         $("#ci_preview_page").val(0);
         onSearchComponentTexture();
@@ -57,7 +38,8 @@ export default async function load() {
         onSearchComponentModel();
     }));
 
-    $("#addComponentTextureBtn").on("click", onAddComponentTexture);
+    $("#ci_item_search").on("keyup", debounce(onSearchItem));
+    $("#loadItemBtn").on("click", loadItem);
 
     $("#setParticleOverride").on("click", onSetParticleColors);
 
@@ -70,11 +52,6 @@ export default async function load() {
     $("#ci_model_race").on("change", onModelRaceChange)
 
     $("#randomizeItemBtn").on("click", onRandomizeItem)
-
-    $("#component1RandomizeModelBtn").on("click", onRandomizeComponent1Model);
-    $("#component2RandomizeModelBtn").on("click", onRandomizeComponent2Model);
-    $("#component1RandomizeTextureBtn").on("click", onRandomizeComponent1Texture);
-    $("#component2RandomizeTextureBtn").on("click", onRandomizeComponent2Texture);
 
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");

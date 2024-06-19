@@ -1,6 +1,12 @@
+import { Modal } from "bootstrap"
+
+import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
 import { TextureFileData } from "../../models";
+
 import { previewCustomItem } from "./preview-item";
+
+
 
 export async function reloadComponentTextures() {
     const itemData = await window.store.get('itemData');
@@ -33,6 +39,9 @@ export async function reloadComponentTextures() {
             const button = $("<button id='component" + id + "AddTextureBtn' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentTextureModal'>Add Texture</button>")
             button.on("click", function () {
                 $("#ci_component_id").val(idStr);
+                $("#ci_preview_page").val(0);
+                $("#ci_componenttexture_file").val("");
+                onSearchComponentTexture();
             })
             $("#component" + id + "TexturesSection .accordion-body").append(button)
         }
@@ -55,8 +64,7 @@ function onRemoveComponentTexture(idStr: string) {
     }
 }
 
-export async function onAddComponentTexture() {
-    const fileId = parseInt($("#ci_componenttexture_fileId").val().toString(), 10);
+async function onAddComponentTexture(fileName: string, fileId: number) {
     const modelSupported = await testZamSupportTexture(fileId);
     if (!modelSupported) {
         notifyError("Oops! Looks like the texture you selected isn't supported anymore, please select a new texture.")
@@ -66,8 +74,8 @@ export async function onAddComponentTexture() {
     const itemData = await window.store.get('itemData');
     const componentId = $("#ci_component_id").val().toString();
     const textureData = {
-        name: $("#ci_componenttexture_file").val().toString(),
-        id: parseInt($("#ci_componenttexture_fileId").val().toString(), 10)
+        name: fileName,
+        id: fileId
     };
     itemData.itemComponentModels[componentId].texture = textureData;
     await window.store.set('itemData', itemData);
@@ -76,31 +84,79 @@ export async function onAddComponentTexture() {
 }
 
 export async function onSearchComponentTexture() {
-    const resp = await window.db.all(`
-        SELECT * FROM texturefiles 
+    const page = parseInt($("#ci_preview_page").val().toString());
+    const pageSize = 4;
+
+    const fromAndWhere = `
+        FROM texturefiles 
         WHERE fileName like '%'|| ?1 || '%'
         OR fileId LIKE '%' || ?1 || '%'
-        LIMIT 5`,
+    `;
+    const resp = await window.db.all<TextureFileData>(`
+        SELECT *
+        ${fromAndWhere}
+        LIMIT ${pageSize}
+        OFFSET ${page * pageSize}`,
         $("#ci_componenttexture_file").val()
     );
     if (resp.error) {
         throw resp.error;
     }
-    const data = resp.result as TextureFileData[];
-    $("#ci_componenttexture_searchResults").empty();
-    for (const texture of data) {
-        const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-        itemElem.text(`${texture.fileId} - ${texture.fileName}`);
-        itemElem.on("click", function () {
-            $("#ci_componenttexture_file").val(texture.fileName);
-            $("#ci_componenttexture_fileId").val(texture.fileId);
-            $("#ci_componenttexture_searchResults").empty();
-            $("#addComponentTextureBtn").removeAttr('disabled');
+
+    const total = await window.db.get<{total: number}>(
+        `SELECT COUNT(*) total ${fromAndWhere}`,
+        $("#ci_componenttexture_file").val()
+    );
+    
+    $("#ci_componentTexture_resultsPreview").empty();
+    const row = $("<div class='row'>");
+    for (const texture of resp.result) {
+        const col = $("<div class='col-6 mb-3'>");
+        const linkElem = $("<a role='button' class='d-flex flex-column align-items-center border'>");
+        const imgUri = `${window.EXPRESS_URI}/zam/modelviewer/live/textures/${texture.fileId}.webp`
+        const img = $(`<img src="${imgUri}" width=200 height=200 />`);
+        linkElem.append(img);
+        img.on('error', function () {
+            $(this).attr('src', fallbackImg);
+        })
+        linkElem.append(`<p>${texture.fileName}</p>`)
+        linkElem.on("click", function () {
+            onAddComponentTexture(texture.fileName, texture.fileId);
+            Modal.getOrCreateInstance("#addComponentTextureModal").hide();
         });
-        const li = $("<li>");
-        li.append(itemElem);
-        $("#ci_componenttexture_searchResults").append(li);
+        col.append(linkElem);
+        row.append(col);
     }
+    $("#ci_componentTexture_resultsPreview").append(row);
+    const bottomContainer = $("<div class='d-flex justify-content-between align-items-center'>");
+    const leftArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-left'></i></button>")
+    if (page === 0) {
+        leftArrow.attr('disabled', 'disabled');
+    } else {
+        leftArrow.on('click', prevPage);
+    }
+    const rightArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-right'></i></button>")
+    if (page === Math.ceil(total.result.total/pageSize)-1) {
+        rightArrow.attr('disabled', 'disabled');
+    } else {
+        rightArrow.on('click', nextPage)
+    }
+    bottomContainer.append(leftArrow);
+    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
+    bottomContainer.append(rightArrow);
+    $("#ci_componentTexture_resultsPreview").append(bottomContainer);
+}
+
+function nextPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage + 1);
+    onSearchComponentTexture();
+}
+
+function prevPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage - 1);
+    onSearchComponentTexture();
 }
 
 export async function onRandomizeComponent1Texture() {

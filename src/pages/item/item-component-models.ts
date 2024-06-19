@@ -118,7 +118,7 @@ export async function onSearchComponentModel() {
         ${fromAndFilterQuery}
         ORDER BY fileId DESC
         LIMIT ${pageSize}
-        OFFSET ${page * 4}
+        OFFSET ${page * pageSize}
         `, 
         $("#ci_componentmodel_modelfile").val()
     )
@@ -132,8 +132,7 @@ export async function onSearchComponentModel() {
 
     $("#ci_componentmodel_resultsPreview").empty();
     const row = $("<div class='row'>");
-    for (let i = 0; i < resp.result.length; i ++) {
-        const item = resp.result[i];
+    for (const item of resp.result) {
         const col = $("<div class='col-6 mb-3'>");
         const linkElem = $("<a role='button' class='d-flex flex-column align-items-center border'>");
         const imgUri = getWowHeadThumbForDisplayId(item.displayId);
@@ -159,13 +158,13 @@ export async function onSearchComponentModel() {
         leftArrow.on('click', prevPage);
     }
     const rightArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-right'></i></button>")
-    if (page === Math.ceil(total.result.total/pageSize)) {
+    if (page === Math.ceil(total.result.total/pageSize)-1) {
         rightArrow.attr('disabled', 'disabled');
     } else {
         rightArrow.on('click', nextPage)
     }
     bottomContainer.append(leftArrow);
-    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${(page+1) * pageSize} out of ${total.result.total}</p>`);
+    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_componentmodel_resultsPreview").append(bottomContainer);
 }
