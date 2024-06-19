@@ -102,7 +102,6 @@ async function onAddComponentModel(fileName: string, fileId: number) {
 }
 
 export async function onSearchComponentModel() {
-    $.LoadingOverlay("show");
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
     const fromAndFilterQuery = `
@@ -176,8 +175,6 @@ export async function onSearchComponentModel() {
     bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_componentmodel_resultsPreview").append(bottomContainer);
-
-    $.LoadingOverlay("hide");
 }
 
 function nextPage() {

@@ -117,7 +117,6 @@ async function onAddTexture(fileName: string, fileId: number) {
 }
 
 export async function onSearchTexture() {
-    $.LoadingOverlay("show");
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
 
@@ -187,8 +186,6 @@ export async function onSearchTexture() {
     bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_texture_resultsPreview").append(bottomContainer);
-
-    $.LoadingOverlay("hide");
 }
 
 function nextPage() {
