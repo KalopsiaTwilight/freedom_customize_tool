@@ -61,7 +61,7 @@ if (handleSquirrelEvent()) {
     }
   });
   
-  if (!firstTimeStart) {
+  if (!firstTimeStart && isReleaseVer) {
     const updateRootUri = "https://freedom-customize-tool-updates.vercel.app";
     const url = `${updateRootUri}/update/${process.platform}/${app.getVersion()}`
     autoUpdater.setFeedURL({ url });
