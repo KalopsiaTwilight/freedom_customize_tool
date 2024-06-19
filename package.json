@@ -1,8 +1,8 @@
 {
   "name": "freedom_customize_tool",
   "productName": "freedom_customize_tool",
-  "version": "1.0.0",
-  "description": "Tool to customize stuff",
+  "version": "0.0.1",
+  "description": "Desktop application to allow for the creation of custom stuff on Freedom",
   "main": ".webpack/main",
   "expressPort": "3012",
   "scripts": {
@@ -22,6 +22,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.4.0",
     "@electron-forge/plugin-fuses": "^7.4.0",
     "@electron-forge/plugin-webpack": "^7.4.0",
+    "@electron-forge/publisher-github": "^7.4.0",
     "@electron/fuses": "^1.8.0",
     "@types/bootstrap": "^5.2.10",
     "@types/cors": "^2.8.17",

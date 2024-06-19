@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, utilityProcess, dialog, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, utilityProcess, dialog, Menu, autoUpdater } from 'electron';
 import log from 'electron-log/main'
 import Store from "electron-store"
 import path from "node:path";
@@ -20,74 +20,122 @@ declare const EXPRESS_APP_WEBPACK_ENTRY: string;
 
 let mainWindow: BrowserWindow | null;
 
+const isReleaseVer = app.getPath("exe").endsWith(`${name}.exe`);
+let firstTimeStart = false;
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-const isReleaseVer = app.getPath("exe").endsWith(`${name}.exe`);
-log.initialize();
+// this should be placed at top of main.js to handle setup events quickly
+if (handleSquirrelEvent()) {
+  // squirrel event handled and app will exit in 1000ms, so don't do anything else
+} else {
+  log.initialize();
 
-const createWindow = async (): Promise<void> => {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-    },
-    
-  });
-  // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  // Start express server
-  try {
-    const expressPath = isReleaseVer
-      ? path.join(process.resourcesPath, "express_app.js")
-      : "./.webpack/main/express_app.js";
-
-    log.info("Starting express process: " + expressPath);
-    const expressAppProcess = utilityProcess.fork(expressPath, [], {
-      stdio: "pipe",
-    });
-    log.info("Express running as pid: " + expressAppProcess.pid)
-    mainWindow.on("closed", () => {
-      mainWindow = null;
-      expressAppProcess.kill()
-    })
-  } catch (error: any) {
-    log.error(error);
-  }
-};
-
-const expressUrl = `http://localhost:${expressPort}`
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', function () {
-  setUpMenu();
-  createWindow();
-  setupIpc();
-  log.info("Main is ready!");
-});
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on('ready', function () {
+    setUpMenu();
     createWindow();
+    setupIpc();
+    log.info("Main is ready!");
+  });
+
+  // Quit when all windows are closed, except on macOS. There, it's common
+  // for applications and their menu bar to stay active until the user quits
+  // explicitly with Cmd + Q.
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+
+  app.on('activate', () => {
+    // On OS X it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
+  });
+  
+  if (!firstTimeStart) {
+    const updateRootUri = "https://freedom-customize-tool-updates.vercel.app";
+    const url = `${updateRootUri}/update/${process.platform}/${app.getVersion()}`
+    autoUpdater.setFeedURL({ url });
+
+    setInterval(() => {
+      autoUpdater.checkForUpdates();
+    }, 60000 * 15);
+
+    autoUpdater.on('update-downloaded', (_, releaseNotes, releaseName)=> {
+        const dialogOpts: Electron.MessageBoxOptions  = {
+          type: 'info',
+          buttons: ['Restart', 'Later'],
+          title: 'Application Update',
+          message: process.platform === 'win32' ? releaseNotes : releaseName,
+          detail:
+            'A new version has been downloaded. Restart the application to apply the updates.'
+        }
+      
+        dialog.showMessageBox(dialogOpts).then((returnValue) => {
+          if (returnValue.response === 0) 
+            autoUpdater.quitAndInstall()
+        })
+    });
+    autoUpdater.on('error', (message) => {
+      log.error('Auto updater ran into an error:');
+      log.error(message);
+    })
   }
-});
+}
+
+function handleSquirrelEvent() {
+  if (process.argv.length === 1) {
+    return false;
+  }
+
+  const ChildProcess = require('child_process');
+  const path = require('path');
+
+  const appFolder = path.resolve(process.execPath, '..');
+  const rootAtomFolder = path.resolve(appFolder, '..');
+  const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
+  const exeName = path.basename(process.execPath);
+
+  const spawn = function(command: string, args: any[]) {
+    let spawnedProcess, error;
+    try {
+      spawnedProcess = ChildProcess.spawn(command, args, {detached: true});
+    } catch (error) {}
+
+    return spawnedProcess;
+  };
+
+  const spawnUpdate = function(args: any[]) {
+    return spawn(updateDotExe, args);
+  };
+
+  const squirrelEvent = process.argv[1];
+  switch (squirrelEvent) {
+    case '--squirrel-install':
+    case '--squirrel-updated':
+      // spawnUpdate(['--createShortcut', exeName]);
+      setTimeout(app.quit, 1000);
+      return true;
+    case '--squirrel-uninstall':
+      // spawnUpdate(['--removeShortcut', exeName]);
+      setTimeout(app.quit, 1000);
+      return true;
+    case '--squirrel-obsolete':
+      app.quit();
+      return true;
+    case '--squirrel-firstrun':
+      firstTimeStart = true;
+    }
+};
 
 // Setup IPC
 async function setupIpc() {
@@ -96,6 +144,8 @@ async function setupIpc() {
       properties: ['openDirectory']
     })
   })
+
+  const expressUrl = `http://localhost:${expressPort}`
   ipcMain.handle("get-express-app-url", () => expressUrl)
 
   const store = new Store<AppDataStore>({
@@ -211,3 +261,36 @@ function setUpMenu() {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 }
+
+async function createWindow(): Promise<void> {
+  // Create the browser window.
+  mainWindow = new BrowserWindow({
+    height: 600,
+    width: 800,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+    },
+    
+  });
+  // and load the index.html of the app.
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  // Start express server
+  try {
+    const expressPath = isReleaseVer
+      ? path.join(process.resourcesPath, "express_app.js")
+      : "./.webpack/main/express_app.js";
+
+    log.info("Starting express process: " + expressPath);
+    const expressAppProcess = utilityProcess.fork(expressPath, [], {
+      stdio: "pipe",
+    });
+    log.info("Express running as pid: " + expressAppProcess.pid)
+    mainWindow.on("closed", () => {
+      mainWindow = null;
+      expressAppProcess.kill()
+    })
+  } catch (error: any) {
+    log.error(error);
+  }
+};
