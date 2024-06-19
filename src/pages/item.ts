@@ -2,7 +2,8 @@ import log from "electron-log/renderer"
 
 import { PatchResult } from "../models";
 import { OnPatchToolExitChannel } from "../ipc/channels";
-import { inventoryTypeToItemId, inventoryTypeToItemSlotName, notifyError, notifySuccess } from "../utils";
+import { inventoryTypeToItemId, inventoryTypeToItemSlotName } from "../utils";
+import { notifyError, notifySuccess } from "../utils/alerts"
 
 import html from "./item.html"
 import { setUpWowHeadConfig } from "./item/wowhead-setup"
@@ -36,14 +37,13 @@ export async function loadPage() {
             if (response.status === 200) {
                 clearInterval(checkServerRunning);
                 $.LoadingOverlay("hide");
-                $.getScript(`${uri}/zam/modelviewer/live/viewer/viewer.min.js`).then(() => {
-                    if (!window.CONTENT_PATH) {
-                        window.CONTENT_PATH = `${uri}/zam/modelviewer/live/`
-                    }
-                    setUpWowHeadConfig();
-                    itemSetup = require("./item/item-setup")
-                    itemSetup.default();
-                });
+                setUpWowHeadConfig();
+                await $.getScript(`${uri}/zam/modelviewer/live/viewer/viewer.min.js`)
+                if (!window.CONTENT_PATH) {
+                    window.CONTENT_PATH = `${uri}/zam/modelviewer/live/`
+                }
+                itemSetup = require("./item/item-setup")
+                itemSetup.default();
             }
         }, 1000)
     }
