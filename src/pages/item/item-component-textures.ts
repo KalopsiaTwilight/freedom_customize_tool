@@ -95,6 +95,7 @@ export async function onSearchComponentTexture() {
     const resp = await window.db.all<TextureFileData>(`
         SELECT *
         ${fromAndWhere}
+        ORDER BY fileId DESC
         LIMIT ${pageSize}
         OFFSET ${page * pageSize}`,
         $("#ci_componenttexture_file").val()

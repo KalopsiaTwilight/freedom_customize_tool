@@ -129,6 +129,7 @@ export async function onSearchTexture() {
     const resp = await window.db.all<TextureFileData>(`
         SELECT *
         ${fromAndWhere}
+        ORDER BY fileId DESC
         LIMIT ${pageSize}
         OFFSET ${page * pageSize}`,
         $("#ci_texture_textureFile").val()
