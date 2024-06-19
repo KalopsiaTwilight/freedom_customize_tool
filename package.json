@@ -1,7 +1,7 @@
 {
   "name": "freedom_customize_tool",
   "productName": "freedom_customize_tool",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Desktop application to allow for the creation of custom stuff on Freedom",
   "main": ".webpack/main",
   "expressPort": "3012",
