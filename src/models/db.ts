@@ -8,7 +8,9 @@ export interface ItemToDisplayIdData {
 export interface ModelResourceData {
     fileName: string, 
     filePath: string,
-    fileId: number
+    fileId: number,
+    displayId: number,
+    modelResourceId: number
 }
 
 export interface TextureFileData {
@@ -16,7 +18,7 @@ export interface TextureFileData {
     fileId: number
 }
 
-export interface DbResponse {
+export interface DbResponse<T> {
     error?: Error,
-    result?: unknown
+    result?: T
   }

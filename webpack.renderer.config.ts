@@ -33,7 +33,7 @@ rules.push({
     }
   ]
 }, {
-  test: /\.(png|jpe?g|gif|ico|svg)$/,
+  test: /\.(png|jpe?g|gif|ico|svg|webp)$/,
   use: [
     {
       loader: "file-loader",

@@ -98,9 +98,9 @@ declare interface ElectronApi {
 }
 
 declare interface DbApi {
-    all: (query: string, ...params: any[]) => Promise<DbResponse>
-    exec: (query: string) => Promise<DbResponse>
-    get: (query: string, ...params: any[]) => Promise<DbResponse>
+    all<T>(query: string, ...params: any[]): Promise<DbResponse<T[]>>
+    exec: (query: string) => Promise<DbResponse<unknown>>
+    get<T>(query: string, ...params: any[]): Promise<DbResponse<T>>
 }
 
 declare interface ElectronIpcRenderer {

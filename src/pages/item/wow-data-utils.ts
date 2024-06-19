@@ -83,9 +83,14 @@ function getClassName(classId: number) {
     }
 }
 
+function getWowHeadThumbForDisplayId(displayId: number) {
+    return `${window.EXPRESS_URI}/zam/modelviewer/live/webthumbs/item/${displayId & 255}/${displayId}.webp`;
+}
+
 export {
     getGeoSetsForInventoryType,
     getComponentSectionsForInventoryType,
     getRaceName,
     getClassName,
+    getWowHeadThumbForDisplayId
 }

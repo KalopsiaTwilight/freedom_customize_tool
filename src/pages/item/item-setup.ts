@@ -5,7 +5,7 @@ import { onInventorySlotChange } from "./item-inventoryslot";
 import { onAddTexture, onSearchTexture, reloadTextures } from "./item-texture";
 import { exportToFile, loadFile, loadItem, onRandomizeItem, onSearchItem } from "./item-loading";
 import { onAddComponentTexture, onRandomizeComponent1Texture, onRandomizeComponent2Texture, onSearchComponentTexture, reloadComponentTextures } from "./item-component-textures";
-import { onAddComponentModel, onRandomizeComponent1Model, onRandomizeComponent2Model, onSearchComponentModel, reloadComponentModels } from "./item-component-models";
+import { onRandomizeComponent1Model, onRandomizeComponent2Model, onSearchComponentModel, reloadComponentModels } from "./item-component-models";
 import { onSetParticleColors, reloadParticleColorComponents } from "./item-particle-colors";
 import { onAddGeoSetOverride, reloadHelmetGeovisComponents } from "./item-helmet-geovis";
 import { reloadFlagsComponents } from "./item-feature-flags";
@@ -33,22 +33,31 @@ export default async function load() {
 
     $("#component1AddModelBtn").on("click", function () {
         $("#ci_component_id").val("0")
+        $("#ci_componentmodel_modelfile").val("");
+        onSearchComponentModel();
     });
     $("#component1AddTextureBtn").on("click", function () {
         $("#ci_component_id").val("0")
     });
     $("#component2AddModelBtn").on("click", function () {
         $("#ci_component_id").val("1")
+        $("#ci_componentmodel_modelfile").val("");
+        onSearchComponentModel();
     });
     $("#component2AddTextureBtn").on("click", function () {
         $("#ci_component_id").val("1")
     });
 
-    $("#ci_componenttexture_file").on("keyup", debounce(onSearchComponentTexture));
-    $("#ci_componentmodel_modelfile").on("keyup", debounce(onSearchComponentModel));
+    $("#ci_componenttexture_file").on("keyup", debounce(() => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentTexture();
+    }));
+    $("#ci_componentmodel_modelfile").on("keyup", debounce(() => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentModel();
+    }));
 
     $("#addComponentTextureBtn").on("click", onAddComponentTexture);
-    $("#addComponentModelBtn").on("click", onAddComponentModel);
 
     $("#setParticleOverride").on("click", onSetParticleColors);
 

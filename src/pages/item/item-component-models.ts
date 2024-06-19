@@ -1,8 +1,11 @@
-import { support } from "jquery";
 import { ModelResourceData } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
-import { getClassName, getRaceName } from "./wow-data-utils";
+import { getClassName, getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
+
+import { Modal } from "bootstrap"
+
+import fallbackImg from "../../assets/unknown.webp"
 
 export async function reloadComponentModels() {
     const itemData = await window.store.get('itemData');
@@ -54,6 +57,9 @@ export async function reloadComponentModels() {
         const button = $("<button type='button' class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>Add Model</button>");
         button.on("click", function () {
             $("#ci_component_id").val(idStr);
+            $("#ci_componentmodel_modelfile").val("");
+            $("#ci_preview_page").val(0);
+            onSearchComponentModel();
         });
         $("#component" + id + "ModelsSection .accordion-body").append(button)
         const randomizeButton2 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
@@ -72,8 +78,7 @@ function onRemoveComponentModel(idStr: string, i: number) {
     }
 }
 
-export async function onAddComponentModel() {
-    const fileId = parseInt($("#ci_componentmodel_fileId").val().toString(), 10)
+async function onAddComponentModel(fileName: string, fileId: number) {
     const modelSupported = await testZamSupportComponentModel(fileId);
     if (!modelSupported) {
         notifyError("Oops! Looks like the component model you selected isn't supported anymore, please select a new model.")
@@ -83,7 +88,7 @@ export async function onAddComponentModel() {
     const itemData = await window.store.get('itemData');
     const componentId = $("#ci_component_id").val().toString();
     const modelData = {
-        fileName: $("#ci_componentmodel_modelfile").val().toString(),
+        fileName,
         fileId,
         gender: 3,
         race: 0,
@@ -97,32 +102,84 @@ export async function onAddComponentModel() {
 }
 
 export async function onSearchComponentModel() {
-    const resp = await window.db.all(`
-        SELECT * FROM modelresources 
-        WHERE fileName like '%'|| ?1 || '%'
-        OR fileId LIKE '%' || ?1 || '%'
-        LIMIT 5`, 
+    const page = parseInt($("#ci_preview_page").val().toString());
+    const pageSize = 4;
+    const fromAndFilterQuery = `
+        FROM modelresources MR1
+        WHERE 
+            (MR1.fileName like '%'|| ?1 || '%' OR MR1.fileId LIKE '%' || ?1 || '%')
+        AND 
+            MR1.fileId = (
+                SELECT MIN(MR2.fileId) FROM modelresources MR2 WHERE MR2.modelResourceId = MR1.modelResourceId
+            )
+    `;
+    const resp = await window.db.all<ModelResourceData>(`
+        SELECT * 
+        ${fromAndFilterQuery}
+        ORDER BY fileId DESC
+        LIMIT ${pageSize}
+        OFFSET ${page * 4}
+        `, 
         $("#ci_componentmodel_modelfile").val()
     )
     if (resp.error) {
         throw resp.error;
     }
-    const data = resp.result as ModelResourceData[];
-    $("#ci_componentmodel_searchResults").empty();
-    for (const item of data) {
-        const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-        itemElem.text(`${item.fileId} - ${item.fileName}`);
-        itemElem.on("click", function () {
-            $("#ci_componentmodel_modelfile").val(item.fileName);
-            $("#ci_componentmodel_fileId").val(item.fileId);
+    const total = await window.db.get<{total: number}>(
+        `SELECT COUNT(*) total ${fromAndFilterQuery}`,
+        $("#ci_componentmodel_modelfile").val()
+    );
 
-            $("#ci_componentmodel_searchResults").empty();
-            $("#addComponentModelBtn").removeAttr('disabled');
+    $("#ci_componentmodel_resultsPreview").empty();
+    const row = $("<div class='row'>");
+    for (let i = 0; i < resp.result.length; i ++) {
+        const item = resp.result[i];
+        const col = $("<div class='col-6 mb-3'>");
+        const linkElem = $("<a role='button' class='d-flex flex-column align-items-center border'>");
+        const imgUri = getWowHeadThumbForDisplayId(item.displayId);
+        const img = $(`<img src="${imgUri}" width=200 height=200 />`);
+        linkElem.append(img);
+        img.on('error', function () {
+            $(this).attr('src', fallbackImg);
+        })
+        linkElem.append(`<p>${item.fileName}</p>`)
+        linkElem.on("click", function () {
+            onAddComponentModel(item.fileName, item.fileId);
+            Modal.getOrCreateInstance("#addComponentModelModal").hide();
         });
-        const li = $("<li>");
-        li.append(itemElem);
-        $("#ci_componentmodel_searchResults").append(li);
+        col.append(linkElem);
+        row.append(col);
     }
+    $("#ci_componentmodel_resultsPreview").append(row);
+    const bottomContainer = $("<div class='d-flex justify-content-between align-items-center'>");
+    const leftArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-left'></i></button>")
+    if (page === 0) {
+        leftArrow.attr('disabled', 'disabled');
+    } else {
+        leftArrow.on('click', prevPage);
+    }
+    const rightArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-right'></i></button>")
+    if (page === Math.ceil(total.result.total/pageSize)) {
+        rightArrow.attr('disabled', 'disabled');
+    } else {
+        rightArrow.on('click', nextPage)
+    }
+    bottomContainer.append(leftArrow);
+    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${(page+1) * pageSize} out of ${total.result.total}</p>`);
+    bottomContainer.append(rightArrow);
+    $("#ci_componentmodel_resultsPreview").append(bottomContainer);
+}
+
+function nextPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage + 1);
+    onSearchComponentModel();
+}
+
+function prevPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage - 1);
+    onSearchComponentModel();
 }
 
 export async function onRandomizeComponent1Model() {
