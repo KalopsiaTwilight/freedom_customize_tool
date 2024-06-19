@@ -102,16 +102,25 @@ async function onAddComponentModel(fileName: string, fileId: number) {
 }
 
 export async function onSearchComponentModel() {
+    $.LoadingOverlay("show");
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
     const fromAndFilterQuery = `
         FROM modelresources MR1
         WHERE 
-            (MR1.fileName like '%'|| ?1 || '%' OR MR1.fileId LIKE '%' || ?1 || '%')
-        AND 
-            MR1.fileId = (
-                SELECT MIN(MR2.fileId) FROM modelresources MR2 WHERE MR2.modelResourceId = MR1.modelResourceId
+        (
+               MR1.fileName like '%'|| ?1 || '%' 
+            OR MR1.fileId LIKE '%' || ?1 || '%'
+            OR MR1.fileId IN (
+                SELECT DIMR.fileId
+                FROM item_to_displayid IDI
+                JOIN displayid_to_modelresource DIMR ON DIMR.displayId = IDI.itemDisplayId
+                WHERE IDI.itemName LIKE '%' || ?1 || '%'
             )
+        )
+        AND MR1.fileId = (
+            SELECT MIN(MR2.fileId) FROM modelresources MR2 WHERE MR2.modelResourceId = MR1.modelResourceId
+        )
     `;
     const resp = await window.db.all<ModelResourceData>(`
         SELECT * 
@@ -167,6 +176,8 @@ export async function onSearchComponentModel() {
     bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_componentmodel_resultsPreview").append(bottomContainer);
+
+    $.LoadingOverlay("hide");
 }
 
 function nextPage() {

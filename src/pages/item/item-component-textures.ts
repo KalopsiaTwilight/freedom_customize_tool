@@ -84,6 +84,7 @@ async function onAddComponentTexture(fileName: string, fileId: number) {
 }
 
 export async function onSearchComponentTexture() {
+    $.LoadingOverlay("show");
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
 
@@ -91,6 +92,12 @@ export async function onSearchComponentTexture() {
         FROM texturefiles 
         WHERE fileName like '%'|| ?1 || '%'
         OR fileId LIKE '%' || ?1 || '%'
+        OR fileId IN (
+            SELECT DITF.fileId
+            FROM item_to_displayid IDI
+            JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
+            WHERE IDI.itemName LIKE '%' || ?1 || '%'
+        )
     `;
     const resp = await window.db.all<TextureFileData>(`
         SELECT *
@@ -146,6 +153,8 @@ export async function onSearchComponentTexture() {
     bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_componentTexture_resultsPreview").append(bottomContainer);
+
+    $.LoadingOverlay("hide");
 }
 
 function nextPage() {
