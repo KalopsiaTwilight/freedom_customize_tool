@@ -3,7 +3,7 @@ import log from 'electron-log/main'
 import Store from "electron-store"
 import path from "node:path";
 import fs from "node:fs"
-import { name, expressPort } from "../package.json";
+import { name, expressPort, version } from "../package.json";
 import * as sqlite3 from "sqlite3";
 
 import { setupDbIpc, setupPatchingIpc } from './ipc';
@@ -41,7 +41,7 @@ if (handleSquirrelEvent()) {
     setUpMenu();
     createWindow();
     setupIpc();
-    log.info("Main is ready!");
+    log.info(`Application is ready, running version: ${version}}!`);
   });
 
   // Quit when all windows are closed, except on macOS. There, it's common
