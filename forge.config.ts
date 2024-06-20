@@ -23,7 +23,9 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [new MakerSquirrel({
-    setupIcon: "./app_icon.ico"
+    setupIcon: "./app_icon.ico",
+    certificateFile: "../signing.pfx",
+    certificatePassword: process.env.FREEDOM_SIGNING_CERTIFICATE_PASSWORD
   })],
   publishers: [
     new PublisherGithub({
