@@ -50,6 +50,10 @@ export async function reloadTextures() {
             const input = $("<input id='ci_texture_" + section + "_" + i + "' class='form-control' readonly type='text' />");
             input.val(`${texture.fileId} - ${texture.fileName}`);
             inputGroup.append(input);
+            const randomizeButton = $("<button type='button' class='btn btn-outline-secondary'>Randomize</button>");
+            randomizeButton.on("click", onRandomizeTexture(section));
+            inputGroup.append(randomizeButton);
+
             const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
             removeButton.on("click", onRemoveTexture(section, texture));
             inputGroup.append(removeButton)
@@ -67,7 +71,7 @@ export async function reloadTextures() {
             onSearchTexture();
         })
         $("#texturesSection .accordion-body").append(addTextureBtn);
-        const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>")
+        const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize All</button>")
         randomizeButton.on("click", onRandomizeTextures);
         $("#texturesSection .accordion-body")
             .append(randomizeButton);
@@ -214,35 +218,57 @@ export async function randomizeTextures() {
     const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
 
     for (const section of sections) {
-        let data: TextureFileData | null = null;
-        while(!data) {
-            const resp = await window.db.get(`
-                SELECT r1.fileId, r1.fileName
-                FROM texturefiles AS r1 
-                JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
-                WHERE r1.fileId >= r2.fileId
-                ORDER BY r1.fileId ASC
-                LIMIT 1`, 
-                Math.random()
-            );
-            if (resp.error) {
-                throw resp.error;
-            }
-            data = resp.result as TextureFileData;
-            const supported = await testZamSupportTexture(data.fileId);
-            if (!supported) {
-                data = null;
-            }
-        }
+        const texture = await getRandomTexture();
         itemData.itemMaterials[section] = [{
-            fileName: data.fileName,
-            fileId: data.fileId,
+            fileName: texture.fileName,
+            fileId: texture.fileId,
             gender: 3,
             race: 0,
             class: 0
         }]
     }
     await window.store.set('itemData', itemData);
+}
+
+function onRandomizeTexture(section: number) {
+    return async () => {
+        $.LoadingOverlay('show');
+        const itemData = await window.store.get('itemData');
+        const texture = await getRandomTexture();
+        itemData.itemMaterials[section] = [{
+            fileName: texture.fileName,
+            fileId: texture.fileId,
+            gender: 3,
+            race: 0,
+            class: 0
+        }]
+        await window.store.set('itemData', itemData);
+        await previewCustomItem();
+        await reloadTextures();
+        $.LoadingOverlay("hide");
+    }
+}
+
+async function getRandomTexture() {
+    let data: TextureFileData | null = null;
+    while(!data) {
+        const resp = await window.db.get(`
+            SELECT *
+            FROM texturefiles
+            WHERE ROWID =  CEIL(?1 * (SELECT MAX(ROWID) FROM modelresources))
+            LIMIT 1`, 
+            Math.random()
+        );
+        if (resp.error) {
+            throw resp.error;
+        }
+        data = resp.result as TextureFileData;
+        const supported = await testZamSupportTexture(data.fileId);
+        if (!supported) {
+            data = null;
+        }
+    }
+    return data;
 }
 
 async function testZamSupportTexture(fileId: number) {

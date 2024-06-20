@@ -186,11 +186,9 @@ export async function randomizeComponentTexture(slot: string) {
     let data: TextureFileData | null = null;
     while(!data) {
         const resp = await window.db.get(`
-            SELECT r1.fileId, r1.fileName
-            FROM texturefiles AS r1 
-            JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM texturefiles)) AS fileId) AS r2
-            WHERE r1.fileId >= r2.fileId
-            ORDER BY r1.fileId ASC
+            SELECT *
+            FROM texturefiles
+            WHERE ROWID =  CEIL(?1 * (SELECT MAX(ROWID) FROM modelresources))
             LIMIT 1`, 
             Math.random()
         );
