@@ -9,8 +9,6 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 
-import { expressPort } from "./package.json"
-
 const config: ForgeConfig = {
   packagerConfig: {
     icon: "./app_icon.ico",
@@ -40,7 +38,7 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       port: 8249,
-      devContentSecurityPolicy: `default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' http://localhost:${expressPort} data:; connect-src http://localhost:${expressPort} http://localhost:8249 ws://localhost:8249; style-src-elem http://wow.zamimg.com 'unsafe-inline'; img-src 'self' blob: data: http://localhost:3012;`,
+      devContentSecurityPolicy: `default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:; connect-src http://localhost:8249 ws://localhost:8249; style-src-elem http://wow.zamimg.com 'unsafe-inline'; img-src 'self' blob: data:;`,
       renderer: {
         config: rendererConfig,
         entryPoints: [

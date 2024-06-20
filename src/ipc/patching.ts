@@ -42,7 +42,7 @@ async function applyPatch() {
     child.stderr.on('data', (data) => { stdErr += data; });
     child.on('exit', (exitCode, signal) => {
         if (exitCode != 0) {
-            log.warn("DBXPatchingTool exited with code: " + exitCode);
+            log.warn("[MAIN] DBXPatchingTool exited with code: " + exitCode);
             log.warn(stdOut + stdErr);
         }
         mainWindow.webContents.send(OnPatchToolExitChannel, {

@@ -8,3 +8,5 @@ export function debounce(func: Function) {
         timer = window.setTimeout(() => { func.apply(this, args); }, 250);
     };
 }
+
+export const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))

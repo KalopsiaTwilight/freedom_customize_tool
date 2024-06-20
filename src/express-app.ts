@@ -3,9 +3,7 @@ import express from "express";
 import proxy from "express-http-proxy";
 import http from "http";
 import cors from "cors"
-
-// TODO: FIND RANDOM AVAILABLE PORT
-import { expressPort } from "../package.json";
+import { AddressInfo } from "node:net"
 
 const app = express();
 app.use(cors({
@@ -13,7 +11,6 @@ app.use(cors({
     allowedHeaders: "*",
     methods: "*",
 }))
-app.set("port", expressPort)
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     next();
@@ -72,6 +69,10 @@ function shutdown() {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-server.listen(parseInt(expressPort), 'localhost');
-server.on("listening", () => log.info(`[EXPRESS] Listening on: ${expressPort}`));
+server.listen(0, 'localhost');
+server.on("listening", () => {
+    const port = (server.address() as AddressInfo).port;
+    log.info(`[EXPRESS] Listening on: ${(server.address() as AddressInfo).port}`);
+    process.parentPort.postMessage(port);
+});
 server.on("close", () => log.info("[EXPRESS] Express server closed."));

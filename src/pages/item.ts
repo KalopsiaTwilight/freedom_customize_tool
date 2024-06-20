@@ -33,7 +33,7 @@ export async function loadPage() {
         window.EXPRESS_URI = uri;
         const checkServerRunning = setInterval(async () => {
             const response = await fetch(uri)
-            log.info("EXPRESS RETURNED: " + response.status)
+            log.info("[RENDERER] EXPRESS RETURNED: " + response.status)
             if (response.status === 200) {
                 clearInterval(checkServerRunning);
                 $.LoadingOverlay("hide");

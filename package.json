@@ -4,7 +4,6 @@
   "version": "0.0.2",
   "description": "Desktop application to allow for the creation of custom stuff on Freedom",
   "main": ".webpack/main",
-  "expressPort": "3012",
   "scripts": {
     "start": "electron-forge start",
     "debug": "electron-forge start -- --remote-debugging-port=9223",
