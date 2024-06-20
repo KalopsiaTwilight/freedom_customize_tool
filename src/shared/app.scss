@@ -8,3 +8,6 @@ body {
     padding: 2rem;
   }
   
+.tooltip-wide > .tooltip-inner {
+  max-width: 600px !important;
+}

@@ -45,6 +45,16 @@ function getRaceName(race: number) {
         case 9: return "Goblin";
         case 10: return "Blood Elf";
         case 11: return "Draenei";
+        case 12: return "Fel Orc";
+        case 13: return "Naga";
+        case 14: return "Broken";
+        case 15: return "Skeleton";
+        case 16: return "Vrykul";
+        case 17: return "Tuskarr";
+        case 18: return "Forest Troll";
+        case 19: return "Taunka";
+        case 20: return "Northrend Skeleton";
+        case 21: return "Ice Troll";
         case 22: return "Worgen";
         case 23: return "Worgen (Human form)";
         case 24: return "Pandaren (N)";
@@ -56,6 +66,7 @@ function getRaceName(race: number) {
         case 30: return "Lightforged Draenei";
         case 31: return "Zandalari Troll";
         case 32: return "Kul Tiran";
+        case 33: return "Thin Human";
         case 34: return "Dark Iron Dwarf";
         case 35: return "Vulpera";
         case 36: return "Mag'har Orc";
@@ -83,6 +94,12 @@ function getClassName(classId: number) {
     }
 }
 
+function getPlayerRaces(): number[] {
+    return [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 37
+    ]
+}
+
 function getWowHeadThumbForDisplayId(displayId: number) {
     return `${window.EXPRESS_URI}/zam/modelviewer/live/webthumbs/item/${displayId & 255}/${displayId}.webp`;
 }
@@ -92,5 +109,6 @@ export {
     getComponentSectionsForInventoryType,
     getRaceName,
     getClassName,
-    getWowHeadThumbForDisplayId
+    getWowHeadThumbForDisplayId,
+    getPlayerRaces
 }

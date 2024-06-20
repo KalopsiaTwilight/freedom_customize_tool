@@ -23,6 +23,10 @@ export interface ItemGeoSetData {
     race: number;
 }
 
+export interface GenderedItemGeoSetData extends ItemGeoSetData {
+    gender: number;
+}
+
 export interface ItemMaterialContainer {
     [key:string]: ItemMaterialData[]
 }

@@ -85,23 +85,23 @@ export function setUpWowHeadConfig()
             },
             GeoSets: {
                 0: {
-                    title: "Head Geoset",
+                    title: "Head",
                     options: []
                 },
                 1: {
-                    title: "Beard / Facial1 Geoset",
+                    title: "Beard / Facial1",
                     options: []
                 },
                 2: {
-                    title: "Sideburns / Facial2 Geoset",
+                    title: "Sideburns / Facial2",
                     options: []
                 },
                 3: {
-                    title: "Moustache / Facial3 Geoset",
+                    title: "Moustache / Facial3",
                     options: []
                 },
                 4: {
-                    title: "Gloves Geoset",
+                    title: "Gloves",
                     options: [
                         {
                             name: "No Geoset",
@@ -126,7 +126,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 5: {
-                    title: "Boots Geoset",
+                    title: "Boots",
                     options: [
                         {
                             name: "No Geoset",
@@ -155,15 +155,15 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 6: {
-                    title: "Shirt Geoset",
+                    title: "Shirt",
                     options: []
                 },
                 7: {
-                    title: "Ears Geoset",
+                    title: "Ears",
                     options: []
                 },
                 8: {
-                    title: "Sleeves Geoset",
+                    title: "Sleeves",
                     options: [
                         {
                             name: "No Geoset",
@@ -184,7 +184,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 9: {
-                    title: "Legcuffs Geoset",
+                    title: "Legcuffs",
                     options: [
                         {
                             name: "No Geoset",
@@ -205,7 +205,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 10: {
-                    title: "Shirt Doublet Geoset",
+                    title: "Shirt Doublet",
                     options: [
                         {
                             name: "No Geoset",
@@ -226,7 +226,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 11: {
-                    title: "Pant Doublet Geoset",
+                    title: "Pant Doublet",
                     options: [
                         {
                             name: "No Geoset",
@@ -243,7 +243,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 12: {
-                    title: "Tabard Geoset",
+                    title: "Tabard",
                     options: [
                         {
                             name: "No Geoset",
@@ -256,7 +256,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 13: {
-                    title: "Lower Body Geoset",
+                    title: "Lower Body",
                     options: [
                         {
                             name: "No Geoset",
@@ -273,11 +273,11 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 14: {
-                    title: "DH/Pandaren F Loincloth Geoset",
+                    title: "DH/Pandaren F Loincloth",
                     options: []
                 },
                 15: {
-                    title: "Cloak Geoset",
+                    title: "Cloak",
                     options: [
                         {
                             name: "No Geoset",
@@ -322,15 +322,15 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 16: {
-                    title: "Facial Jewelry Geoset",
+                    title: "Facial Jewelry",
                     options: []
                 },
                 17: {
-                    title: "Eye Effects Geoset",
+                    title: "Eye Effects",
                     options: []
                 },
                 18: {
-                    title: "Belt Geoset",
+                    title: "Belt",
                     options: [
                         {
                             name: "No Geoset",
@@ -351,11 +351,11 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 19: {
-                    title: "Skin (Bone/Tail) Geoset",
+                    title: "Skin (Bone/Tail)",
                     options: []
                 },
                 20: {
-                    title: "Feet Geoset",
+                    title: "Feet",
                     options: [
                         {
                             name: "Toes",
@@ -368,7 +368,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 21: {
-                    title: "Head Geoset",
+                    title: "Head",
                     options: [
                         {
                             name: "No Geoset",
@@ -381,7 +381,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 22: {
-                    title: "Torso Geoset",
+                    title: "Torso",
                     options: [
                         {
                             name: "No Geoset",
@@ -398,7 +398,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 23: {
-                    title: "Hand Attachments Geoset",
+                    title: "Hand Attachments",
                     options: [
                         {
                             name: "No Geoset",
@@ -411,15 +411,15 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 24: {
-                    title: "Head Attachments Geoset",
+                    title: "Head Attachments",
                     options: []
                 },
                 25: {
-                    title: "Facewear Geoset",
+                    title: "Facewear",
                     options: []
                 },
                 26: {
-                    title: "Shoulders Geoset",
+                    title: "Shoulders",
                     options: [
                         {
                             name: "No Geoset",
@@ -440,7 +440,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 27: {
-                    title: "Helmet Geoset",
+                    title: "Helmet",
                     options: [
                         {
                             name: "No Geoset",
@@ -461,7 +461,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 28: {
-                    title: "Arm Upper Geoset",
+                    title: "Arm Upper",
                     options: [
                         {
                             name: "No Geoset",
@@ -474,15 +474,15 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 29: {
-                    title: "Arms Replace Geoset",
+                    title: "Arms Replace",
                     options: []
                 },
                 30: {
-                    title: "Legs Replace Geoset",
+                    title: "Legs Replace",
                     options: []
                 },
                 31: {
-                    title: "Feet Replace Geoset",
+                    title: "Feet Replace",
                     options: []
                 },
                 32: {
@@ -490,47 +490,47 @@ export function setUpWowHeadConfig()
                     options: []
                 },
                 33: {
-                    title: "Eyes Geoset",
+                    title: "Eyes",
                     options: []
                 },
                 34: {
-                    title: "Eyebrows Geoset",
+                    title: "Eyebrows",
                     options: []
                 },
                 35: {
-                    title: "Piercings/Earrings Geoset",
+                    title: "Piercings/Earrings",
                     options: []
                 },
                 36: {
-                    title: "Necklaces Geoset",
+                    title: "Necklaces",
                     options: []
                 },
                 37: {
-                    title: "Headdress Geoset",
+                    title: "Headdress",
                     options: []
                 },
                 38: {
-                    title: "Tail Geoset",
+                    title: "Tail",
                     options: []
                 },
                 39: {
-                    title: "Misc. Accessory Geoset",
+                    title: "Misc. Accessory",
                     options: []
                 },
                 40: {
-                    title: "Misc. Feature Geoset",
+                    title: "Misc. Feature",
                     options: []
                 },
                 41: {
-                    title: "Noses (Goblins) Geoset",
+                    title: "Noses (Goblins)",
                     options: []
                 },
                 42: {
-                    title: "Hair decoration (LF Draenei) Geoset",
+                    title: "Hair decoration (LF Draenei)",
                     options: []
                 },
                 43: {
-                    title: "Horn decoration (HM Tauren) Geoset",
+                    title: "Horn decoration (HM Tauren)",
                     options: []
                 },
             }

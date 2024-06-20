@@ -154,32 +154,16 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#geoSetOverrideSection1" aria-expanded="true"
-                        aria-controls="geoSetOverrideSection1">
-                        Helmet Geoset Overrides - Male
-                    </button>
-                </h2>
-                <div id="geoSetOverrideSection1" class="accordion-collapse collapse"
-                    data-bs-parent="#sectionsaccordion">
-                    <div class="accordion-body">
-                        <button id="addGsOverrideM" class="btn btn-dark" data-bs-toggle="modal"
-                            data-bs-target="#addGeosetOverrideModal">Add Geoset Override</button>
-                    </div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#geoSetOverrideSection2" aria-expanded="true"
+                        data-bs-target="#geoSetOverrideSection" aria-expanded="true"
                         aria-controls="geoSetOverrideSection2">
-                        Helmet Geoset Overrides - Female
+                        Helmet - Model Part Visibility Overrides
                     </button>
                 </h2>
-                <div id="geoSetOverrideSection2" class="accordion-collapse collapse"
+                <div id="geoSetOverrideSection" class="accordion-collapse collapse"
                     data-bs-parent="#sectionsaccordion">
                     <div class="accordion-body">
-                        <button id="addGsOverrideF" class="btn btn-dark" data-bs-toggle="modal"
-                            data-bs-target="#addGeosetOverrideModal">Add Geoset Override</button>
+                        <button id="addGsOverride" class="btn btn-dark" data-bs-toggle="modal"
+                            data-bs-target="#addGeosetOverrideModal">Add Model Part Visibility Override</button>
                     </div>
                 </div>
             </div>
@@ -453,12 +437,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="addGeosetOverrideModalLabel">Add Geoset Override</h1>
+                <h1 class="modal-title fs-5" id="addGeosetOverrideModalLabel">Add Model Part Visibility Override</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group mb-3">
-                    <label for="ci_helmetgeovis_geosetgroup" class="form-label">Geoset Group</label>
+                    <label for="ci_helmetgeovis_geosetgroup" class="form-label">Model Part</label>
                     <div class="input-group">
                         <select id="ci_helmetgeovis_geosetgroup" class="form-select">
                         </select>
@@ -468,6 +452,7 @@
                     <label for="ci_helmetgeovis_race" class="form-label">Apply for Race</label>
                     <div class="input-group">
                         <select id="ci_helmetgeovis_race" class="form-select">
+                            <option value="-1">All</option>
                             <option value="1">Human</option>
                             <option value="2">Orc</option>
                             <option value="3">Dwarf</option>
@@ -493,8 +478,17 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group mb-3">
+                    <label for="ci_helmetgeovis_gender" class="form-label">Apply for Gender</label>
+                    <div class="input-group">
+                        <select id="ci_helmetgeovis_gender" class="form-select">
+                            <option value="-1">Both</option>
+                            <option value="0">Male</option>
+                            <option value="1">Female</option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <input id="ci_helmetgeovis_gender" type="hidden" />
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button id="addHelmetGeoVis" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save
