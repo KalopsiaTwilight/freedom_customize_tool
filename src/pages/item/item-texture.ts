@@ -15,8 +15,8 @@ export async function reloadTextures() {
     $("#ci_texture_componentsection").empty();
 
     let opts = getComponentSectionsForInventoryType(itemData.inventoryType);
-    // opts = opts.filter((x) => textures.findIndex((y) => y.section === x) === -1);
-    for (const opt of opts) {
+    const unfilledOpts = opts.filter((x) => !itemData.itemMaterials[x]);
+    for (const opt of unfilledOpts) {
         $("#ci_texture_componentsection").append($("<option value='" + opt + "'>" + window.WH.Wow.ComponentSections[opt] + "</option>"))
     }
 
@@ -63,22 +63,31 @@ export async function reloadTextures() {
     }
 
     if (opts.length > 0) {
-        const addTextureBtn = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addTextureModal'>Add Textures</button>");
-        
-        addTextureBtn.on('click', () => {
-            $("#ci_preview_page").val(0);
-            $("#ci_texture_textureFile").val("");
-            onSearchTexture();
-        })
-        $("#texturesSection .accordion-body").append(addTextureBtn);
+
+        if (unfilledOpts.length > 0) {
+            const addTextureBtn = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addTextureModal'>Add Textures</button>");
+            addTextureBtn.on('click', () => {
+                $("#ci_preview_page").val(0);
+                $("#ci_texture_textureFile").val("");
+                onSearchTexture();
+            })
+            $("#texturesSection .accordion-body").append(addTextureBtn);
+        }
+
         const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize All</button>")
         randomizeButton.on("click", onRandomizeTextures);
         $("#texturesSection .accordion-body")
             .append(randomizeButton);
+   
+        if (unfilledOpts.length < opts.length) {
+            const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>")
+            removeButton.on("click", onClearTextures);
+            $("#texturesSection .accordion-body").append(removeButton)
+        }
 
+        $("#texturesSection").parent().show();
     } else {
-        $("#texturesSection .accordion-body")
-            .append($("<p class='text-muted'>Textured geosets are unavailable for this inventory type. Please use components instead.</p>"));
+        $("#texturesSection").parent().hide();
     }
 }
 
@@ -90,6 +99,14 @@ function onRemoveTexture(section: number, texture: ItemMaterialData) {
         await reloadTextures();
         await previewCustomItem();
     }
+}
+
+async function onClearTextures() {
+    const itemData = await window.store.get('itemData');
+    itemData.itemMaterials = {};
+    await window.store.set('itemData', itemData);
+    await previewCustomItem();
+    await reloadTextures();
 }
 
 async function onAddTexture(fileName: string, fileId: number) {
