@@ -368,7 +368,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 21: {
-                    title: "Head",
+                    title: "Head (new)",
                     options: [
                         {
                             name: "No Geoset",

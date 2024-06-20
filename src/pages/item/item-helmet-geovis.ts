@@ -43,7 +43,7 @@ export async function reloadHelmetGeovisComponents() {
         }
         return acc;
     }, {} as {[key: string]: { race: number, gender: number}[]})
-    
+
     const currentModelRace = parseInt($("#ci_model_race").val().toString());
     const currentModelGender = parseInt($("#ci_model_gender").val().toString());
     for(const group in data) {
@@ -64,6 +64,7 @@ export async function reloadHelmetGeovisComponents() {
         groupContainer.append(`<span class='text-start'>${label}</span>`)
 
         const comboContainer = $("<div>");
+        comboContainer.append(`<span>for </span>`)
 
         comboContainer.append(geosetGroupLink);
         $("#geoSetOverrideSection .accordion-body").append(groupContainer);
