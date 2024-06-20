@@ -3,7 +3,7 @@ import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
 
-import { Modal } from "bootstrap"
+import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 
@@ -24,78 +24,110 @@ export async function reloadComponentModels() {
     for (const idStr in itemData.itemComponentModels) {
         const data = itemData.itemComponentModels[idStr];
         const id = +idStr + 1;
-
-        for (let i = 0; i < data.models.length; i++) {
-            const model = data.models[i];
+        
+        if (data.models.length > 0) {
             const formGroup = $("<div class='form-group mb-3' />");
-            let label = "Male & Female"
-            if (model.gender !== 3) {
-                label = (model.gender === 0 ? "Male" : "Female")
-            }
-            if (model.extraData !== -1) {
-                label += " - " + (model.extraData === 0 ? "Left Shoulderpad" : "Right Shoulderpad")
-            }
-            if (model.race !== 0) {
-                label += " - " + getRaceName(model.race);
-            }
-            if (model.class !== 0) {
-                label += " - " + getClassName(model.class);
-            }
-            formGroup.append($("<label for='ci_componentModel" + id + "_" + i + "' class='form-label'>" + label + "</label>"));
             const inputGroup = $("<div class='input-group' />");
-            const input = $("<input id='ci_componentModel" + id + "_" + i + "' class='form-control' readonly type='text' />");
-            input.val(`${model.fileId} - ${model.fileName}`);
+            const input = $("<input id='ci_componentModel" + id +"' class='form-control' readonly type='text' />");
+            input.val(`${data.models[0].fileId} - ${data.models[0].fileName}`);
             inputGroup.append(input);
-            const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
-            removeButton.on("click", onRemoveComponentModel(idStr, i));
-            inputGroup.append(removeButton)
             formGroup.append(inputGroup);
+            $("#component" + id + "ModelsSection .accordion-body").append(formGroup)
+            const modelDataLink = $(`<a data-bs-toggle="tooltip" data-bs-html="true">${data.models.length} race/gender combinations</a>`);
 
-            $("#component" + id + "ModelsSection .accordion-body").append(formGroup);
+            let modelDataText = "";
+            const racesProcessed: number[] = [];
+            console.log(data.models);
+            for(const model of data.models) {
+                let label = "";
+                if (model.race !== 0) {
+                    label = getRaceName(model.race);
+                } else {
+                    label = "All Races";
+                }
+                let genderLabel = "Male & Female"
+                if (model.gender !== 3) {
+                    if (racesProcessed.indexOf(model.race) !== -1) {
+                        continue;
+                    }
+                    if (data.models.findIndex((i) => i.race === model.race && i.gender !== model.gender) !== -1) {
+                        racesProcessed.push(model.race);
+                    } else {
+                        genderLabel = (model.gender === 0 ? "Male" : "Female")
+                    }
+                }
+                label += " - " + genderLabel;
+                if (model.extraData !== -1) {
+                    label += " - " + (model.extraData === 0 ? "Left Shoulderpad" : "Right Shoulderpad")
+                }
+                if (model.class !== 0) {
+                    label += " - " + getClassName(model.class);
+                }
+                modelDataText += label + "</br>";
+            }
+            $(modelDataLink).attr('data-bs-title', modelDataText);
+            const modelDataP = $("<p>Model is available for </p>");
+            modelDataP.append(modelDataLink);
+            $("#component" + id + "ModelsSection .accordion-body").append(modelDataP)
+            new Tooltip(modelDataLink[0]);
+            
+            const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Remove</button>")
+            removeButton.on("click", onRemoveComponentModel(idStr));
+            $("#component" + id + "ModelsSection .accordion-body").append(removeButton)
+        } else {
+            const addButton = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>Add Model</button>");
+            addButton.on("click", function () {
+                $("#ci_component_id").val(idStr);
+                $("#ci_componentmodel_modelfile").val("");
+                $("#ci_preview_page").val(0);
+                onSearchComponentModel();
+            });
+            $("#component" + id + "ModelsSection .accordion-body").append(addButton)
         }
 
-        const button = $("<button type='button' class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>Add Model</button>");
-        button.on("click", function () {
-            $("#ci_component_id").val(idStr);
-            $("#ci_componentmodel_modelfile").val("");
-            $("#ci_preview_page").val(0);
-            onSearchComponentModel();
-        });
-        $("#component" + id + "ModelsSection .accordion-body").append(button)
         const randomizeButton2 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
         randomizeButton2.on("click", idStr === "0" ? onRandomizeComponent1Model : onRandomizeComponent2Model);
         $("#component" + id + "ModelsSection .accordion-body").append(randomizeButton2);
     }
 }
 
-function onRemoveComponentModel(idStr: string, i: number) {
+function onRemoveComponentModel(idStr: string) {
     return async function () {
         const itemData = await window.store.get('itemData');
-        itemData.itemComponentModels[idStr].models.splice(i, 1);
+        itemData.itemComponentModels[idStr].models = [];
         await window.store.set('itemData', itemData);
         await reloadComponentModels();
         await previewCustomItem();
     }
 }
 
-async function onAddComponentModel(fileName: string, fileId: number) {
-    const modelSupported = await testZamSupportComponentModel(fileId);
+async function onAddComponentModel(modelResourceId: number) {
+    const itemData = await window.store.get('itemData');
+    const dbResp = await window.db.all<ModelResourceData>(
+        `SELECT * FROM modelresources where modelResourceId = ?`,
+        modelResourceId
+    )
+
+    const modelSupported = await testZamSupportComponentModel(dbResp.result[0].fileId);
     if (!modelSupported) {
         notifyError("Oops! Looks like the component model you selected isn't supported anymore, please select a new model.")
         return;
     }
-
-    const itemData = await window.store.get('itemData');
-    const componentId = $("#ci_component_id").val().toString();
-    const modelData = {
-        fileName,
-        fileId,
-        gender: 3,
-        race: 0,
-        class: 0,
-        extraData: parseInt($("#ci_componentmodel_extraData").val().toString(), 10)
-    };
-    itemData.itemComponentModels[componentId].models.push(modelData);
+    for(const model of dbResp.result) {
+        const componentId = $("#ci_component_id").val().toString();
+        const modelData = {
+            fileName: model.fileName,
+            fileId: model.fileId,
+            gender: model.genderId,
+            race: model.raceId,
+            class: 0,
+            extraData: itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS 
+                ? parseInt($("#ci_componentmodel_extraData").val().toString(), 10)
+                : model.extraData
+        };
+        itemData.itemComponentModels[componentId].models.push(modelData);
+    }
+   
     await window.store.set('itemData', itemData);
     await reloadComponentModels();
     await previewCustomItem();
@@ -151,7 +183,7 @@ export async function onSearchComponentModel() {
         })
         linkElem.append(`<p>${item.fileName}</p>`)
         linkElem.on("click", function () {
-            onAddComponentModel(item.fileName, item.fileId);
+            onAddComponentModel(item.modelResourceId);
             Modal.getOrCreateInstance("#addComponentModelModal").hide();
         });
         col.append(linkElem);
@@ -207,42 +239,41 @@ export async function onRandomizeComponent2Model() {
 
 export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
-    const promises = [];
-    let loops = 1;
-    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
-        loops = 2;
-    }
-    for (let i = 0; i < loops; i++) {
-        let data: ModelResourceData | null = null;
-            while (!data) {
-                const resp = await window.db.get(`
-                SELECT r1.fileId, r1.fileName
-                FROM modelresources AS r1 
-                JOIN (SELECT CEIL(?1 * (SELECT MAX(fileId) FROM modelresources)) AS fileId) AS r2
-                WHERE r1.fileId >= r2.fileId
-                ORDER BY r1.fileId ASC
-                LIMIT 1`, 
-                Math.random()
-            );
-            if (resp.error) {
-                throw resp.error;
-            }
-            data = resp.result as ModelResourceData;
-            const supported = await testZamSupportComponentModel(data.fileId);
-            if (!supported) {
-                data = null;
-            }
+    let data: ModelResourceData[]  =[];
+    while (!data.length) {
+        const resp = await window.db.all<ModelResourceData>(`
+            WITH mrIds as (
+                SELECT DISTINCT modelResourceId
+                FROM modelresources
+            ),
+            nrdMrIds as (
+            SELECT modelResourceId, ROW_NUMBER() OVER (
+                    ORDER BY modelResourceId
+                ) RowNum 
+                FROM mrIds
+            ),
+            randomMrId as (
+                SELECT modelResourceId FROM nrdMrIds
+                WHERE RowNum = ROUND(? * (SELECT MAX(RowNum) FROM nrdMrIds) + 0.5)
+            )
+            SELECT * FROM modelResources WHERE modelResourceId = (SELECT * FROM randomMrId)
+            ;`, 
+            Math.random()
+        );
+        if (resp.error) {
+            throw resp.error;
         }
-       
-        itemData.itemComponentModels[slot].models = [{
-            fileName: data.fileName,
-            fileId: data.fileId,
-            gender: 3,
-            race: 0,
-            class: 0,
-            extraData: itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS ? i : -1
-        }]
+        const supported = await testZamSupportComponentModel(resp.result[0].fileId);
+        data = supported ? resp.result : [];
     }
+    itemData.itemComponentModels[slot].models = data.map(item => ({
+        fileName: item.fileName,
+        fileId: item.fileId,
+        gender: item.genderId,
+        race: item.raceId,
+        class: 0,
+        extraData: itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS ? (item.extraData >= 0 ? item.extraData : 1) : -1
+    }));
     await window.store.set('itemData', itemData);
 }
 
