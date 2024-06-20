@@ -16,7 +16,38 @@ declare interface WebpOptions
 declare interface WoWDataCollection 
 {
     ItemFeatureFlags: { [key: number]: string}
-    Item: { [key: string]: number}
+    Item: { 
+        INVENTORY_TYPE_BACK: number;
+        INVENTORY_TYPE_BAG: number;
+        INVENTORY_TYPE_CHEST: number;
+        INVENTORY_TYPE_FEET: number;
+        INVENTORY_TYPE_FINGER: number;
+        INVENTORY_TYPE_HANDS: number;
+        INVENTORY_TYPE_HEAD: number;
+        INVENTORY_TYPE_HELD_IN_OFF_HAND: number;
+        INVENTORY_TYPE_LEGS: number;
+        INVENTORY_TYPE_MAIN_HAND: number;
+        INVENTORY_TYPE_NECK: number;
+        INVENTORY_TYPE_OFF_HAND: number;
+        INVENTORY_TYPE_ONE_HAND: number;
+        INVENTORY_TYPE_PROFESSION_ACCESSORY: number;
+        INVENTORY_TYPE_PROFESSION_TOOL: number;
+        INVENTORY_TYPE_PROJECTILE: number;
+        INVENTORY_TYPE_QUIVER: number;
+        INVENTORY_TYPE_RANGED: number;
+        INVENTORY_TYPE_RANGED_RIGHT: number;
+        INVENTORY_TYPE_RELIC: number;
+        INVENTORY_TYPE_ROBE: number;
+        INVENTORY_TYPE_SHIELD: number;
+        INVENTORY_TYPE_SHIRT: number;
+        INVENTORY_TYPE_SHOULDERS: number;
+        INVENTORY_TYPE_TABARD: number;
+        INVENTORY_TYPE_THROWN: number;
+        INVENTORY_TYPE_TRINKET: number;
+        INVENTORY_TYPE_TWO_HAND: number;
+        INVENTORY_TYPE_WAIST: number;
+        INVENTORY_TYPE_WRISTS: number;
+    }
     ComponentSections: { [key: number]: string}
     GeoSets: { [key: number]: GeoSetData}
 }

@@ -18,6 +18,21 @@ export async function reloadComponentTextures() {
     $("#component1TexturesSection .accordion-body").empty();
     $("#component2TexturesSection .accordion-body").empty();
 
+    
+    const unSupportedTypes = [
+        window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
+        window.WH.Wow.Item.INVENTORY_TYPE_SHIRT,
+        window.WH.Wow.Item.INVENTORY_TYPE_TABARD
+    ]
+    if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
+        $("#component1TexturesSection").parent().hide();
+        $("#component2TexturesSection").parent().hide();
+        return;
+    } else {
+        $("#component1TexturesSection").parent().show();
+        $("#component2TexturesSection").parent().show();
+    }
+
     for (const idStr in itemData.itemComponentModels) {
         const data = itemData.itemComponentModels[idStr];
         const id = +idStr + 1;

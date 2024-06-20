@@ -18,8 +18,22 @@ export async function reloadComponentModels() {
     $("#ci_componentmodel_extradata").val("-1");
     $("#addComponentModelBtn").attr('disabled', 'true');
 
-    $("#component1ModelsSection .accordion-body").empty();
-    $("#component2ModelsSection .accordion-body").empty();
+    $("#component1ModelsSection .accordion-body").empty()
+    $("#component2ModelsSection .accordion-body").empty()
+
+    const unSupportedTypes = [
+        window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
+        window.WH.Wow.Item.INVENTORY_TYPE_SHIRT,
+        window.WH.Wow.Item.INVENTORY_TYPE_TABARD
+    ]
+    if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
+        $("#component1ModelsSection").parent().hide();
+        $("#component2ModelsSection").parent().hide();
+        return;
+    } else {
+        $("#component1ModelsSection").parent().show();
+        $("#component2ModelsSection").parent().show();
+    }
 
     for (const idStr in itemData.itemComponentModels) {
         const data = itemData.itemComponentModels[idStr];
@@ -37,7 +51,6 @@ export async function reloadComponentModels() {
 
             let modelDataText = "";
             const racesProcessed: number[] = [];
-            console.log(data.models);
             for(const model of data.models) {
                 let label = "";
                 if (model.race !== 0) {
@@ -240,11 +253,20 @@ export async function onRandomizeComponent2Model() {
 export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
+
     while (!data.length) {
         const resp = await window.db.all<ModelResourceData>(`
             WITH mrIds as (
                 SELECT DISTINCT modelResourceId
                 FROM modelresources
+                WHERE displayId IN (
+                    SELECT itemDisplayId 
+                    FROM item_to_displayid
+                    WHERE inventoryType ${
+                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                    }
+                )
             ),
             nrdMrIds as (
             SELECT modelResourceId, ROW_NUMBER() OVER (
@@ -263,8 +285,10 @@ export async function randomizeComponentModel(slot: string) {
         if (resp.error) {
             throw resp.error;
         }
-        const supported = await testZamSupportComponentModel(resp.result[0].fileId);
-        data = supported ? resp.result : [];
+        if (resp.result.length) {
+            const supported = await testZamSupportComponentModel(resp.result[0].fileId);
+            data = supported ? resp.result : [];
+        }
     }
     itemData.itemComponentModels[slot].models = data.map(item => ({
         fileName: item.fileName,
