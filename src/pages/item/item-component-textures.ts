@@ -15,8 +15,13 @@ export async function reloadComponentTextures() {
     $("#ci_componenttexture_fileId").val("")
     $("#addComponentTextureBtn").attr('disabled', 'true');
 
-    $("#component1TexturesSection .accordion-body").empty();
-    $("#component2TexturesSection .accordion-body").empty();
+    const domTargets = {
+        "0": "#component1TexturesSection .accordion-body",
+        "1": "#component2TexturesSection .accordion-body"
+    } as { [key:string]: string }
+
+    $(domTargets["0"]).empty();
+    $(domTargets["1"]).empty();
 
     
     const unSupportedTypes = [
@@ -49,7 +54,7 @@ export async function reloadComponentTextures() {
             removeButton.on("click", onRemoveComponentTexture(idStr));
             inputGroup.append(removeButton)
             formGroup.append(inputGroup);
-            $("#component" + id + "TexturesSection .accordion-body").append(formGroup)
+            $(domTargets[idStr]).append(formGroup)
         } else {
             const button = $("<button id='component" + id + "AddTextureBtn' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentTextureModal'>Add Texture</button>")
             button.on("click", function () {
@@ -58,11 +63,11 @@ export async function reloadComponentTextures() {
                 $("#ci_componenttexture_file").val("");
                 onSearchComponentTexture();
             })
-            $("#component" + id + "TexturesSection .accordion-body").append(button)
+            $(domTargets[idStr]).append(button)
         }
         const randomizeButton1 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
         randomizeButton1.on("click", idStr === "0" ? onRandomizeComponent1Texture : onRandomizeComponent2Texture);
-        $("#component" + id + "TexturesSection .accordion-body").append(randomizeButton1);
+        $(domTargets[idStr]).append(randomizeButton1);
     }
 }
 

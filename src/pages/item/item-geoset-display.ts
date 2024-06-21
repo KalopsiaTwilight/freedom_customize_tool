@@ -3,7 +3,10 @@ import { getGeoSetsForInventoryType } from "./wow-data-utils";
 
 export async function reloadGeosetDisplay() {
     const itemData = await window.store.get('itemData');
-    $("#geosetSection").empty();
+
+    const domTarget = "#geosetSection";
+
+    $(domTarget).empty();
 
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
     for (const set of geoSets) {
@@ -18,12 +21,12 @@ export async function reloadGeosetDisplay() {
         select.on('change', onGeoSetDisplayChange(set))
         inputGroup.append(select);
         formGroup.append(inputGroup);
-        $("#geosetSection").append(formGroup);
+        $(domTarget).append(formGroup);
     }
 
     const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
     randomizeButton.on("click", onRandomizeGeosetData);
-    $("#geosetSection").append(randomizeButton);
+    $(domTarget).append(randomizeButton);
 }
 
 function onGeoSetDisplayChange(set: number) {

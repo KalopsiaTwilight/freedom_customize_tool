@@ -3,7 +3,8 @@ import { previewCustomItem } from "./preview-item";
 export async function reloadParticleColorComponents() {
     const itemData = await window.store.get('itemData');
 
-    $("#particleColorSection .accordion-body").empty();
+    const domTarget = "#particleColorSection .accordion-body";
+    $(domTarget).empty();
 
     if (itemData.particleColors.length > 0) {
         // Set modal colors
@@ -29,14 +30,14 @@ export async function reloadParticleColorComponents() {
             tbody.append(row);
         }
         table.append(tbody);
-        $("#particleColorSection .accordion-body").append(table);
+        $(domTarget).append(table);
         const removeButton = $("<button class='btn btn-outline-danger'>Clear Particle Color Override</button>");
         removeButton.on("click", onRemoveParticleColors)
 
         const buttons = $("<div class='d-flex justify-content-between'>");
         buttons.append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Edit Particle Colors</button>"));
         buttons.append(removeButton);
-        $("#particleColorSection .accordion-body").append(buttons)
+        $(domTarget).append(buttons)
 
     } else {
         for (let i = 1; i < 4; i++) {
@@ -45,7 +46,7 @@ export async function reloadParticleColorComponents() {
                 $("#ci_particle_alpha" + i + "_" + j).val("1");
             }
         }
-        $("#particleColorSection .accordion-body")
+        $(domTarget)
             .append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Set Particle Colors</button>"));
     }
 }

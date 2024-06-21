@@ -2,7 +2,10 @@ import { previewCustomItem } from "./preview-item";
 
 export async function reloadFlagsComponents() {
     const itemData = await window.store.get('itemData');
-    $("#flagsSection .accordion-body").empty();
+
+    const domTarget = "#flagsSection .accordion-body";
+
+    $(domTarget).empty();
     for (const flag in window.WH.Wow.ItemFeatureFlags) {
         const flagId = parseInt(flag, 10);
         const elem = $("<div class='form-check'>");
@@ -13,7 +16,7 @@ export async function reloadFlagsComponents() {
         checkbox.on('click', onFlagToggle(flagId))
         elem.append(checkbox);
         elem.append("<label class='form-check-label' for='id='cb_flag_" + flag + "'>" + window.WH.Wow.ItemFeatureFlags[flag] + "</label>");
-        $("#flagsSection .accordion-body").append(elem);
+        $(domTarget).append(elem);
     }
 }
 

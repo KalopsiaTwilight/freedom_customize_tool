@@ -18,8 +18,13 @@ export async function reloadComponentModels() {
     $("#ci_componentmodel_extradata").val("-1");
     $("#addComponentModelBtn").attr('disabled', 'true');
 
-    $("#component1ModelsSection .accordion-body").empty()
-    $("#component2ModelsSection .accordion-body").empty()
+    const domTargets = {
+        "0": "#component1ModelsSection .accordion-body",
+        "1": "#component2ModelsSection .accordion-body"
+    } as { [key:string]: string }
+
+    $(domTargets["0"]).empty()
+    $(domTargets["1"]).empty()
 
     const unSupportedTypes = [
         window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
@@ -46,7 +51,7 @@ export async function reloadComponentModels() {
             input.val(`${data.models[0].fileId} - ${data.models[0].fileName}`);
             inputGroup.append(input);
             formGroup.append(inputGroup);
-            $("#component" + id + "ModelsSection .accordion-body").append(formGroup)
+            $(domTargets[idStr]).append(formGroup)
             const modelDataLink = $(`<a data-bs-toggle="tooltip" data-bs-html="true">${data.models.length} race/gender combinations</a>`);
 
             let modelDataText = "";
@@ -81,12 +86,12 @@ export async function reloadComponentModels() {
             $(modelDataLink).attr('data-bs-title', modelDataText);
             const modelDataP = $("<p>Model is available for </p>");
             modelDataP.append(modelDataLink);
-            $("#component" + id + "ModelsSection .accordion-body").append(modelDataP)
+            $(domTargets[idStr]).append(modelDataP)
             new Tooltip(modelDataLink[0]);
             
             const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Remove</button>")
             removeButton.on("click", onRemoveComponentModel(idStr));
-            $("#component" + id + "ModelsSection .accordion-body").append(removeButton)
+            $(domTargets[idStr]).append(removeButton)
         } else {
             const addButton = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>Add Model</button>");
             addButton.on("click", function () {
@@ -95,12 +100,12 @@ export async function reloadComponentModels() {
                 $("#ci_preview_page").val(0);
                 onSearchComponentModel();
             });
-            $("#component" + id + "ModelsSection .accordion-body").append(addButton)
+            $(domTargets[idStr]).append(addButton)
         }
 
         const randomizeButton2 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
         randomizeButton2.on("click", idStr === "0" ? onRandomizeComponent1Model : onRandomizeComponent2Model);
-        $("#component" + id + "ModelsSection .accordion-body").append(randomizeButton2);
+        $(domTargets[idStr]).append(randomizeButton2);
     }
 }
 

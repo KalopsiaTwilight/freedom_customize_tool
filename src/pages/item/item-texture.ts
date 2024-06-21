@@ -12,8 +12,10 @@ import { getClassName, getComponentSectionsForInventoryType, getRaceName } from 
 export async function reloadTextures() {
     const itemData = await window.store.get('itemData');
 
+    const domTarget = "#texturesSection .accordion-body";
+    $(domTarget).empty();
+    
     $("#ci_texture_componentsection").empty();
-
     let opts = getComponentSectionsForInventoryType(itemData.inventoryType);
     const unfilledOpts = opts.filter((x) => !itemData.itemMaterials[x]);
     for (const opt of unfilledOpts) {
@@ -26,8 +28,6 @@ export async function reloadTextures() {
     $("#ci_texture_race").val("0");
     $("#ci_texture_class").val("0");
     $("#addTextureBtn").attr('disabled', 'true');
-
-    $("#texturesSection .accordion-body").empty();
 
     for (const sectionStr in itemData.itemMaterials) {
         const textures = itemData.itemMaterials[sectionStr];
@@ -58,36 +58,33 @@ export async function reloadTextures() {
             removeButton.on("click", onRemoveTexture(section, texture));
             inputGroup.append(removeButton)
             formGroup.append(inputGroup);
-            $("#texturesSection .accordion-body").append(formGroup);
+            $(domTarget).append(formGroup);
         }
     }
 
-    if (opts.length > 0) {
-
-        if (unfilledOpts.length > 0) {
-            const addTextureBtn = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addTextureModal'>Add Textures</button>");
-            addTextureBtn.on('click', () => {
-                $("#ci_preview_page").val(0);
-                $("#ci_texture_textureFile").val("");
-                onSearchTexture();
-            })
-            $("#texturesSection .accordion-body").append(addTextureBtn);
-        }
-
-        const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize All</button>")
-        randomizeButton.on("click", onRandomizeTextures);
-        $("#texturesSection .accordion-body")
-            .append(randomizeButton);
-   
-        if (unfilledOpts.length < opts.length) {
-            const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>")
-            removeButton.on("click", onClearTextures);
-            $("#texturesSection .accordion-body").append(removeButton)
-        }
-
-        $("#texturesSection").parent().show();
-    } else {
+    if (opts.length === 0) {
         $("#texturesSection").parent().hide();
+        return;
+    }
+    $("#texturesSection").parent().show();
+    if (unfilledOpts.length > 0) {
+        const addTextureBtn = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addTextureModal'>Add Textures</button>");
+        addTextureBtn.on('click', () => {
+            $("#ci_preview_page").val(0);
+            $("#ci_texture_textureFile").val("");
+            onSearchTexture();
+        })
+        $(domTarget).append(addTextureBtn);
+    }
+
+    const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize All</button>")
+    randomizeButton.on("click", onRandomizeTextures);
+    $(domTarget).append(randomizeButton);
+
+    if (unfilledOpts.length < opts.length) {
+        const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>")
+        removeButton.on("click", onClearTextures);
+        $(domTarget).append(removeButton)
     }
 }
 
@@ -132,7 +129,7 @@ async function onAddTexture(fileName: string, fileId: number) {
         itemData.itemMaterials[section] = [textureData];
     }
     await window.store.set('itemData', itemData);
-    
+
     await reloadTextures();
     await previewCustomItem();
 }
@@ -165,11 +162,11 @@ export async function onSearchTexture() {
         throw resp.error;
     }
 
-    const total = await window.db.get<{total: number}>(
+    const total = await window.db.get<{ total: number }>(
         `SELECT COUNT(*) total ${fromAndWhere}`,
         $("#ci_texture_textureFile").val()
     );
-    
+
     $("#ci_texture_resultsPreview").empty();
     const row = $("<div class='row'>");
     for (const texture of resp.result) {
@@ -198,13 +195,13 @@ export async function onSearchTexture() {
         leftArrow.on('click', prevPage);
     }
     const rightArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-right'></i></button>")
-    if (page === Math.ceil(total.result.total/pageSize)-1) {
+    if (page === Math.ceil(total.result.total / pageSize) - 1) {
         rightArrow.attr('disabled', 'disabled');
     } else {
         rightArrow.on('click', nextPage)
     }
     bottomContainer.append(leftArrow);
-    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
+    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page + 1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
     bottomContainer.append(rightArrow);
     $("#ci_texture_resultsPreview").append(bottomContainer);
 }
@@ -268,12 +265,12 @@ function onRandomizeTexture(section: number) {
 
 async function getRandomTexture() {
     let data: TextureFileData | null = null;
-    while(!data) {
+    while (!data) {
         const resp = await window.db.get(`
             SELECT *
             FROM texturefiles
             WHERE ROWID =  CEIL(?1 * (SELECT MAX(ROWID) FROM modelresources))
-            LIMIT 1`, 
+            LIMIT 1`,
             Math.random()
         );
         if (resp.error) {
