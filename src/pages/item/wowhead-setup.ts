@@ -101,10 +101,10 @@ export function setUpWowHeadConfig()
                     options: []
                 },
                 4: {
-                    title: "Gloves",
+                    title: "Wrists",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -129,7 +129,7 @@ export function setUpWowHeadConfig()
                     title: "Boots",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -166,7 +166,7 @@ export function setUpWowHeadConfig()
                     title: "Sleeves",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "Default",
                             value: 0
                         },
                         {
@@ -187,7 +187,7 @@ export function setUpWowHeadConfig()
                     title: "Legcuffs",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "Default",
                             value: 0
                         },
                         {
@@ -208,7 +208,7 @@ export function setUpWowHeadConfig()
                     title: "Shirt Doublet",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "Default",
                             value: 0
                         },
                         {
@@ -229,7 +229,7 @@ export function setUpWowHeadConfig()
                     title: "Pant Doublet",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "Default",
                             value: 0
                         },
                         {
@@ -246,7 +246,7 @@ export function setUpWowHeadConfig()
                     title: "Tabard",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "Default",
                             value: 0
                         },
                         {
@@ -259,7 +259,7 @@ export function setUpWowHeadConfig()
                     title: "Lower Body",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -280,7 +280,7 @@ export function setUpWowHeadConfig()
                     title: "Cloak",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: 0
                         },
                         {
@@ -333,7 +333,7 @@ export function setUpWowHeadConfig()
                     title: "Belt",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -371,7 +371,7 @@ export function setUpWowHeadConfig()
                     title: "Head",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -384,7 +384,7 @@ export function setUpWowHeadConfig()
                     title: "Torso",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -401,7 +401,7 @@ export function setUpWowHeadConfig()
                     title: "Hand Attachments",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -422,7 +422,7 @@ export function setUpWowHeadConfig()
                     title: "Shoulders",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -443,7 +443,7 @@ export function setUpWowHeadConfig()
                     title: "Helmet",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
@@ -464,7 +464,7 @@ export function setUpWowHeadConfig()
                     title: "Arm Upper",
                     options: [
                         {
-                            name: "No Geoset",
+                            name: "None",
                             value: -1
                         },
                         {
