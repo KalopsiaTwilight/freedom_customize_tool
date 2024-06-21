@@ -59,7 +59,7 @@ export async function reloadComponentModels() {
                     label = "All Races";
                 }
                 let genderLabel = "Male & Female"
-                if (model.gender !== 3) {
+                if (model.gender !== 2) {
                     if (racesProcessed.indexOf(model.race) !== -1) {
                         continue;
                     }
