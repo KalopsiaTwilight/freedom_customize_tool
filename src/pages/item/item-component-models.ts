@@ -19,8 +19,8 @@ export async function reloadComponentModels() {
     $("#addComponentModelBtn").attr('disabled', 'true');
 
     const domTargets = {
-        "0": "#component1ModelsSection .accordion-body",
-        "1": "#component2ModelsSection .accordion-body"
+        "0": "#component1ModelsSection",
+        "1": "#component2ModelsSection"
     } as { [key:string]: string }
 
     $(domTargets["0"]).empty()

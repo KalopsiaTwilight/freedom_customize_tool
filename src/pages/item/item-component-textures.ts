@@ -16,8 +16,8 @@ export async function reloadComponentTextures() {
     $("#addComponentTextureBtn").attr('disabled', 'true');
 
     const domTargets = {
-        "0": "#component1TexturesSection .accordion-body",
-        "1": "#component2TexturesSection .accordion-body"
+        "0": "#component1TexturesSection",
+        "1": "#component2TexturesSection"
     } as { [key:string]: string }
 
     $(domTargets["0"]).empty();
@@ -45,7 +45,6 @@ export async function reloadComponentTextures() {
         // Set Texture Content for Component
         if (data.texture.id > 0) {
             const formGroup = $("<div class='form-group mb-3' />");
-            formGroup.append($("<label for='ci_componentModelTexture_" + id + "' class='form-label'>Texture File</label>"));
             const inputGroup = $("<div class='input-group' />");
             const input = $("<input id='ci_componentModelTexture_" + id + "' class='form-control' readonly type='text' />");
             input.val(`${data.texture.id} - ${data.texture.name}`);
