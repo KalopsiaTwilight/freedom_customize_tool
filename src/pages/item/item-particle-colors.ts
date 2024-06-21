@@ -31,13 +31,6 @@ export async function reloadParticleColorComponents() {
         }
         table.append(tbody);
         $(domTarget).append(table);
-        const removeButton = $("<button class='btn btn-outline-danger'>Clear Particle Color Override</button>");
-        removeButton.on("click", onRemoveParticleColors)
-
-        const buttons = $("<div class='d-flex justify-content-between'>");
-        buttons.append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Edit Particle Colors</button>"));
-        buttons.append(removeButton);
-        $(domTarget).append(buttons)
 
     } else {
         for (let i = 1; i < 4; i++) {
@@ -46,9 +39,16 @@ export async function reloadParticleColorComponents() {
                 $("#ci_particle_alpha" + i + "_" + j).val("1");
             }
         }
-        $(domTarget)
-            .append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Set Particle Colors</button>"));
+        $(domTarget).append("<p>Using default particle generator colors</p>");
     }
+
+    const removeButton = $("<button class='btn btn-outline-danger'>Clear</button>");
+    removeButton.on("click", onRemoveParticleColors)
+
+    const btnContainer = $("<div class='d-flex justify-content-between align-items-center'>");
+    btnContainer.append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Edit Particle Colors</button>"));
+    btnContainer.append(removeButton);
+    $(domTarget).append(btnContainer)
 }
 
 async function onRemoveParticleColors() {

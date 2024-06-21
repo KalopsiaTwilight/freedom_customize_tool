@@ -1,5 +1,5 @@
 
-import { Modal } from "bootstrap"
+import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
@@ -13,14 +13,12 @@ export async function reloadTextures() {
     const itemData = await window.store.get('itemData');
 
     const domTarget = "#texturesSection .accordion-body";
+    $(`${domTarget} .btn`).each((_, elem) => {
+        const tt = Tooltip.getInstance(elem);
+        if (tt) { tt.dispose(); }
+    })
+
     $(domTarget).empty();
-    
-    $("#ci_texture_componentsection").empty();
-    let opts = getComponentSectionsForInventoryType(itemData.inventoryType);
-    const unfilledOpts = opts.filter((x) => !itemData.itemMaterials[x]);
-    for (const opt of unfilledOpts) {
-        $("#ci_texture_componentsection").append($("<option value='" + opt + "'>" + window.WH.Wow.ComponentSections[opt] + "</option>"))
-    }
 
     $("#ci_texture_textureFile").val("");
     $("#ci_texture_fileId").val("")
@@ -28,70 +26,79 @@ export async function reloadTextures() {
     $("#ci_texture_race").val("0");
     $("#ci_texture_class").val("0");
     $("#addTextureBtn").attr('disabled', 'true');
+    $("#ci_texture_componentsection").empty();
 
-    for (const sectionStr in itemData.itemMaterials) {
-        const textures = itemData.itemMaterials[sectionStr];
-        const section = parseInt(sectionStr, 10);
-        for (let i = 0; i < textures.length; i++) {
-            const texture = textures[i];
-            const formGroup = $("<div class='form-group mb-3' />");
-            let label = window.WH.Wow.ComponentSections[section];
-            if (texture.gender !== 3) {
-                label += " - " + (texture.gender === 0 ? "Male" : "Female")
-            }
-            if (texture.race !== 0) {
-                label += " - " + getRaceName(texture.race);
-            }
-            if (texture.class !== 0) {
-                label += " - " + getClassName(texture.class);
-            }
-            formGroup.append($("<label for='ci_texture_" + section + "_" + i + "' class='form-label'>" + label + "</label>"));
-            const inputGroup = $("<div class='input-group' />");
-            const input = $("<input id='ci_texture_" + section + "_" + i + "' class='form-control' readonly type='text' />");
-            input.val(`${texture.fileId} - ${texture.fileName}`);
-            inputGroup.append(input);
-            const randomizeButton = $("<button type='button' class='btn btn-outline-secondary'>Randomize</button>");
-            randomizeButton.on("click", onRandomizeTexture(section));
-            inputGroup.append(randomizeButton);
+    const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
 
-            const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
-            removeButton.on("click", onRemoveTexture(section, texture));
-            inputGroup.append(removeButton)
-            formGroup.append(inputGroup);
-            $(domTarget).append(formGroup);
-        }
-    }
-
-    if (opts.length === 0) {
+    if (sections.length === 0) {
         $("#texturesSection").parent().hide();
         return;
     }
-    $("#texturesSection").parent().show();
-    if (unfilledOpts.length > 0) {
-        const addTextureBtn = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addTextureModal'>Add Textures</button>");
-        addTextureBtn.on('click', () => {
+
+    for (const section of sections) {
+        $("#ci_texture_componentsection").append($("<option value='" + section + "'>" + window.WH.Wow.ComponentSections[section] + "</option>"))
+
+        const formGroup = $("<div class='form-group mb-3' />");
+
+        let label = window.WH.Wow.ComponentSections[section];
+        formGroup.append($("<label for='ci_texture_" + section + "' class='form-label'>" + label + "</label>"));
+
+        const input = $("<input id='ci_texture_" + section + "' class='form-control' readonly type='text' />");
+        const textures = itemData.itemMaterials[section];
+        if (textures && textures.length) {
+            const texture = textures[0];
+            input.val(`${texture.fileId} - ${texture.fileName}`);
+        } else {
+            input.val("None");
+        }
+
+        const inputGroup = $("<div class='input-group'/>");
+        inputGroup.append(input);
+
+        const editButton = $("<button class='btn btn-outline-dark'"
+            + "data-bs-toggle='modal' data-bs-target='#addTextureModal'>"
+            + "<i class='fa-solid fa-pencil'></i></button>");
+        editButton.on("click", function () {
             $("#ci_preview_page").val(0);
             $("#ci_texture_textureFile").val("");
+            $("#ci_texture_componentsection").val(section)
             onSearchTexture();
         })
-        $(domTarget).append(addTextureBtn);
+        inputGroup.append(editButton);
+
+        const randomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
+        randomizeButton.on("click", onRandomizeTexture(section));
+        inputGroup.append(randomizeButton);
+
+        const removeButton = $("<button class='btn btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
+        removeButton.on("click", onRemoveTexture(section));
+        inputGroup.append(removeButton)
+        formGroup.append(inputGroup);
+        $(domTarget).append(formGroup);
+
+        new Tooltip(editButton[0], { title: 'Edit' });
+        new Tooltip(randomizeButton[0], { title: 'Randomize' });
+        new Tooltip(removeButton[0], { title: 'Remove' })
     }
 
-    const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize All</button>")
+    $("#texturesSection").parent().show();
+    const btnContainer = $("<div class='d-flex justify-content-between'>");
+
+    const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>")
     randomizeButton.on("click", onRandomizeTextures);
-    $(domTarget).append(randomizeButton);
+    btnContainer.append(randomizeButton);
 
-    if (unfilledOpts.length < opts.length) {
-        const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>")
-        removeButton.on("click", onClearTextures);
-        $(domTarget).append(removeButton)
-    }
+    const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>")
+    removeButton.on("click", onClearTextures);
+    btnContainer.append(removeButton)
+
+    $(domTarget).append(btnContainer);
 }
 
-function onRemoveTexture(section: number, texture: ItemMaterialData) {
+function onRemoveTexture(section: number) {
     return async function () {
         const itemData = await window.store.get('itemData');
-        itemData.itemMaterials[section].splice(itemData.itemMaterials[section].indexOf(texture), 1);
+        itemData.itemMaterials[section] = [];
         await window.store.set('itemData', itemData);
         await reloadTextures();
         await previewCustomItem();
@@ -123,11 +130,8 @@ async function onAddTexture(fileName: string, fileId: number) {
         race: 0,
         class: 0,
     };
-    if (itemData.itemMaterials[section]) {
-        itemData.itemMaterials[section].push(textureData);
-    } else {
-        itemData.itemMaterials[section] = [textureData];
-    }
+
+    itemData.itemMaterials[section] = [textureData];
     await window.store.set('itemData', itemData);
 
     await reloadTextures();

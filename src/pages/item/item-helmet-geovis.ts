@@ -25,6 +25,11 @@ export async function reloadHelmetGeovisComponents() {
     $("#ci_helmetgeovis_gender").val("");
 
     const domTarget = "#geoSetOverrideSection .accordion-body";
+    $(`${domTarget} .btn`).each((_, elem) => {
+        const tt = Tooltip.getInstance(elem);
+        if (tt) { tt.dispose(); }
+    })
+
     $(domTarget).empty();
 
     // Combine helmetGeoVisMale and helmetGeoVisFemale into 1 container obj
@@ -50,25 +55,30 @@ export async function reloadHelmetGeovisComponents() {
     // Render overrides display
     const currentModelRace = parseInt($("#ci_model_race").val().toString());
     const currentModelGender = parseInt($("#ci_model_gender").val().toString());
+
+    const table = $("<table class='table'>");
+    table.append("<thead><tr><th>Model Part<th>Disabled for</th><th></th></tr></thead>")
+    const tbody = $("<tbody>");
     for(const group in data) {
-        const groupContainer = $("<div class='d-flex justify-content-between align-items-center mb-2'>");
-        groupContainer.append(`<span class='text-start'>${window.WH.Wow.GeoSets[parseInt(group)].title}</span>`)
+        const row = $("<tr>");
+        row.append(`<td>${window.WH.Wow.GeoSets[parseInt(group)].title}</td>`)
 
-        const rightContainer = $("<div>");
-        rightContainer.append(`<span>for </span>`)
-
+        const overrideCell = $("<td>");
         const opacityClass = (data[group].findIndex((x) => 
             (x.gender === currentModelGender || x.gender === 2) 
             && x.race === currentModelRace
         ) >= 0) ? "link-opacity-100" : "link-opacity-50";
         const geosetGroupLink = $(`<a class='link-underline-primary ${opacityClass}'>${data[group].length} race/gender combinations</a>`);
-        rightContainer.append(geosetGroupLink);
-        const removeButton = $("<button class='ms-3 btn btn-sm btn-danger'><i class='fa-solid fa-x'></i></button>");
-        removeButton.on('click', onClearSection(parseInt(group)))
-        rightContainer.append(removeButton);
+        overrideCell.append(geosetGroupLink);
+        row.append(overrideCell);
 
-        groupContainer.append(rightContainer);
-        $(domTarget).append(groupContainer);        
+        const buttonCell = $("<td>");
+        const removeButton = $("<button class='btn btn-sm btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
+        removeButton.on('click', onClearSection(parseInt(group)))
+        buttonCell.append(removeButton);
+        row.append(buttonCell);
+
+        tbody.append(row);        
         
         let geoSetGroupToolTipText = "";
         for(const item of data[group]) {
@@ -79,20 +89,25 @@ export async function reloadHelmetGeovisComponents() {
         }
 
         new Tooltip(geosetGroupLink[0], { customClass: 'tooltip-wide', title: geoSetGroupToolTipText, html: true });
-        new Tooltip(removeButton[0], { title: 'Clear override', container: 'body'})
+        new Tooltip(removeButton[0], { title: 'Remove', container: 'body'})
     }
+    table.append(tbody);
+    $(domTarget).append(table);
 
     // Add buttons
+    const btnContainer = $("<div class='d-flex justify-content-between align-items-center'>");
     const addButton = $("<button id='addGsOverride' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addGeosetOverrideModal'>Add Override</button>");
     addButton.on("click", function () {
         $("#ci_helmetgeovis_gender").val("-1");
         $("#ci_helmetgeovis_race").val("-1");
     })
-    $(domTarget).append(addButton);
+    btnContainer.append(addButton);
 
-    const clearButton = $("<button type='button' class='btn btn-outline-danger me-3'>Clear</button>");
+    const clearButton = $("<button type='button' class='btn btn-outline-danger'>Clear</button>");
     clearButton.on('click', onClearOverrides);
-    $(domTarget).append(clearButton);
+    btnContainer.append(clearButton);
+
+    $(domTarget).append(btnContainer);
 }
 
 function onClearSection(section: number) {

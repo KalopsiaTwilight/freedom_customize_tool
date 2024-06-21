@@ -26,9 +26,16 @@ export async function reloadGeosetDisplay() {
         $("#ci_geoset_" + set).val(itemData.geoSetGroup[i]);
     }
 
+    const btnContainer = $("<div class='d-flex justify-content-between'>");
     const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
     randomizeButton.on("click", onRandomizeGeosetData);
-    $(domTarget).append(randomizeButton);
+    btnContainer.append(randomizeButton);
+
+    const clearBtn = $("<button class='btn btn-outline-danger'>Clear</button>");
+    clearBtn.on('click', onClearGeoSetData);
+    btnContainer.append(clearBtn);
+
+    $(domTarget).append(btnContainer);
 }
 
 function onGeoSetDisplayChange(set: number) {
@@ -44,6 +51,14 @@ function onGeoSetDisplayChange(set: number) {
 export async function onRandomizeGeosetData() {
     await randomizeGeoSetData();
     await previewCustomItem();
+}
+
+async function onClearGeoSetData() {
+    const itemData = await window.store.get('itemData');
+    itemData.geoSetGroup = [0,0,0,0,0];
+    await window.store.set('itemData', itemData);
+    await previewCustomItem();
+    await reloadGeosetDisplay();
 }
 
 export async function randomizeGeoSetData() {

@@ -4,13 +4,14 @@ import { CharacterModelData } from "../../models";
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onSearchTexture, reloadTextures } from "./item-texture";
 import { exportToFile, loadFile, loadItem, onRandomizeItem, onSearchItem } from "./item-loading";
-import { onSearchComponentTexture, reloadComponentTextures } from "./item-component-textures";
-import { onSearchComponentModel, reloadComponentModels } from "./item-component-models";
+import { onSearchComponentTexture, randomizeComponentTexture, reloadComponentTextures } from "./item-component-textures";
+import { onSearchComponentModel, randomizeComponentModel, reloadComponentModels } from "./item-component-models";
 import { onSetParticleColors, reloadParticleColorComponents } from "./item-particle-colors";
 import { onAddGeoSetOverride, reloadHelmetGeovisComponents } from "./item-helmet-geovis";
 import { reloadFlagsComponents } from "./item-feature-flags";
 import { reloadGeosetDisplay } from "./item-geoset-display";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
+import { previewCustomItem } from "./preview-item";
 
 let windowResizeFn: () => void;
 
@@ -52,6 +53,12 @@ export default async function load() {
     $("#ci_model_race").on("change", onModelRaceChange)
 
     $("#randomizeItemBtn").on("click", onRandomizeItem)
+
+    $("#btnRandomizeComponent1").on("click", onRandomizeComponent("0"));
+    $("#btnClearComponent1").on("click", onClearComponent("0"));
+    
+    $("#btnRandomizeComponent2").on("click", onRandomizeComponent("1"));
+    $("#btnClearComponent2").on("click", onClearComponent("1"))
 
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");
@@ -99,4 +106,31 @@ export async function reloadAllSections(inventorySlot: number) {
     await reloadParticleColorComponents();
     await reloadFlagsComponents();
     await reloadHelmetGeovisComponents();
+}
+
+function onClearComponent(idStr: string) {
+    return async () => {
+        const itemData = await window.store.get('itemData');
+        itemData.itemComponentModels[idStr] = {
+            models: [],
+            texture: {
+                id: -1,
+                name: ""
+            }
+        }
+        await window.store.set('itemData', itemData);
+        await previewCustomItem();
+        await reloadComponentModels();
+        await reloadComponentTextures();
+    }
+}
+
+function onRandomizeComponent(idStr: string) {
+    return async () => {
+        await randomizeComponentModel(idStr);
+        await randomizeComponentTexture(idStr);
+        await previewCustomItem();
+        await reloadComponentModels();
+        await reloadComponentTextures();
+    }
 }

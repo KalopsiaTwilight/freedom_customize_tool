@@ -18,6 +18,13 @@ export async function reloadFlagsComponents() {
         elem.append("<label class='form-check-label' for='id='cb_flag_" + flag + "'>" + window.WH.Wow.ItemFeatureFlags[flag] + "</label>");
         $(domTarget).append(elem);
     }
+
+    const btnContainer = $("<div class='d-flex justify-content-end'>");
+    const clearButton = $("<button type='button' class='btn btn-outline-danger'>Clear</button>");
+    clearButton.on('click', onClearFlags);
+    btnContainer.append(clearButton);
+
+    $(domTarget).append(btnContainer);
 }
 
 function onFlagToggle(flagId: number) {
@@ -31,4 +38,11 @@ function onFlagToggle(flagId: number) {
         await window.store.set('itemData', itemData);
         await previewCustomItem();
     }
+}
+
+async function onClearFlags() {
+    const itemData = await window.store.get('itemData');
+    itemData.flags = 0;
+    await window.store.set('itemData', itemData);
+    await previewCustomItem();
 }

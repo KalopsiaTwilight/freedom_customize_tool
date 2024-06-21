@@ -22,6 +22,13 @@ export async function reloadComponentModels() {
         "1": "#component2ModelsSection"
     } as { [key:string]: string }
 
+    for(const id in domTargets) {
+        $(`${domTargets[id]} .btn`).each((_, elem) => {
+            const tt = Tooltip.getInstance(elem);
+            if (tt) { tt.dispose(); }
+        })
+    }
+
     $(domTargets["0"]).empty()
     $(domTargets["1"]).empty()
 
@@ -51,15 +58,46 @@ export async function reloadComponentModels() {
         const data = itemData.itemComponentModels[idStr];
         const id = +idStr + 1;
         
+        const input = $("<input id='ci_componentModel" + id +"' class='form-control' readonly type='text' />");
         if (data.models.length > 0) {
-            const formGroup = $("<div class='form-group mb-3' />");
-            const inputGroup = $("<div class='input-group' />");
-            const input = $("<input id='ci_componentModel" + id +"' class='form-control' readonly type='text' />");
             input.val(`${data.models[0].fileId} - ${data.models[0].fileName}`);
-            inputGroup.append(input);
-            formGroup.append(inputGroup);
-            $(domTargets[idStr]).append(formGroup)
-            const modelDataLink = $(`<a data-bs-toggle="tooltip" data-bs-html="true">${data.models.length} race/gender combinations</a>`);
+        } else {
+            input.val("None");
+        }
+
+        const inputGroup = $("<div class='input-group'/>");
+        inputGroup.append(input);
+
+        const editButton = $("<button type='button' class='btn btn-outline-dark'" 
+            + "data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>" 
+            + "<i class='fa-solid fa-pencil'></i></button>"
+        );
+        editButton.on("click", function () {
+            $("#ci_component_id").val(idStr);
+            $("#ci_componentmodel_modelfile").val("");
+            $("#ci_preview_page").val(0);
+            onSearchComponentModel();
+        });
+        inputGroup.append(editButton)
+
+        const randomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
+        randomizeButton.on("click", idStr === "0" ? onRandomizeComponent1Model : onRandomizeComponent2Model);
+        inputGroup.append(randomizeButton);
+
+        const removeButton = $("<button class='btn btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
+        removeButton.on("click", onRemoveComponentModel(idStr));
+        inputGroup.append(removeButton)
+
+        const formGroup = $("<div class='form-group mb-3' />");
+        formGroup.append(inputGroup);
+        $(domTargets[idStr]).append(formGroup)
+
+        new Tooltip(editButton[0], { title: 'Edit' });
+        new Tooltip(randomizeButton[0], { title: 'Randomize' });
+        new Tooltip(removeButton[0], { title: 'Remove'})
+
+        if (data.models.length) {
+            const modelDataLink = $(`<a data-bs-toggle="tooltip">${data.models.length} race/gender combinations</a>`);
 
             let modelDataText = "";
             const racesProcessed: number[] = [];
@@ -85,34 +123,14 @@ export async function reloadComponentModels() {
                 if (model.extraData !== -1) {
                     label += " - " + (model.extraData === 0 ? "Left Shoulderpad" : "Right Shoulderpad")
                 }
-                if (model.class !== 0) {
-                    label += " - " + getClassName(model.class);
-                }
                 modelDataText += label + "</br>";
             }
-            $(modelDataLink).attr('data-bs-title', modelDataText);
+
             const modelDataP = $("<p>Model is available for </p>");
             modelDataP.append(modelDataLink);
             $(domTargets[idStr]).append(modelDataP)
-            new Tooltip(modelDataLink[0]);
-            
-            const removeButton = $("<button type='button' class='btn btn-outline-danger me-3'>Remove</button>")
-            removeButton.on("click", onRemoveComponentModel(idStr));
-            $(domTargets[idStr]).append(removeButton)
-        } else {
-            const addButton = $("<button type='button' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>Add Model</button>");
-            addButton.on("click", function () {
-                $("#ci_component_id").val(idStr);
-                $("#ci_componentmodel_modelfile").val("");
-                $("#ci_preview_page").val(0);
-                onSearchComponentModel();
-            });
-            $(domTargets[idStr]).append(addButton)
+            new Tooltip(modelDataLink[0], { title: modelDataText, html: true });
         }
-
-        const randomizeButton2 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
-        randomizeButton2.on("click", idStr === "0" ? onRandomizeComponent1Model : onRandomizeComponent2Model);
-        $(domTargets[idStr]).append(randomizeButton2);
     }
 }
 
@@ -138,18 +156,16 @@ async function onAddComponentModel(modelResourceId: number) {
         notifyError("Oops! Looks like the component model you selected isn't supported anymore, please select a new model.")
         return;
     }
-    for(const model of dbResp.result) {
-        const componentId = $("#ci_component_id").val().toString();
-        const modelData = {
+    
+    const componentId = $("#ci_component_id").val().toString();
+    itemData.itemComponentModels[componentId].models = dbResp.result.map((model) => ({
             fileName: model.fileName,
             fileId: model.fileId,
             gender: model.genderId,
             race: model.raceId,
             class: 0,
             extraData: model.extraData
-        };
-        itemData.itemComponentModels[componentId].models.push(modelData);
-    }
+    }));
    
     await window.store.set('itemData', itemData);
     await reloadComponentModels();

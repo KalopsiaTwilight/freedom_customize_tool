@@ -1,4 +1,4 @@
-import { Modal } from "bootstrap"
+import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
@@ -20,10 +20,16 @@ export async function reloadComponentTextures() {
         "1": "#component2TexturesSection"
     } as { [key:string]: string }
 
+    for(const id in domTargets) {
+        $(`${domTargets[id]} .btn`).each((_, elem) => {
+            const tt = Tooltip.getInstance(elem);
+            if (tt) { tt.dispose(); }
+        })
+    }
+
     $(domTargets["0"]).empty();
     $(domTargets["1"]).empty();
 
-    
     const unSupportedTypes = [
         window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
         window.WH.Wow.Item.INVENTORY_TYPE_SHIRT,
@@ -43,30 +49,43 @@ export async function reloadComponentTextures() {
         const id = +idStr + 1;
 
         // Set Texture Content for Component
+        const input = $("<input id='ci_componentModelTexture_" + id + "' class='form-control' readonly type='text' />");
         if (data.texture.id > 0) {
-            const formGroup = $("<div class='form-group mb-3' />");
-            const inputGroup = $("<div class='input-group' />");
-            const input = $("<input id='ci_componentModelTexture_" + id + "' class='form-control' readonly type='text' />");
             input.val(`${data.texture.id} - ${data.texture.name}`);
-            inputGroup.append(input);
-            const removeButton = $("<button type='button' class='btn btn-outline-danger'>Remove</button>")
-            removeButton.on("click", onRemoveComponentTexture(idStr));
-            inputGroup.append(removeButton)
-            formGroup.append(inputGroup);
-            $(domTargets[idStr]).append(formGroup)
         } else {
-            const button = $("<button id='component" + id + "AddTextureBtn' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addComponentTextureModal'>Add Texture</button>")
-            button.on("click", function () {
-                $("#ci_component_id").val(idStr);
-                $("#ci_preview_page").val(0);
-                $("#ci_componenttexture_file").val("");
-                onSearchComponentTexture();
-            })
-            $(domTargets[idStr]).append(button)
+            input.val('None');
         }
-        const randomizeButton1 = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
-        randomizeButton1.on("click", idStr === "0" ? onRandomizeComponent1Texture : onRandomizeComponent2Texture);
-        $(domTargets[idStr]).append(randomizeButton1);
+        
+        const inputGroup = $("<div class='input-group' />");
+        inputGroup.append(input);
+
+        const editButton = $("<button class='btn btn-outline-dark'"
+            + "data-bs-toggle='modal' data-bs-target='#addComponentTextureModal'>"
+            + "<i class='fa-solid fa-pencil'></i></button>"
+        );
+        editButton.on("click", function () {
+            $("#ci_component_id").val(idStr);
+            $("#ci_preview_page").val(0);
+            $("#ci_componenttexture_file").val("");
+            onSearchComponentTexture();
+        })
+        $(inputGroup).append(editButton)
+
+        const randomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
+        randomizeButton.on("click", idStr === "0" ? onRandomizeComponent1Texture : onRandomizeComponent2Texture);
+        inputGroup.append(randomizeButton)
+
+        const removeButton = $("<button class='btn btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
+        removeButton.on("click", onRemoveComponentTexture(idStr));
+        inputGroup.append(removeButton)
+
+        const formGroup = $("<div class='form-group mb-3' />");
+        formGroup.append(inputGroup);
+        $(domTargets[idStr]).append(formGroup)
+
+        new Tooltip(editButton[0], { title: 'Edit' });
+        new Tooltip(randomizeButton[0], { title: 'Randomize' });
+        new Tooltip(removeButton[0], { title: 'Remove'})
     }
 }
 
