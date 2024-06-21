@@ -66,7 +66,8 @@ export async function randomizeGeoSetData() {
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
     for (let i = 0; i < geoSets.length; i++) {
         const geoSetData = window.WH.Wow.GeoSets[geoSets[i]];
-        const option = geoSetData.options[Math.floor(Math.random() * geoSetData.options.length)];
+        const opts = geoSetData.options.filter(x => x.value >= 0);
+        const option = opts[Math.floor(Math.random() * opts.length)];
         $("#ci_geoset_" + geoSets[i]).val(option.value);
         itemData.geoSetGroup[i] = option.value;
     }
