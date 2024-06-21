@@ -173,7 +173,10 @@ export async function onSearchComponentModel() {
             )
         )
         AND MR1.fileId = (
-            SELECT MIN(MR2.fileId) FROM modelresources MR2 WHERE MR2.modelResourceId = MR1.modelResourceId
+            SELECT MIN(MR2.fileId) 
+            FROM modelresources MR2 
+            WHERE MR2.modelResourceId = MR1.modelResourceId
+            AND (MR2.fileName like '%'|| ?1 || '%' OR MR2.fileId LIKE '%' || ?1 || '%')
         )
     `;
     const resp = await window.db.all<ModelResourceData>(`
