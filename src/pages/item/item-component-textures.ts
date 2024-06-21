@@ -36,12 +36,7 @@ export async function reloadComponentTextures() {
         window.WH.Wow.Item.INVENTORY_TYPE_TABARD
     ]
     if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
-        $(domTargets["0"]).closest('.accordion-item').hide();
-        $(domTargets["1"]).closest('.accordion-item').hide();
         return;
-    } else {
-        $(domTargets["0"]).closest('.accordion-item').show();
-        $(domTargets["1"]).closest('.accordion-item').show();
     }
 
     for (const idStr in itemData.itemComponentModels) {

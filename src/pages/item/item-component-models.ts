@@ -41,18 +41,26 @@ export async function reloadComponentModels() {
         $(domTargets["0"]).closest('.accordion-item').hide();
         $(domTargets["1"]).closest('.accordion-item').hide();
         return;
-    } else {
+    }
+    else if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
+        $("#component1Title").text("Right Shoulderpad");
+        $("#component2Title").text("Left Shoulderpad");
+        $(domTargets["0"]).closest('.accordion-item').show();
+        $(domTargets["1"]).closest('.accordion-item').show();
+    } 
+    else if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK) {
+        $("#component1Title").text("<Component Not Available for Capes>");
+        $("#component2Title").text("Component 1");
+        $(domTargets["0"]).closest('.accordion-item').hide();
+        $(domTargets["1"]).closest('.accordion-item').show();
+    }
+    else {
+        $("#component1Title").text("Component 1");
+        $("#component2Title").text("Component 2");
         $(domTargets["0"]).closest('.accordion-item').show();
         $(domTargets["1"]).closest('.accordion-item').show();
     }
 
-    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
-        $("#component1Title").text("Right Shoulderpad");
-        $("#component2Title").text("Left Shoulderpad");
-    } else {
-        $("#component1Title").text("Component 1");
-        $("#component2Title").text("Component 2");
-    }
 
     for (const idStr in itemData.itemComponentModels) {
         const data = itemData.itemComponentModels[idStr];
