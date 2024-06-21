@@ -72,6 +72,10 @@ export default async function load() {
         $("#ci_preview_page").val(0);
         onSearchTexture();
     })
+    $("#ci_texture_onlyForSect").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchTexture();
+    })
 
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");

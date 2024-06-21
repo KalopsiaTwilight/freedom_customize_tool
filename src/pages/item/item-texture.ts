@@ -65,6 +65,7 @@ export async function reloadTextures() {
             $("#ci_texture_textureFile").val("");
             $("#ci_texture_componentsection").val(section)
             $("#ci_texture_onlyForIs").prop('checked', false);
+            $("#ci_texture_onlyForSect").prop('checked', false);
             onSearchTexture();
         })
         inputGroup.append(editButton);
@@ -145,6 +146,7 @@ export async function onSearchTexture() {
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
     const onlyAppropriate = $("#ci_texture_onlyForIs").is(':checked');
+    const onlyForSect = $("#ci_texture_onlyForSect").is(':checked');
 
     let fromAndWhere = `
         FROM texturefiles 
@@ -171,6 +173,16 @@ export async function onSearchTexture() {
                         "IN (4,5,20)" : "= " + itemData.inventoryType 
                 }
             )`
+    }
+    if (onlyForSect) {
+        const section = parseInt($("#ci_texture_componentsection").val().toString());
+        fromAndWhere += `
+            AND fileId IN (
+                SELECT fileID
+                FROM componentsection_to_texturefile CTF
+                WHERE CTF.componentSection = ${section}
+            )
+        `
     }
 
     const resp = await window.db.all<TextureFileData>(`
