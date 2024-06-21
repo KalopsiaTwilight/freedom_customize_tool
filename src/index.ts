@@ -34,6 +34,8 @@ if (handleSquirrelEvent()) {
   // squirrel event handled and app will exit in 1000ms, so don't do anything else
 } else {
   log.initialize();
+  log.transports.console.format = '{h}:{i}:{s}.{ms} > [{processType}] {text}';
+  log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] [{processType}] {text}'
 
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
@@ -42,7 +44,7 @@ if (handleSquirrelEvent()) {
     setUpMenu();
     createWindow();
     setupIpc();
-    log.info(`[MAIN] Application is ready, running version: ${version}}!`);
+    log.info(`Application is ready, running version: ${version}!`);
   });
 
   // Quit when all windows are closed, except on macOS. There, it's common
@@ -90,7 +92,7 @@ if (handleSquirrelEvent()) {
         })
     });
     autoUpdater.on('error', (message) => {
-      log.error('[MAIN] Auto updater ran into an error:');
+      log.error('Auto updater ran into an error:');
       log.error(message);
     })
   }
@@ -197,7 +199,7 @@ async function setupIpc() {
       }
     }
   })
-  log.info("[MAIN] Initializing app data store from path: " + store.path);
+  log.info("Initializing app data store from path: " + store.path);
   setUpStoreIpc(store);
 
   const dbPath = isReleaseVer
@@ -288,21 +290,21 @@ async function createWindow(): Promise<void> {
       ? path.join(process.resourcesPath, "express_app.js")
       : "./.webpack/main/express_app.js";
 
-    log.info("[MAIN] Starting express process: " + expressPath);
+    log.info("Starting express process: " + expressPath);
     const expressAppProcess = utilityProcess.fork(expressPath, [], {
       stdio: "pipe",
     });
     expressAppProcess.on('message', (msg) => {
       expressPort = parseInt(msg.toString());
-      log.info("[MAIN] Express is running on port: ", expressPort);
+      log.info("Express is running on port: ", expressPort);
     });
-    log.info("[MAIN] Express running as pid: " + expressAppProcess.pid)
+    log.info("Express running as pid: " + expressAppProcess.pid)
     mainWindow.on("closed", () => {
       mainWindow = null;
       expressAppProcess.kill()
     })
   } catch (error: any) {
-    log.error('[MAIN] Encountered an error starting express:');
+    log.error('Encountered an error starting express:');
     log.error(error);
   }
 

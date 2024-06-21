@@ -5,6 +5,10 @@ import http from "http";
 import cors from "cors"
 import { AddressInfo } from "node:net"
 
+log.variables.processType = "express-app"
+log.transports.console.format = '{h}:{i}:{s}.{ms} > [{processType}] {text}';
+log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] [{processType}] {text}'
+
 const app = express();
 app.use(cors({
     origin: "*",
@@ -62,7 +66,7 @@ app.use('/', (req, res) => {
 const server = http.createServer(app);
 
 function shutdown() {
-    log.info("[EXPRESS] Shutting down Express server...");
+    log.info("Shutting down Express server...");
     server.close();
 }
 
@@ -72,7 +76,7 @@ process.on("SIGINT", shutdown);
 server.listen(0, 'localhost');
 server.on("listening", () => {
     const port = (server.address() as AddressInfo).port;
-    log.info(`[EXPRESS] Listening on: ${(server.address() as AddressInfo).port}`);
+    log.info(`Listening on: ${(server.address() as AddressInfo).port}`);
     process.parentPort.postMessage(port);
 });
-server.on("close", () => log.info("[EXPRESS] Express server closed."));
+server.on("close", () => log.info("Express server closed."));
