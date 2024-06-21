@@ -67,6 +67,7 @@ export async function reloadComponentTextures() {
             $("#ci_component_id").val(idStr);
             $("#ci_preview_page").val(0);
             $("#ci_componenttexture_file").val("");
+            $("#ci_componenttexture_onlyForIs").prop('checked', false);
             onSearchComponentTexture();
         })
         $(inputGroup).append(editButton)
@@ -122,20 +123,37 @@ async function onAddComponentTexture(fileName: string, fileId: number) {
 }
 
 export async function onSearchComponentTexture() {
+    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
+    const onlyAppropriate = $("#ci_componenttexture_onlyForIs").is(':checked');
 
-    const fromAndWhere = `
+    let fromAndWhere = `
         FROM texturefiles 
-        WHERE fileName like '%'|| ?1 || '%'
-        OR fileId LIKE '%' || ?1 || '%'
-        OR fileId IN (
-            SELECT DITF.fileId
-            FROM item_to_displayid IDI
-            JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
-            WHERE IDI.itemName LIKE '%' || ?1 || '%'
+        WHERE 
+        (
+            fileName like '%'|| ?1 || '%'
+            OR fileId LIKE '%' || ?1 || '%'
+            OR fileId IN (
+                SELECT DITF.fileId
+                FROM item_to_displayid IDI
+                JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
+                WHERE IDI.itemName LIKE '%' || ?1 || '%'
+            )
         )
     `;
+    if (onlyAppropriate) {
+        fromAndWhere += `               
+            AND fileId IN (
+                SELECT DITF.fileId
+                FROM item_to_displayid IDI
+                JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
+                WHERE IDI.inventoryType ${
+                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        "IN (4,5,20)" : "= " + itemData.inventoryType 
+                }
+            )`
+    }
     const resp = await window.db.all<TextureFileData>(`
         SELECT *
         ${fromAndWhere}

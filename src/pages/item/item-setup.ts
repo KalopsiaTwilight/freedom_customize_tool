@@ -60,6 +60,19 @@ export default async function load() {
     $("#btnRandomizeComponent2").on("click", onRandomizeComponent("1"));
     $("#btnClearComponent2").on("click", onClearComponent("1"))
 
+    $("#ci_componentmodel_onlyForIs").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentModel();
+    })
+    $("#ci_componenttexture_onlyForIs").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentTexture();
+    })
+    $("#ci_texture_onlyForIs").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchTexture();
+    })
+
     $("#patchWoWBtn").on("click", () => {
         $.LoadingOverlay("show");
         window.api.applyItemPatch();

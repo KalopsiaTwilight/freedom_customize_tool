@@ -3,10 +3,10 @@ import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
-import { ItemMaterialData, TextureFileData } from "../../models";
+import { TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
-import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
+import { getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
 
 
 export async function reloadTextures() {
@@ -62,6 +62,7 @@ export async function reloadTextures() {
             $("#ci_preview_page").val(0);
             $("#ci_texture_textureFile").val("");
             $("#ci_texture_componentsection").val(section)
+            $("#ci_texture_onlyForIs").prop('checked', false);
             onSearchTexture();
         })
         inputGroup.append(editButton);
@@ -139,20 +140,37 @@ async function onAddTexture(fileName: string, fileId: number) {
 }
 
 export async function onSearchTexture() {
+    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
+    const onlyAppropriate = $("#ci_texture_onlyForIs").is(':checked');
 
-    const fromAndWhere = `
+    let fromAndWhere = `
         FROM texturefiles 
-        WHERE fileName like '%'|| ?1 || '%'
-        OR fileId LIKE '%' || ?1 || '%'
-        OR fileId IN (
-            SELECT DITF.fileId
-            FROM item_to_displayid IDI
-            JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
-            WHERE IDI.itemName LIKE '%' || ?1 || '%'
+        WHERE 
+        (
+            fileName like '%'|| ?1 || '%'
+            OR fileId LIKE '%' || ?1 || '%'
+            OR fileId IN (
+                SELECT DITF.fileId
+                FROM item_to_displayid IDI
+                JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
+                WHERE IDI.itemName LIKE '%' || ?1 || '%'
+            )
         )
-    `;
+    `;    
+    if (onlyAppropriate) {
+        fromAndWhere += `               
+            AND fileId IN (
+                SELECT DITF.fileId
+                FROM item_to_displayid IDI
+                JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
+                WHERE IDI.inventoryType ${
+                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        "IN (4,5,20)" : "= " + itemData.inventoryType 
+                }
+            )`
+    }
 
     const resp = await window.db.all<TextureFileData>(`
         SELECT *

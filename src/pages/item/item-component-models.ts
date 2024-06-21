@@ -1,7 +1,7 @@
 import { ModelResourceData } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
-import { getClassName, getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
+import { getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
 
 import { Modal, Tooltip } from "bootstrap"
 
@@ -76,6 +76,7 @@ export async function reloadComponentModels() {
             $("#ci_component_id").val(idStr);
             $("#ci_componentmodel_modelfile").val("");
             $("#ci_preview_page").val(0);
+            $("#ci_componentmodel_onlyForIs").prop('checked', false);
             onSearchComponentModel();
         });
         inputGroup.append(editButton)
@@ -173,9 +174,12 @@ async function onAddComponentModel(modelResourceId: number) {
 }
 
 export async function onSearchComponentModel() {
+    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
+    const onlyAppropriate = $("#ci_componentmodel_onlyForIs").is(':checked');
+
     const pageSize = 4;
-    const fromAndFilterQuery = `
+    let fromAndFilterQuery = `
         FROM modelresources MR1
         WHERE 
         (
@@ -195,6 +199,17 @@ export async function onSearchComponentModel() {
             AND (MR2.fileName like '%'|| ?1 || '%' OR MR2.fileId LIKE '%' || ?1 || '%')
         )
     `;
+    if (onlyAppropriate) {
+        fromAndFilterQuery += `               
+            AND MR1.displayId IN (
+                SELECT itemDisplayId 
+                FROM item_to_displayid
+                WHERE inventoryType ${
+                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        "IN (4,5,20)" : "= " + itemData.inventoryType 
+                }
+            )`
+    }
     const resp = await window.db.all<ModelResourceData>(`
         SELECT * 
         ${fromAndFilterQuery}
