@@ -187,29 +187,35 @@ export async function onSearchComponentModel() {
     const onlyAppropriate = $("#ci_componentmodel_onlyForIs").is(':checked');
 
     const pageSize = 4;
-    let fromAndFilterQuery = `
-        FROM modelresources MR1
-        WHERE 
+    const ctes = `
+        WITH matchingItems AS
         (
-               MR1.fileName like '%'|| ?1 || '%' 
-            OR MR1.fileId LIKE '%' || ?1 || '%'
-            OR MR1.fileId IN (
-                SELECT DIMR.fileId
-                FROM item_to_displayid IDI
-                JOIN displayid_to_modelresource DIMR ON DIMR.displayId = IDI.itemDisplayId
-                WHERE IDI.itemName LIKE '%' || ?1 || '%'
+            SELECT MR1.*
+            FROM modelresources MR1
+            WHERE 
+            (
+                MR1.fileName like '%'|| ?1 || '%' 
+                OR MR1.fileId LIKE '%' || ?1 || '%'
+                OR MR1.fileId IN (
+                    SELECT DIMR.fileId
+                    FROM item_to_displayid IDI
+                    JOIN displayid_to_modelresource DIMR ON DIMR.displayId = IDI.itemDisplayId
+                    WHERE IDI.itemName LIKE '%' || ?1 || '%'
+                )
             )
         )
-        AND MR1.fileId = (
-            SELECT MIN(MR2.fileId) 
-            FROM modelresources MR2 
-            WHERE MR2.modelResourceId = MR1.modelResourceId
-            AND (MR2.fileName like '%'|| ?1 || '%' OR MR2.fileId LIKE '%' || ?1 || '%')
+    `
+    let fromAndFilterQuery = `
+        FROM matchingItems MI
+        WHERE MI.fileId = (
+            SELECT MIN(fileId) 
+            FROM matchingItems MI2
+            WHERE MI2.modelResourceId = MI.modelResourceId
         )
     `;
     if (onlyAppropriate) {
         fromAndFilterQuery += `               
-            AND MR1.displayId IN (
+            AND MI.displayId IN (
                 SELECT itemDisplayId 
                 FROM item_to_displayid
                 WHERE inventoryType ${
@@ -218,7 +224,9 @@ export async function onSearchComponentModel() {
                 }
             )`
     }
+    console.log(fromAndFilterQuery);
     const resp = await window.db.all<ModelResourceData>(`
+        ${ctes}
         SELECT * 
         ${fromAndFilterQuery}
         ORDER BY fileId DESC
@@ -231,7 +239,7 @@ export async function onSearchComponentModel() {
         throw resp.error;
     }
     const total = await window.db.get<{total: number}>(
-        `SELECT COUNT(*) total ${fromAndFilterQuery}`,
+        `${ctes} SELECT COUNT(*) total ${fromAndFilterQuery}`,
         $("#ci_componentmodel_modelfile").val()
     );
 
