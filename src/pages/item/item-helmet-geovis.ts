@@ -7,22 +7,6 @@ import { getPlayerRaces, getRaceName } from "./wow-data-utils";
 
 export async function reloadHelmetGeovisComponents() {
     const itemData = await window.store.get('itemData');
-    $("#ci_helmetgeovis_geosetgroup").empty();
-
-    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_HEAD) {
-        $("#geoSetOverrideSection").parent().show();
-    } else {
-        $("#geoSetOverrideSection").parent().hide();
-        return;
-    }
-
-    for (const geosetId in window.WH.Wow.GeoSets) {
-        $("#ci_helmetgeovis_geosetgroup").append($("<option value='" + geosetId + "'>" + window.WH.Wow.GeoSets[geosetId].title + "</option>"))
-    }
-
-    $("#ci_helmetgeovis_geosetgroup").val("0");
-    $("#ci_helmetgeovis_race").val("1");
-    $("#ci_helmetgeovis_gender").val("");
 
     const domTarget = "#geoSetOverrideSection .accordion-body";
     $(`${domTarget} .btn`).each((_, elem) => {
@@ -31,6 +15,21 @@ export async function reloadHelmetGeovisComponents() {
     })
 
     $(domTarget).empty();
+
+    if (itemData.inventoryType !== window.WH.Wow.Item.INVENTORY_TYPE_HEAD) {
+        $(domTarget).closest('.accordion-item').hide();
+        return;
+    }
+    
+    $(domTarget).closest('.accordion-item').show();
+    $("#ci_helmetgeovis_geosetgroup").val("0");
+    $("#ci_helmetgeovis_race").val("1");
+    $("#ci_helmetgeovis_gender").val("");
+    $("#ci_helmetgeovis_geosetgroup").empty();
+    
+    for (const geosetId in window.WH.Wow.GeoSets) {
+        $("#ci_helmetgeovis_geosetgroup").append($("<option value='" + geosetId + "'>" + window.WH.Wow.GeoSets[geosetId].title + "</option>"))
+    }
 
     // Combine helmetGeoVisMale and helmetGeoVisFemale into 1 container obj
     const geoSetCombined: GenderedItemGeoSetData[] = itemData.helmetGeoVisMale.map(x => ({

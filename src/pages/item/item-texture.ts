@@ -20,6 +20,12 @@ export async function reloadTextures() {
 
     $(domTarget).empty();
 
+    const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
+    if (sections.length === 0) {
+        $(domTarget).closest('.accordion-item').hide();
+        return;
+    }
+
     $("#ci_texture_textureFile").val("");
     $("#ci_texture_fileId").val("")
     $("#ci_texture_gender").val("3");
@@ -28,12 +34,8 @@ export async function reloadTextures() {
     $("#addTextureBtn").attr('disabled', 'true');
     $("#ci_texture_componentsection").empty();
 
-    const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
 
-    if (sections.length === 0) {
-        $("#texturesSection").parent().hide();
-        return;
-    }
+    $(domTarget).closest('.accordion-item').show();
 
     for (const section of sections) {
         $("#ci_texture_componentsection").append($("<option value='" + section + "'>" + window.WH.Wow.ComponentSections[section] + "</option>"))
@@ -82,7 +84,6 @@ export async function reloadTextures() {
         new Tooltip(removeButton[0], { title: 'Remove' })
     }
 
-    $("#texturesSection").parent().show();
     const btnContainer = $("<div class='d-flex justify-content-between'>");
 
     const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>")
