@@ -9,7 +9,8 @@ export async function reloadGeosetDisplay() {
     $(domTarget).empty();
 
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
-    for (const set of geoSets) {
+    for (let i = 0; i < geoSets.length; i++) {
+        const set = geoSets[i];
         const geoSetData = window.WH.Wow.GeoSets[set];
         const formGroup = $("<div class='form-group mb-3' />");
         formGroup.append($("<label for='ci_geoset_" + set + "' class='form-label'>" + geoSetData.title + "</label>"));
@@ -22,6 +23,7 @@ export async function reloadGeosetDisplay() {
         inputGroup.append(select);
         formGroup.append(inputGroup);
         $(domTarget).append(formGroup);
+        $("#ci_geoset_" + set).val(itemData.geoSetGroup[i]);
     }
 
     const randomizeButton = $("<button type='button' class='btn btn-secondary me-3'>Randomize</button>");
