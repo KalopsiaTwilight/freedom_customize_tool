@@ -15,7 +15,6 @@ export async function reloadComponentModels() {
     $("#ci_componentmodel_gender").val("3");
     $("#ci_componentmodel_race").val("0");
     $("#ci_componentmodel_class").val("0");
-    $("#ci_componentmodel_extradata").val("-1");
     $("#addComponentModelBtn").attr('disabled', 'true');
 
     const domTargets = {
@@ -38,6 +37,14 @@ export async function reloadComponentModels() {
     } else {
         $(domTargets["0"]).closest('.accordion-item').show();
         $(domTargets["1"]).closest('.accordion-item').show();
+    }
+
+    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
+        $("#component1Title").text("Right Shoulderpad");
+        $("#component2Title").text("Left Shoulderpad");
+    } else {
+        $("#component1Title").text("Component 1");
+        $("#component2Title").text("Component 2");
     }
 
     for (const idStr in itemData.itemComponentModels) {
@@ -139,9 +146,7 @@ async function onAddComponentModel(modelResourceId: number) {
             gender: model.genderId,
             race: model.raceId,
             class: 0,
-            extraData: itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS 
-                ? parseInt($("#ci_componentmodel_extraData").val().toString(), 10)
-                : model.extraData
+            extraData: model.extraData
         };
         itemData.itemComponentModels[componentId].models.push(modelData);
     }
