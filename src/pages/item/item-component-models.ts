@@ -32,12 +32,12 @@ export async function reloadComponentModels() {
         window.WH.Wow.Item.INVENTORY_TYPE_TABARD
     ]
     if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
-        $("#component1ModelsSection").parent().hide();
-        $("#component2ModelsSection").parent().hide();
+        $(domTargets["0"]).closest('.accordion-item').hide();
+        $(domTargets["1"]).closest('.accordion-item').hide();
         return;
     } else {
-        $("#component1ModelsSection").parent().show();
-        $("#component2ModelsSection").parent().show();
+        $(domTargets["0"]).closest('.accordion-item').show();
+        $(domTargets["1"]).closest('.accordion-item').show();
     }
 
     for (const idStr in itemData.itemComponentModels) {
