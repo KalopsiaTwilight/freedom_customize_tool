@@ -98,7 +98,7 @@ export async function reloadComponentModels() {
         new Tooltip(removeButton[0], { title: 'Remove'})
 
         if (data.models.length) {
-            const modelDataLink = $(`<a data-bs-toggle="tooltip">${data.models.length} race/gender combinations</a>`);
+            const modelDataLink = $(`<a class='link-underline-primary'>${data.models.length} race/gender combinations</a>`);
 
             let modelDataText = "";
             const racesProcessed: number[] = [];
