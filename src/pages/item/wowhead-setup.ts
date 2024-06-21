@@ -85,7 +85,7 @@ export function setUpWowHeadConfig()
             },
             GeoSets: {
                 0: {
-                    title: "Head",
+                    title: "Hair",
                     options: []
                 },
                 1: {
@@ -368,7 +368,7 @@ export function setUpWowHeadConfig()
                     ]
                 },
                 21: {
-                    title: "Head (new)",
+                    title: "Head",
                     options: [
                         {
                             name: "No Geoset",
