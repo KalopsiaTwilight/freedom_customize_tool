@@ -70,6 +70,9 @@ if (handleSquirrelEvent()) {
     setInterval(() => {
       autoUpdater.checkForUpdates();
     }, 60000 * 15);
+    setTimeout(() => {
+      autoUpdater.checkForUpdates()
+    }, 60000);
 
     autoUpdater.on('update-downloaded', (_, releaseNotes, releaseName)=> {
         const dialogOpts: Electron.MessageBoxOptions  = {
