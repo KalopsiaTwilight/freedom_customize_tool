@@ -256,6 +256,10 @@ function itemDataToPatch(itemData: ItemData): Patch
                 FallBackValue: 0,
             },
             {
+                ColumnName: "ModelType1",
+                Value: itemData.inventoryType === 16 ? 4 : 0
+            },
+            {
                 ColumnName: "GeosetGroup0",
                 Value: itemData.geoSetGroup[0],
             },
