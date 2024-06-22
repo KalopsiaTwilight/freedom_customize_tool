@@ -1,3 +1,5 @@
+import log from "electron-log"
+
 import html from "./preferences.html"
 
 export async function loadPage() {
@@ -31,6 +33,10 @@ export async function loadPage() {
             $("#pref_wowPath").val(folders[0]);
         }
     })
+
+    $("#pref_openLogBtn").on("click", () => {
+        window.api.openLogFile();
+    });
 
     $.LoadingOverlay("hide");
 }

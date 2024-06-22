@@ -126,6 +126,7 @@ declare interface ElectronApi {
     applyItemPatch: () => Promise<void>
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
     selectFolder: () => Promise<string[] | undefined>
+    openLogFile: () => Promise<void>
 }
 
 declare interface DbApi {

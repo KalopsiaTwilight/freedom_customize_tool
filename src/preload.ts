@@ -3,13 +3,14 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { 
 	CallDbAllChannel, CallDbExecChannel, CallDbGetChannel, CallApplyPatchChannel,
-	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialog 
+	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialog, CallOpenLogFileChannel 
 } from "./ipc/channels"
 
 contextBridge.exposeInMainWorld("api", {
 	getExpressAppUrl: () => ipcRenderer.invoke("get-express-app-url"),
 	applyItemPatch: () => ipcRenderer.invoke(CallApplyPatchChannel),
 	selectFolder: () => ipcRenderer.invoke(CallFolderSelectDialog),
+	openLogFile: () => ipcRenderer.invoke(CallOpenLogFileChannel),
 });
 
 contextBridge.exposeInMainWorld("db", {

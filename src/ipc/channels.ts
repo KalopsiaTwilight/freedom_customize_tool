@@ -9,5 +9,7 @@ export const CallSetStoreKeyChannel = "store:set"
 
 export const CallFolderSelectDialog = "dialog:folder";
 
+export const CallOpenLogFileChannel = "open:logfile";
+
 export const OnFirstStartChannel = "on:first-start"
 export const OnPatchToolExitChannel = "on:patch-tool-exit"

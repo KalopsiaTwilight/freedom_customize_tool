@@ -3,11 +3,12 @@ import log from 'electron-log/main'
 import Store from "electron-store"
 import path from "node:path";
 import fs from "node:fs"
+import { exec } from "node:child_process"
 import { name, version } from "../package.json";
 import * as sqlite3 from "sqlite3";
 
 import { setupDbIpc, setupPatchingIpc } from './ipc';
-import { CallFolderSelectDialog, OnFirstStartChannel } from './ipc/channels';
+import { CallFolderSelectDialog, CallOpenLogFileChannel, OnFirstStartChannel } from './ipc/channels';
 import { AppDataStore } from './models';
 import { setUpStoreIpc } from './ipc/store';
 import { sleep } from './utils';
@@ -159,6 +160,11 @@ async function setupIpc() {
     const expressUrl = `http://localhost:${expressPort}`
     return expressUrl;
   })
+
+  ipcMain.handle(CallOpenLogFileChannel, () => {
+    const logFile = log.transports.file.getFile();
+    exec('start "" "' + logFile.path + '"');
+  });
 
   const store = new Store<AppDataStore>({
     defaults: {
