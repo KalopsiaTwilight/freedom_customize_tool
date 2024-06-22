@@ -32,9 +32,16 @@ app.use('/zam', proxy("wow.zamimg.com", {
     },
     filter: function (req, res) {
         const armorRegex = /live\/meta\/armor\/\d+\/(\d+)/
-        const matchResult = armorRegex.exec(req.path);
-        if (matchResult) {
-            if (parseInt(matchResult[1]) >= 900000) {
+        const armorMatchResult = armorRegex.exec(req.path);
+        if (armorMatchResult) {
+            if (parseInt(armorMatchResult[1]) >= 900000) {
+                return false;
+            }
+        }
+        const weaponRegex = /live\/meta\/item\/(\d+)/
+        const weaponMatchResult = weaponRegex.exec(req.path);
+        if (weaponMatchResult) {
+            if (parseInt(weaponMatchResult[1]) >= 900000) {
                 return false;
             }
         }
@@ -57,6 +64,9 @@ app.post('/customItem', (req, res) => {
     }))
 })
 app.get("/zam/modelviewer/live/meta/armor/*", (req,res) => {
+    res.send(JSON.stringify(itemData));
+});
+app.get("/zam/modelviewer/live/meta/item/*", (req,res) => {
     res.send(JSON.stringify(itemData));
 });
 app.use('/', (req, res) => {

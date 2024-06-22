@@ -1,4 +1,4 @@
-import { getGeoSetsForInventoryType } from "./wow-data-utils";
+import { inventoryTypeToItemClassId } from "../../utils";
 
 export async function previewCustomItem() {
     if (!window.model) {
@@ -20,7 +20,7 @@ export async function previewCustomItem() {
         "Item": {
             "Flags": item.flags,
             "InventoryType": item.inventoryType,
-            "ItemClass": 4,
+            "ItemClass": inventoryTypeToItemClassId(item.inventoryType),
             "ItemSubClass": 5,
             "HideGeosetMale": null,
             "HideGeosetFemale": null,
