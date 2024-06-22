@@ -319,7 +319,9 @@ export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
 
-    while (!data.length) {
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data.length && nrTries < maxTries) {
         const resp = await window.db.all<ModelResourceData>(`
             WITH mrIds as (
                 SELECT DISTINCT modelResourceId
@@ -354,6 +356,11 @@ export async function randomizeComponentModel(slot: string) {
             const supported = await testZamSupportComponentModel(resp.result[0].fileId);
             data = supported ? resp.result : [];
         }
+        nrTries++;
+    }
+    if (nrTries === maxTries) {
+        notifyError("Unable to get a random component model! Please report this to a developer!");
+        return;
     }
     itemData.itemComponentModels[slot].models = data.map(item => ({
         fileName: item.fileName,
@@ -370,7 +377,9 @@ export async function hardRandomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
 
-    while (!data.length) {
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data.length && nrTries < maxTries) {
         const resp = await window.db.all<ModelResourceData>(`
             WITH mrIds as (
                 SELECT DISTINCT modelResourceId
@@ -397,6 +406,11 @@ export async function hardRandomizeComponentModel(slot: string) {
             const supported = await testZamSupportComponentModel(resp.result[0].fileId);
             data = supported ? resp.result : [];
         }
+        nrTries++;
+    }    
+    if (nrTries === maxTries) {
+        notifyError("Unable to get a random component model! Please report this to a developer!");
+        return;
     }
     itemData.itemComponentModels[slot].models = data.map(item => ({
         fileName: item.fileName,

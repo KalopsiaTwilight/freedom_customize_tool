@@ -270,7 +270,9 @@ export async function randomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
 
     let data: TextureFileData | null = null;
-    while(!data) {
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data && nrTries < maxTries) {
         const resp = await window.db.get(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
@@ -308,8 +310,13 @@ export async function randomizeComponentTexture(slot: string) {
         if (!supported) {
             data = null;
         }
+        nrTries++;
     }
-   
+    if (nrTries === maxTries) {
+        notifyError("Unable to get a random component texture! Please report this to a developer!");
+        return;
+    }
+    
     itemData.itemComponentModels[slot].texture = {
         name: data.fileName,
         id: data.fileId
@@ -321,7 +328,9 @@ export async function hardRandomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
 
     let data: TextureFileData | null = null;
-    while(!data) {
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data && nrTries < maxTries) {
         const resp = await window.db.get(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
@@ -350,6 +359,11 @@ export async function hardRandomizeComponentTexture(slot: string) {
         if (!supported) {
             data = null;
         }
+        nrTries++;
+    }    
+    if (nrTries === maxTries) {
+        notifyError("Unable to get a random component texture! Please report this to a developer!");
+        return;
     }
    
     itemData.itemComponentModels[slot].texture = {

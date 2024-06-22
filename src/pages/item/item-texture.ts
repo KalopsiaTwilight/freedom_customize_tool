@@ -335,6 +335,10 @@ export async function randomizeTextures() {
 
     for (const section of sections) {
         const textures = await getRandomTextures(section);
+        if (!textures.length) {
+            notifyError("Unable to get a random texture! Please report this to a developer!");
+            return;
+        }
         itemData.itemMaterials[section] = textures.map((item) => ({
             fileName: item.fileName,
             fileId: item.fileId,
@@ -352,6 +356,10 @@ async function hardRandomizeTextures() {
 
     for (const section of sections) {
         const textures = await getCompletelyRandomTextures();
+        if (!textures.length) {
+            notifyError("Unable to get a random texture! Please report this to a developer!");
+            return;
+        }
         itemData.itemMaterials[section] = textures.map((item) => ({
             fileName: item.fileName,
             fileId: item.fileId,
@@ -368,16 +376,20 @@ function onRandomizeTexture(section: number) {
         $.LoadingOverlay('show');
         const itemData = await window.store.get('itemData');
         const textures = await getRandomTextures(section);
-        itemData.itemMaterials[section] = textures.map((item) => ({
-            fileName: item.fileName,
-            fileId: item.fileId,
-            gender: item.genderId,
-            race: item.raceId,
-            class: item.classId,
-        }));
-        await window.store.set('itemData', itemData);
-        await previewCustomItem();
-        await reloadTextures();
+        if (!textures.length) {
+            notifyError("Unable to get a random texture! Please report this to a developer!");
+        } else {
+            itemData.itemMaterials[section] = textures.map((item) => ({
+                fileName: item.fileName,
+                fileId: item.fileId,
+                gender: item.genderId,
+                race: item.raceId,
+                class: item.classId,
+            }));
+            await window.store.set('itemData', itemData);
+            await previewCustomItem();
+            await reloadTextures();
+        }
         $.LoadingOverlay("hide");
     }
 }
@@ -387,24 +399,31 @@ function onHardRandomizeTexture(section: number) {
         $.LoadingOverlay('show');
         const itemData = await window.store.get('itemData');
         const textures = await getCompletelyRandomTextures();
-        itemData.itemMaterials[section] = textures.map((item) => ({
-            fileName: item.fileName,
-            fileId: item.fileId,
-            gender: item.genderId,
-            race: item.raceId,
-            class: item.classId,
-        }));
-        await window.store.set('itemData', itemData);
-        await previewCustomItem();
-        await reloadTextures();
+        if (!textures.length) {
+            notifyError("Unable to get a random texture! Please report this to a developer!");
+        } else {
+            itemData.itemMaterials[section] = textures.map((item) => ({
+                fileName: item.fileName,
+                fileId: item.fileId,
+                gender: item.genderId,
+                race: item.raceId,
+                class: item.classId,
+            }));
+            await window.store.set('itemData', itemData);
+            await previewCustomItem();
+            await reloadTextures();
+        }
         $.LoadingOverlay("hide");
     }
 }
 
-async function getRandomTextures(section: number) {
+async function getRandomTextures(section: number): Promise<TextureFileData[] | null> {
     const itemData = await window.store.get('itemData');
     let data: TextureFileData[] | null = null;
-    while (!data) {
+
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data.length && nrTries < maxTries) {
         const resp = await window.db.all<TextureFileData>(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
@@ -445,13 +464,17 @@ async function getRandomTextures(section: number) {
         if (!supported) {
             data = null;
         }
+        nrTries++;
     }
     return data;
 }
 
-async function getCompletelyRandomTextures() {
+async function getCompletelyRandomTextures(): Promise<TextureFileData[] | null> {
     let data: TextureFileData[] | null = null;
-    while (!data) {
+
+    const maxTries = 10;
+    let nrTries = 0;
+    while (!data.length && nrTries < maxTries) {
         const resp = await window.db.all<TextureFileData>(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
@@ -478,6 +501,7 @@ async function getCompletelyRandomTextures() {
         if (!supported) {
             data = null;
         }
+        nrTries++;
     }
     return data;
 }
