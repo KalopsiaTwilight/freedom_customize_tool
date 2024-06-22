@@ -106,9 +106,9 @@ export async function reloadComponentModels() {
         new Tooltip(removeButton[0], { title: 'Remove'})
 
         if (data.models.length) {
-            const modelDataLink = $(`<a class='link-underline-primary'>${data.models.length} race/gender combinations</a>`);
+            const tooltipLink = $(`<a class='link-underline-primary'>${data.models.length} race/gender combinations</a>`);
 
-            let modelDataText = "";
+            let tooltipText = "";
             const racesProcessed: number[] = [];
             for(const model of data.models) {
                 let label = "";
@@ -132,13 +132,13 @@ export async function reloadComponentModels() {
                 if (model.extraData !== -1) {
                     label += " - " + (model.extraData === 0 ? "Left Shoulderpad" : "Right Shoulderpad")
                 }
-                modelDataText += label + "</br>";
+                tooltipText += label + "</br>";
             }
 
-            const modelDataP = $("<p>Model is available for </p>");
-            modelDataP.append(modelDataLink);
-            $(domTargets[idStr]).append(modelDataP)
-            new Tooltip(modelDataLink[0], { title: modelDataText, html: true });
+            const tooltipP = $("<p>Model is available for </p>");
+            tooltipP.append(tooltipLink);
+            $(domTargets[idStr]).append(tooltipP)
+            new Tooltip(tooltipLink[0], { title: tooltipText, html: true });
         }
     }
 }
@@ -159,6 +159,9 @@ async function onAddComponentModel(modelResourceId: number) {
         `SELECT * FROM modelresources where modelResourceId = ?`,
         modelResourceId
     )
+    if (dbResp.error) {
+        throw dbResp.error;
+    }
 
     const modelSupported = await testZamSupportComponentModel(dbResp.result[0].fileId);
     if (!modelSupported) {
@@ -207,10 +210,10 @@ export async function onSearchComponentModel() {
     `
     let fromAndFilterQuery = `
         FROM matchingItems MI
-        WHERE MI.fileId = (
-            SELECT MIN(fileId) 
+        WHERE MI.fileId IN (
+            SELECT MIN(fileId)
             FROM matchingItems MI2
-            WHERE MI2.modelResourceId = MI.modelResourceId
+            GROUP BY MI2.modelResourceId
         )
     `;
     if (onlyAppropriate) {
@@ -224,7 +227,6 @@ export async function onSearchComponentModel() {
                 }
             )`
     }
-    console.log(fromAndFilterQuery);
     const resp = await window.db.all<ModelResourceData>(`
         ${ctes}
         SELECT * 
@@ -286,12 +288,14 @@ function nextPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage + 1);
     onSearchComponentModel();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 function prevPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage - 1);
     onSearchComponentModel();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 export async function onRandomizeComponent1Model() {

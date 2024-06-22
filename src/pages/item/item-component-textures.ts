@@ -123,23 +123,36 @@ export async function onSearchComponentTexture() {
     const pageSize = 4;
     const onlyAppropriate = $("#ci_componenttexture_onlyForIs").is(':checked');
 
-    let fromAndWhere = `
-        FROM texturefiles 
+    const ctes = `
+        WITH matchingItems AS
+        (
+            SELECT TF1.*
+            FROM texturefiles TF1
         WHERE 
         (
-            fileName like '%'|| ?1 || '%'
-            OR fileId LIKE '%' || ?1 || '%'
-            OR fileId IN (
+                TF1.fileName like '%'|| ?1 || '%'
+                OR TF1.fileId LIKE '%' || ?1 || '%'
+                OR TF1.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
                 WHERE IDI.itemName LIKE '%' || ?1 || '%'
             )
+            )
+        )
+    `
+    let fromAndWhere = `
+        FROM matchingItems MI
+        WHERE MI.fileId IN (
+            SELECT MIN(fileId)
+            FROM matchingItems MI2
+            GROUP BY MI2.materialResourceId
+            HAVING COUNT(*) = 1
         )
     `;
     if (onlyAppropriate) {
         fromAndWhere += `               
-            AND fileId IN (
+            AND MI.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
@@ -150,6 +163,7 @@ export async function onSearchComponentTexture() {
             )`
     }
     const resp = await window.db.all<TextureFileData>(`
+        ${ctes}
         SELECT *
         ${fromAndWhere}
         ORDER BY fileId DESC
@@ -162,7 +176,7 @@ export async function onSearchComponentTexture() {
     }
 
     const total = await window.db.get<{total: number}>(
-        `SELECT COUNT(*) total ${fromAndWhere}`,
+        `${ctes} SELECT COUNT(*) total ${fromAndWhere}`,
         $("#ci_componenttexture_file").val()
     );
     
@@ -209,12 +223,14 @@ function nextPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage + 1);
     onSearchComponentTexture();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 function prevPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage - 1);
     onSearchComponentTexture();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 export async function onRandomizeComponent1Texture() {
@@ -234,13 +250,37 @@ export async function onRandomizeComponent2Texture() {
 }
 
 export async function randomizeComponentTexture(slot: string) {
+    const itemData = await window.store.get('itemData');
+
     let data: TextureFileData | null = null;
     while(!data) {
         const resp = await window.db.get(`
-            SELECT *
-            FROM texturefiles
-            WHERE ROWID =  CEIL(?1 * (SELECT MAX(ROWID) FROM modelresources))
-            LIMIT 1`, 
+            WITH mrIds as (
+                SELECT DISTINCT materialResourceId
+                FROM texturefiles
+                WHERE fileId IN (
+                    SELECT DITF.fileId
+                    FROM item_to_displayid IDI
+                    JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
+                    WHERE IDI.inventoryType ${
+                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                    }
+                )
+                GROUP BY materialResourceId
+                HAVING COUNT(*) = 1
+            ),
+            nrdMrIds as (
+            SELECT materialResourceId, ROW_NUMBER() OVER (
+                    ORDER BY materialResourceId
+                ) RowNum 
+                FROM mrIds
+            ),
+            randomMrId as (
+                SELECT materialResourceId FROM nrdMrIds
+                WHERE RowNum = ROUND(? * (SELECT MAX(RowNum) FROM nrdMrIds) + 0.5)
+            )
+            SELECT * FROM texturefiles WHERE materialResourceId = (SELECT * FROM randomMrId)`, 
             Math.random()
         );
         if (resp.error) {
@@ -253,7 +293,6 @@ export async function randomizeComponentTexture(slot: string) {
         }
     }
    
-    const itemData = await window.store.get('itemData');
     itemData.itemComponentModels[slot].texture = {
         name: data.fileName,
         id: data.fileId

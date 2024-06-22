@@ -6,7 +6,7 @@ import { notifyError } from "../../utils/alerts";
 import { TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
-import { getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
+import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
 
 
 export async function reloadTextures() {
@@ -83,6 +83,34 @@ export async function reloadTextures() {
         new Tooltip(editButton[0], { title: 'Edit' });
         new Tooltip(randomizeButton[0], { title: 'Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove' })
+
+        if (textures && textures.length) {
+            const tooltipLink = $(`<a class='link-underline-primary'>${textures.length} race/gender/class variation(s)</a>`);
+
+            let tooltipText = "";
+            for(const texture of textures) {
+                let label = "";
+                if (texture.race !== 0) {
+                    label = getRaceName(texture.race);
+                } else {
+                    label = "All Races";
+                }
+                let genderLabel = "Male & Female"
+                if (texture.gender !== 3) {
+                    genderLabel = (texture.gender === 0 ? "Male" : "Female")
+                }
+                label += " - " + genderLabel;
+                if (texture.class != 0) {
+                    tooltipText += " - " + getClassName(texture.class);
+                }
+                tooltipText += label + "</br>";
+            }
+
+            const tooltipP = $("<p>Texture has </p>");
+            tooltipP.append(tooltipLink);
+            $(domTarget).append(tooltipP)
+            new Tooltip(tooltipLink[0], { title: tooltipText, html: true });
+        }
     }
 
     const btnContainer = $("<div class='d-flex justify-content-between'>");
@@ -116,25 +144,32 @@ async function onClearTextures() {
     await reloadTextures();
 }
 
-async function onAddTexture(fileName: string, fileId: number) {
-    const modelSupported = await testZamSupportTexture(fileId);
+async function onAddTexture(materialResourceId: number ) {
+    const itemData = await window.store.get('itemData');
+    const dbResp = await window.db.all<TextureFileData>(
+        `SELECT * FROM texturefiles where materialResourceId = ?`,
+        materialResourceId
+    )
+    if (dbResp.error) {
+        throw dbResp.error;
+    }
+
+    const modelSupported = await testZamSupportTexture(dbResp.result[0].fileId);
     if (!modelSupported) {
         notifyError("Oops! Looks like the texture you selected isn't supported anymore, please select a new texture.")
         return;
     }
 
-    const itemData = await window.store.get('itemData');
-
     const section = parseInt($("#ci_texture_componentsection").val().toString(), 10);
-    const textureData = {
-        fileName,
-        fileId,
-        gender: 3,
-        race: 0,
-        class: 0,
-    };
+    const textureData = dbResp.result.map((item) => ({
+        fileName: item.fileName,
+        fileId: item.fileId,
+        gender: item.genderId,
+        race: item.raceId,
+        class: item.classId,
+    }));
 
-    itemData.itemMaterials[section] = [textureData];
+    itemData.itemMaterials[section] = textureData;
     await window.store.set('itemData', itemData);
 
     await reloadTextures();
@@ -148,23 +183,35 @@ export async function onSearchTexture() {
     const onlyAppropriate = $("#ci_texture_onlyForIs").is(':checked');
     const onlyForSect = $("#ci_texture_onlyForSect").is(':checked');
 
-    let fromAndWhere = `
-        FROM texturefiles 
+    const ctes = `
+    WITH matchingItems AS
+    (
+        SELECT TF1.*
+        FROM texturefiles TF1
         WHERE 
         (
-            fileName like '%'|| ?1 || '%'
-            OR fileId LIKE '%' || ?1 || '%'
-            OR fileId IN (
+            TF1.fileName like '%'|| ?1 || '%'
+            OR TF1.fileId LIKE '%' || ?1 || '%'
+            OR TF1.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
                 WHERE IDI.itemName LIKE '%' || ?1 || '%'
             )
         )
+    )
+    `
+    let fromAndWhere = `
+        FROM matchingItems MI
+        WHERE MI.fileId IN (
+            SELECT MIN(fileId)
+            FROM matchingItems MI2
+            GROUP BY MI2.materialResourceId
+        )
     `;    
     if (onlyAppropriate) {
         fromAndWhere += `               
-            AND fileId IN (
+            AND MI.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
@@ -177,7 +224,7 @@ export async function onSearchTexture() {
     if (onlyForSect) {
         const section = parseInt($("#ci_texture_componentsection").val().toString());
         fromAndWhere += `
-            AND fileId IN (
+            AND MI.fileId IN (
                 SELECT fileID
                 FROM componentsection_to_texturefile CTF
                 WHERE CTF.componentSection = ${section}
@@ -186,6 +233,7 @@ export async function onSearchTexture() {
     }
 
     const resp = await window.db.all<TextureFileData>(`
+        ${ctes}
         SELECT *
         ${fromAndWhere}
         ORDER BY fileId DESC
@@ -198,7 +246,7 @@ export async function onSearchTexture() {
     }
 
     const total = await window.db.get<{ total: number }>(
-        `SELECT COUNT(*) total ${fromAndWhere}`,
+        `${ctes} SELECT COUNT(*) total ${fromAndWhere}`,
         $("#ci_texture_textureFile").val()
     );
 
@@ -215,7 +263,7 @@ export async function onSearchTexture() {
         })
         linkElem.append(`<p>${texture.fileName}</p>`)
         linkElem.on("click", function () {
-            onAddTexture(texture.fileName, texture.fileId);
+            onAddTexture(texture.materialResourceId);
             Modal.getOrCreateInstance("#addTextureModal").hide();
         });
         col.append(linkElem);
@@ -245,12 +293,14 @@ function nextPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage + 1);
     onSearchTexture();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 function prevPage() {
     const curPage = parseInt($("#ci_preview_page").val().toString());
     $("#ci_preview_page").val(curPage - 1);
     onSearchTexture();
+    $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
 export async function onRandomizeTextures() {

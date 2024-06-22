@@ -18,7 +18,12 @@ export interface ModelResourceData {
 
 export interface TextureFileData {
     fileName: string, 
-    fileId: number
+    fileId: number,
+    filePath: string,
+    genderId: number,
+    raceId: number,
+    classId: number,
+    materialResourceId: number,
 }
 
 export interface DbResponse<T> {
