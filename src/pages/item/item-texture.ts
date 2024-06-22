@@ -317,14 +317,14 @@ export async function randomizeTextures() {
     const sections = getComponentSectionsForInventoryType(itemData.inventoryType);
 
     for (const section of sections) {
-        const texture = await getRandomTexture();
-        itemData.itemMaterials[section] = [{
-            fileName: texture.fileName,
-            fileId: texture.fileId,
-            gender: 3,
-            race: 0,
-            class: 0
-        }]
+        const textures = await getRandomTextures(section);
+        itemData.itemMaterials[section] = textures.map((item) => ({
+            fileName: item.fileName,
+            fileId: item.fileId,
+            gender: item.genderId,
+            race: item.raceId,
+            class: item.classId,
+        }));
     }
     await window.store.set('itemData', itemData);
 }
@@ -333,14 +333,14 @@ function onRandomizeTexture(section: number) {
     return async () => {
         $.LoadingOverlay('show');
         const itemData = await window.store.get('itemData');
-        const texture = await getRandomTexture();
-        itemData.itemMaterials[section] = [{
-            fileName: texture.fileName,
-            fileId: texture.fileId,
-            gender: 3,
-            race: 0,
-            class: 0
-        }]
+        const textures = await getRandomTextures(section);
+        itemData.itemMaterials[section] = textures.map((item) => ({
+            fileName: item.fileName,
+            fileId: item.fileId,
+            gender: item.genderId,
+            race: item.raceId,
+            class: item.classId,
+        }));
         await window.store.set('itemData', itemData);
         await previewCustomItem();
         await reloadTextures();
@@ -348,21 +348,56 @@ function onRandomizeTexture(section: number) {
     }
 }
 
-async function getRandomTexture() {
-    let data: TextureFileData | null = null;
+async function getRandomTextures(section: number) {
+    const itemData = await window.store.get('itemData');
+    let data: TextureFileData[] | null = null;
     while (!data) {
-        const resp = await window.db.get(`
-            SELECT *
-            FROM texturefiles
-            WHERE ROWID =  CEIL(?1 * (SELECT MAX(ROWID) FROM modelresources))
-            LIMIT 1`,
+        const resp = await window.db.all<TextureFileData>(`
+            WITH mrIds as (
+                SELECT DISTINCT materialResourceId
+                FROM texturefiles
+                WHERE fileId IN (
+                    SELECT DITF.fileId
+                    FROM item_to_displayid IDI
+                    JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
+                    WHERE IDI.inventoryType ${
+                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                    }
+                )
+                AND fileId IN (
+                    SELECT fileID
+                    FROM componentsection_to_texturefile CTF
+                    WHERE CTF.componentSection = ${section}
+                ) 
+                AND fileId IN (
+                    SELECT DITF.fileId
+                    FROM item_to_displayid IDI
+                    JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
+                    WHERE IDI.inventoryType ${
+                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                    }
+                )
+            ),
+            nrdMrIds as (
+            SELECT materialResourceId, ROW_NUMBER() OVER (
+                    ORDER BY materialResourceId
+                ) RowNum 
+                FROM mrIds
+            ),
+            randomMrId as (
+                SELECT materialResourceId FROM nrdMrIds
+                WHERE RowNum = ROUND(? * (SELECT MAX(RowNum) FROM nrdMrIds) + 0.5)
+            )
+            SELECT * FROM texturefiles WHERE materialResourceId = (SELECT * FROM randomMrId)`,
             Math.random()
         );
         if (resp.error) {
             throw resp.error;
         }
-        data = resp.result as TextureFileData;
-        const supported = await testZamSupportTexture(data.fileId);
+        data = resp.result;
+        const supported = await testZamSupportTexture(data[0].fileId);
         if (!supported) {
             data = null;
         }
