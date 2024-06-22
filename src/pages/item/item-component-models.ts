@@ -43,8 +43,8 @@ export async function reloadComponentModels() {
         return;
     }
     else if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
-        $("#component1Title").text("Right Shoulderpad");
-        $("#component2Title").text("Left Shoulderpad");
+        $("#component1Title").text("Left Shoulderpad");
+        $("#component2Title").text("Right Shoulderpad");
         $(domTargets["0"]).closest('.accordion-item').show();
         $(domTargets["1"]).closest('.accordion-item').show();
     } 
