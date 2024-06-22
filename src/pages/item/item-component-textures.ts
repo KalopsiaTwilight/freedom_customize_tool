@@ -67,9 +67,25 @@ export async function reloadComponentTextures() {
         })
         $(inputGroup).append(editButton)
 
-        const randomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
-        randomizeButton.on("click", idStr === "0" ? onRandomizeComponent1Texture : onRandomizeComponent2Texture);
-        inputGroup.append(randomizeButton)
+        const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
+        softRandomizeButton.on("click", async () => {
+            $.LoadingOverlay("show");
+            await randomizeComponentTexture(idStr);
+            await reloadComponentTextures();
+            await previewCustomItem();
+            $.LoadingOverlay("hide");
+        });
+        inputGroup.append(softRandomizeButton)
+
+        const hardRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-dice'></i></button>");
+        hardRandomizeButton.on("click", async () => {
+            $.LoadingOverlay("show");
+            await hardRandomizeComponentTexture(idStr);
+            await reloadComponentTextures();
+            await previewCustomItem();
+            $.LoadingOverlay("hide");
+        });
+        inputGroup.append(hardRandomizeButton)
 
         const removeButton = $("<button class='btn btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
         removeButton.on("click", onRemoveComponentTexture(idStr));
@@ -80,7 +96,8 @@ export async function reloadComponentTextures() {
         $(domTargets[idStr]).append(formGroup)
 
         new Tooltip(editButton[0], { title: 'Edit' });
-        new Tooltip(randomizeButton[0], { title: 'Randomize' });
+        new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
+        new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove'})
     }
 }
@@ -267,6 +284,48 @@ export async function randomizeComponentTexture(slot: string) {
                             "IN (4,5,20)" : "= " + itemData.inventoryType 
                     }
                 )
+                GROUP BY materialResourceId
+                HAVING COUNT(*) = 1
+            ),
+            nrdMrIds as (
+            SELECT materialResourceId, ROW_NUMBER() OVER (
+                    ORDER BY materialResourceId
+                ) RowNum 
+                FROM mrIds
+            ),
+            randomMrId as (
+                SELECT materialResourceId FROM nrdMrIds
+                WHERE RowNum = ROUND(? * (SELECT MAX(RowNum) FROM nrdMrIds) + 0.5)
+            )
+            SELECT * FROM texturefiles WHERE materialResourceId = (SELECT * FROM randomMrId)`, 
+            Math.random()
+        );
+        if (resp.error) {
+            throw resp.error;
+        }
+        data = resp.result as TextureFileData;
+        const supported = await testZamSupportTexture(data.fileId);
+        if (!supported) {
+            data = null;
+        }
+    }
+   
+    itemData.itemComponentModels[slot].texture = {
+        name: data.fileName,
+        id: data.fileId
+    }
+    await window.store.set('itemData', itemData);
+}
+
+export async function hardRandomizeComponentTexture(slot: string) {
+    const itemData = await window.store.get('itemData');
+
+    let data: TextureFileData | null = null;
+    while(!data) {
+        const resp = await window.db.get(`
+            WITH mrIds as (
+                SELECT DISTINCT materialResourceId
+                FROM texturefiles
                 GROUP BY materialResourceId
                 HAVING COUNT(*) = 1
             ),

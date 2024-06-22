@@ -4,8 +4,8 @@ import { CharacterModelData } from "../../models";
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onSearchTexture, reloadTextures } from "./item-texture";
 import { exportToFile, loadFile, loadItem, onRandomizeItem, onSearchItem } from "./item-loading";
-import { onSearchComponentTexture, randomizeComponentTexture, reloadComponentTextures } from "./item-component-textures";
-import { onSearchComponentModel, randomizeComponentModel, reloadComponentModels } from "./item-component-models";
+import { hardRandomizeComponentTexture, onSearchComponentTexture, randomizeComponentTexture, reloadComponentTextures } from "./item-component-textures";
+import { hardRandomizeComponentModel, onSearchComponentModel, randomizeComponentModel, reloadComponentModels } from "./item-component-models";
 import { onSetParticleColors, reloadParticleColorComponents } from "./item-particle-colors";
 import { onAddGeoSetOverride, reloadHelmetGeovisComponents } from "./item-helmet-geovis";
 import { reloadFlagsComponents } from "./item-feature-flags";
@@ -55,9 +55,11 @@ export default async function load() {
     $("#randomizeItemBtn").on("click", onRandomizeItem)
 
     $("#btnRandomizeComponent1").on("click", onRandomizeComponent("0"));
+    $("#btnHardRandomizeComponent1").on("click", onHardRandomizeComponent("0"));
     $("#btnClearComponent1").on("click", onClearComponent("0"));
     
     $("#btnRandomizeComponent2").on("click", onRandomizeComponent("1"));
+    $("#btnHardRandomizeComponent2").on("click", onHardRandomizeComponent("1"));
     $("#btnClearComponent2").on("click", onClearComponent("1"))
 
     $("#ci_componentmodel_onlyForIs").on('click', () => {
@@ -146,6 +148,16 @@ function onRandomizeComponent(idStr: string) {
     return async () => {
         await randomizeComponentModel(idStr);
         await randomizeComponentTexture(idStr);
+        await previewCustomItem();
+        await reloadComponentModels();
+        await reloadComponentTextures();
+    }
+}
+
+function onHardRandomizeComponent(idStr: string) {
+    return async () => {
+        await hardRandomizeComponentModel(idStr);
+        await hardRandomizeComponentTexture(idStr);
         await previewCustomItem();
         await reloadComponentModels();
         await reloadComponentTextures();

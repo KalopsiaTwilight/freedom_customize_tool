@@ -89,9 +89,25 @@ export async function reloadComponentModels() {
         });
         inputGroup.append(editButton)
 
-        const randomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
-        randomizeButton.on("click", idStr === "0" ? onRandomizeComponent1Model : onRandomizeComponent2Model);
-        inputGroup.append(randomizeButton);
+        const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
+        softRandomizeButton.on("click", async () => {
+            $.LoadingOverlay("show");
+            await randomizeComponentModel(idStr);
+            await reloadComponentModels();
+            await previewCustomItem();
+            $.LoadingOverlay("hide");
+        });
+        inputGroup.append(softRandomizeButton);
+
+        const hardRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-dice'></i></button>");
+        hardRandomizeButton.on("click", async () => {
+            $.LoadingOverlay("show");
+            await hardRandomizeComponentModel(idStr);
+            await reloadComponentModels();
+            await previewCustomItem();
+            $.LoadingOverlay("hide");
+        });
+        inputGroup.append(hardRandomizeButton);
 
         const removeButton = $("<button class='btn btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
         removeButton.on("click", onRemoveComponentModel(idStr));
@@ -102,7 +118,8 @@ export async function reloadComponentModels() {
         $(domTargets[idStr]).append(formGroup)
 
         new Tooltip(editButton[0], { title: 'Edit' });
-        new Tooltip(randomizeButton[0], { title: 'Randomize' });
+        new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
+        new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove'})
 
         if (data.models.length) {
@@ -298,22 +315,6 @@ function prevPage() {
     $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
-export async function onRandomizeComponent1Model() {
-    $.LoadingOverlay("show");
-    await randomizeComponentModel("0");
-    await reloadComponentModels();
-    await previewCustomItem();
-    $.LoadingOverlay("hide");
-}
-
-export async function onRandomizeComponent2Model() {
-    $.LoadingOverlay("show");
-    await randomizeComponentModel("1");
-    await reloadComponentModels();
-    await previewCustomItem();
-    $.LoadingOverlay("hide");
-}
-
 export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
@@ -360,7 +361,50 @@ export async function randomizeComponentModel(slot: string) {
         gender: item.genderId,
         race: item.raceId,
         class: 0,
-        extraData: itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS ? (item.extraData >= 0 ? item.extraData : 1) : -1
+        extraData: item.extraData
+    }));
+    await window.store.set('itemData', itemData);
+}
+
+export async function hardRandomizeComponentModel(slot: string) {
+    const itemData = await window.store.get('itemData');
+    let data: ModelResourceData[]  =[];
+
+    while (!data.length) {
+        const resp = await window.db.all<ModelResourceData>(`
+            WITH mrIds as (
+                SELECT DISTINCT modelResourceId
+                FROM modelresources
+            ),
+            nrdMrIds as (
+            SELECT modelResourceId, ROW_NUMBER() OVER (
+                    ORDER BY modelResourceId
+                ) RowNum 
+                FROM mrIds
+            ),
+            randomMrId as (
+                SELECT modelResourceId FROM nrdMrIds
+                WHERE RowNum = ROUND(? * (SELECT MAX(RowNum) FROM nrdMrIds) + 0.5)
+            )
+            SELECT * FROM modelResources WHERE modelResourceId = (SELECT * FROM randomMrId)
+            ;`, 
+            Math.random()
+        );
+        if (resp.error) {
+            throw resp.error;
+        }
+        if (resp.result.length) {
+            const supported = await testZamSupportComponentModel(resp.result[0].fileId);
+            data = supported ? resp.result : [];
+        }
+    }
+    itemData.itemComponentModels[slot].models = data.map(item => ({
+        fileName: item.fileName,
+        fileId: item.fileId,
+        gender: item.genderId,
+        race: item.raceId,
+        class: 0,
+        extraData: item.extraData
     }));
     await window.store.set('itemData', itemData);
 }
