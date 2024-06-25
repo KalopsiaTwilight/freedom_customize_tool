@@ -174,7 +174,9 @@ export async function onSearchComponentTexture() {
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
                 WHERE IDI.inventoryType ${
                     itemData.inventoryType === InventoryType.Chest ?
-                        "IN (4,5,20)" : "= " + itemData.inventoryType 
+                        "IN (4,5,20)" :
+                    itemData.inventoryType === InventoryType.OneHand ? 
+                        "IN (13, 21, 22)" : "= " + itemData.inventoryType
                 }
             )`
     }
@@ -286,7 +288,9 @@ export async function randomizeComponentTexture(slot: string) {
                     JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
                     WHERE IDI.inventoryType ${
                         itemData.inventoryType === InventoryType.Chest ?
-                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                            "IN (4,5,20)" :
+                        itemData.inventoryType === InventoryType.OneHand ? 
+                            "IN (13, 21, 22)" : "= " + itemData.inventoryType 
                     }
                 )
                 GROUP BY materialResourceId

@@ -240,7 +240,9 @@ export async function onSearchComponentModel() {
                 FROM item_to_displayid
                 WHERE inventoryType ${
                     itemData.inventoryType === InventoryType.Chest ?
-                        "IN (4,5,20)" : "= " + itemData.inventoryType 
+                        "IN (4,5,20)" :                        
+                    itemData.inventoryType === InventoryType.OneHand ? 
+                        "IN (13, 21, 22)" : "= " + itemData.inventoryType
                 }
             )`
     }
@@ -335,7 +337,9 @@ export async function randomizeComponentModel(slot: string) {
                     FROM item_to_displayid
                     WHERE inventoryType ${
                         itemData.inventoryType === InventoryType.Chest ?
-                            "IN (4,5,20)" : "= " + itemData.inventoryType 
+                            "IN (4,5,20)" : 
+                        itemData.inventoryType === InventoryType.OneHand ? 
+                            "IN (13, 21, 22)" : "= " + itemData.inventoryType 
                     }
                 )
             ),
