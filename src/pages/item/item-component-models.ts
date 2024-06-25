@@ -5,7 +5,7 @@ import { getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
 
 import { Modal, Tooltip } from "bootstrap"
 
-import fallbackImg from "../../assets/unknown.webp"
+const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 export async function reloadComponentModels() {
     const itemData = await window.store.get('itemData');

@@ -1,7 +1,6 @@
 
 import { Modal, Tooltip } from "bootstrap"
 
-import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
 import { TextureFileData, ItemComponentSection, InventoryType } from "../../models";
 import { componentSectionToName } from "../../utils";
@@ -9,6 +8,7 @@ import { componentSectionToName } from "../../utils";
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
 
+const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 export async function reloadTextures() {
     const itemData = await window.store.get('itemData');
