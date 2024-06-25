@@ -169,6 +169,7 @@ async function setupIpc() {
   const store = new Store<AppDataStore>({
     defaults: {
       settings: {
+        useDarkMode: false,
         freedomWoWRootDir: '',
         launchWoWAfterPatch: true,
         previewCharacter: {

@@ -54,7 +54,7 @@ export async function reloadComponentTextures() {
         const inputGroup = $("<div class='input-group' />");
         inputGroup.append(input);
 
-        const editButton = $("<button class='btn btn-outline-dark'"
+        const editButton = $("<button class='btn btn-outline-primary'"
             + "data-bs-toggle='modal' data-bs-target='#addComponentTextureModal'>"
             + "<i class='fa-solid fa-pencil'></i></button>"
         );

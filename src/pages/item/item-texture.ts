@@ -57,7 +57,7 @@ export async function reloadTextures() {
         const inputGroup = $("<div class='input-group'/>");
         inputGroup.append(input);
 
-        const editButton = $("<button class='btn btn-outline-dark'"
+        const editButton = $("<button class='btn btn-outline-primary'"
             + "data-bs-toggle='modal' data-bs-target='#addTextureModal'>"
             + "<i class='fa-solid fa-pencil'></i></button>");
         editButton.on("click", function () {
@@ -120,7 +120,7 @@ export async function reloadTextures() {
 
     const btnContainer = $("<div class='d-flex justify-content-between'>");
 
-    const softRandomizeButton = $("<button type='button' class='btn btn-dark me-3'>Soft Randomize</button>")
+    const softRandomizeButton = $("<button type='button' class='btn btn-primary me-3'>Soft Randomize</button>")
     softRandomizeButton.on("click", onRandomizeTextures);
     btnContainer.append(softRandomizeButton);
 

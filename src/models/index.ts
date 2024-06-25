@@ -14,6 +14,7 @@ export interface AppSettings
     freedomWoWRootDir: string;
     launchWoWAfterPatch: boolean;
     previewCharacter: CharacterModelData;
+    useDarkMode: boolean;
 }
 
 export interface CharacterModelData {

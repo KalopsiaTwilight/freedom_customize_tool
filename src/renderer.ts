@@ -18,9 +18,12 @@ $.LoadingOverlaySetup({
 
 let currentPage = "#item";
 
-$(function () {
+$(async function () {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     tooltipTriggerList.forEach(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+    const pref = await window.store.get('settings');
+    setTheme(pref.useDarkMode);
     
     window.ipcRenderer.on(OnFirstStartChannel, (_, obj: any) => {
         $("#firstTimeConfigModal").modal('show');
@@ -53,13 +56,21 @@ $(function () {
         await window.store.set("settings", pref);
     })
 
+    $("#toggleThemeBtn").on("click", async function () {
+        const pref = await window.store.get('settings');
+        pref.useDarkMode = !pref.useDarkMode;
+        await window.store.set('settings', pref);
+        setTheme(pref.useDarkMode);
+    })
     
     $("nav a").each((_, elem) => {
         $(elem).on("click", function () {
             if (currentPage !== this.getAttribute("href")) {
+                $("nav a").removeClass('active');
                 unloadPage();
                 currentPage = this.getAttribute("href");
                 loadPage();
+                $(this).addClass('active');
             }
         })
     })
@@ -78,4 +89,14 @@ function unloadPage() {
     switch(currentPage) {
         case "#item": unloadItemPage(); break;
     }
+}
+
+function setTheme(darkMode: boolean) {
+    $("body").attr('data-bs-theme', darkMode ? "dark" : "light");
+    $("#toggleThemeBtn").empty().append(darkMode ? "<i class='fa-solid fa-lightbulb'>" : "<i class='fa solid fa-moon'>");
+    const toolTip = bootstrap.Tooltip.getInstance($("#toggleThemeBtn")[0]);
+    toolTip.hide();
+    toolTip.setContent({
+        '.tooltip-inner': darkMode ? 'Toggle Light Theme' : 'Toggle Dark Theme'
+    });
 }

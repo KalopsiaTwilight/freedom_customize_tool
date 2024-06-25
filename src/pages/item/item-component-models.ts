@@ -76,7 +76,7 @@ export async function reloadComponentModels() {
         const inputGroup = $("<div class='input-group'/>");
         inputGroup.append(input);
 
-        const editButton = $("<button type='button' class='btn btn-outline-dark'" 
+        const editButton = $("<button type='button' class='btn btn-outline-primary'" 
             + "data-bs-toggle='modal' data-bs-target='#addComponentModelModal'>" 
             + "<i class='fa-solid fa-pencil'></i></button>"
         );

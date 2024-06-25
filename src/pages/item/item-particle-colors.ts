@@ -46,7 +46,7 @@ export async function reloadParticleColorComponents() {
     removeButton.on("click", onRemoveParticleColors)
 
     const btnContainer = $("<div class='d-flex justify-content-between align-items-center'>");
-    btnContainer.append($("<button class='btn btn-dark' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Edit Particle Colors</button>"));
+    btnContainer.append($("<button class='btn btn-primary' data-bs-toggle='modal' data-bs-target='#setParticleOverrideModal'>Edit Particle Colors</button>"));
     btnContainer.append(removeButton);
     $(domTarget).append(btnContainer)
 }

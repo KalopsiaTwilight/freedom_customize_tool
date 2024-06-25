@@ -27,7 +27,7 @@ export async function reloadGeosetDisplay() {
     }
 
     const btnContainer = $("<div class='d-flex justify-content-between'>");
-    const randomizeButton = $("<button type='button' class='btn btn-dark me-3'>Soft Randomize</button>");
+    const randomizeButton = $("<button type='button' class='btn btn-primary me-3'>Soft Randomize</button>");
     randomizeButton.on("click", onRandomizeGeosetData);
     btnContainer.append(randomizeButton);
 

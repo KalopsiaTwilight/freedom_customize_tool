@@ -95,7 +95,7 @@ export async function reloadHelmetGeovisComponents() {
 
     // Add buttons
     const btnContainer = $("<div class='d-flex justify-content-between align-items-center'>");
-    const addButton = $("<button id='addGsOverride' class='btn btn-dark me-3' data-bs-toggle='modal' data-bs-target='#addGeosetOverrideModal'>Add Override</button>");
+    const addButton = $("<button id='addGsOverride' class='btn btn-primary me-3' data-bs-toggle='modal' data-bs-target='#addGeosetOverrideModal'>Add Override</button>");
     addButton.on("click", function () {
         $("#ci_helmetgeovis_gender").val("-1");
         $("#ci_helmetgeovis_race").val("-1");

@@ -6,14 +6,17 @@
   <title>Freedom Customize Tool</title>
 </head>
 
-<body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light bg-gradient mb-3">
+<body data-bs-theme="dark">
+  <nav class="navbar navbar-expand-lg navbar-light bg-body-tertiary mb-3">
     <div class="container-fluid">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="nav nav-pills me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a href="#item" class="nav-link active" aria-current="page">Custom Item</a>
+          <a href="#item" class="nav-link active" aria-current="page">Create Custom Item</a>
         </li>
       </ul>
+      <button id="toggleThemeBtn" class="btn btn-outline-secondary me-3" data-bs-toggle="tooltip" data-bs-title="Toggle Light Theme">
+        <i class="fa-solid fa-lightbulb"></i>
+      </button>
       <a href="#preferences" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-title="Set Preferences">
         <i class="fa-solid fa-sliders"></i>
       </a>
