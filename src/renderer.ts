@@ -93,7 +93,7 @@ function unloadPage() {
 
 function setTheme(darkMode: boolean) {
     $("body").attr('data-bs-theme', darkMode ? "dark" : "light");
-    $("#toggleThemeBtn").empty().append(darkMode ? "<i class='fa-solid fa-lightbulb'>" : "<i class='fa solid fa-moon'>");
+    $("#toggleThemeBtn").empty().append(darkMode ? "<i class='fa-solid fa-sun'>" : "<i class='fa solid fa-moon'>");
     const toolTip = bootstrap.Tooltip.getInstance($("#toggleThemeBtn")[0]);
     toolTip.hide();
     toolTip.setContent({
