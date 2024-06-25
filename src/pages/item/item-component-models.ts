@@ -319,6 +319,10 @@ export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
 
+    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK && slot === "0") {
+        return;
+    }
+
     const maxTries = 10;
     let nrTries = 0;
     while (!data.length && nrTries < maxTries) {

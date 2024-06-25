@@ -269,6 +269,10 @@ export async function onRandomizeComponent2Texture() {
 export async function randomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
 
+    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK && slot === "0") {
+        return;
+    }
+
     let data: TextureFileData | null = null;
     const maxTries = 10;
     let nrTries = 0;

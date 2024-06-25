@@ -230,7 +230,7 @@ export async function onSearchTexture() {
                 }
             )`
     }
-    if (onlyForSect) {
+    if (onlyForSect && itemData.inventoryType !== window.WH.Wow.Item.INVENTORY_TYPE_BACK) {
         const section = parseInt($("#ci_texture_componentsection").val().toString());
         fromAndWhere += `
             AND MI.fileId IN (
@@ -423,7 +423,7 @@ async function getRandomTextures(section: number): Promise<TextureFileData[] | n
 
     const maxTries = 10;
     let nrTries = 0;
-    while (!data.length && nrTries < maxTries) {
+    while ((!data || !data.length) && nrTries < maxTries) {
         const resp = await window.db.all<TextureFileData>(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
@@ -437,11 +437,13 @@ async function getRandomTextures(section: number): Promise<TextureFileData[] | n
                             "IN (4,5,20)" : "= " + itemData.inventoryType 
                     }
                 )
-                AND fileId IN (
+                ${ itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK ? '' : `AND fileId IN (
                     SELECT fileID
                     FROM componentsection_to_texturefile CTF
                     WHERE CTF.componentSection = ${section}
-                )
+                    )`
+                }
+
             ),
             nrdMrIds as (
             SELECT materialResourceId, ROW_NUMBER() OVER (
@@ -460,9 +462,11 @@ async function getRandomTextures(section: number): Promise<TextureFileData[] | n
             throw resp.error;
         }
         data = resp.result;
-        const supported = await testZamSupportTexture(data[0].fileId);
-        if (!supported) {
-            data = null;
+        if (data.length > 0) {
+            const supported = await testZamSupportTexture(data[0].fileId);
+            if (!supported) {
+                data = null;
+            }
         }
         nrTries++;
     }

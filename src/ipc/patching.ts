@@ -165,6 +165,23 @@ function itemDataToPatch(itemData: ItemData): Patch
         })
     }
     
+    // Set Component 1 Texture if item is a cloak. 
+    if (itemData.inventoryType === 16 && itemData.itemMaterials[12] && itemData.itemMaterials[12].length) 
+    {
+        output.Lookup.push({
+            Filename: "TextureFileData.db2",
+            Field: "FileDataID",
+            SearchValue: itemData.itemMaterials[12][0].fileId,
+            SaveReferences: [
+                {
+                    Name: "_ComponentModel0.TextureId",
+                    Field: "MaterialResourcesID",
+                }
+            ],
+            IgnoreFailure: true,
+        })
+    }
+
     // Component 1 texture
     if (itemData.itemComponentModels["0"].texture.id > 0)
     {
@@ -256,6 +273,10 @@ function itemDataToPatch(itemData: ItemData): Patch
                 FallBackValue: 0,
             },
             {
+                ColumnName: "ModelType0",
+                Value: itemData.inventoryType === 16 ? 5 : 0
+            },
+            {
                 ColumnName: "ModelType1",
                 Value: itemData.inventoryType === 16 ? 4 : 0
             },
@@ -292,41 +313,45 @@ function itemDataToPatch(itemData: ItemData): Patch
         ]
     });
 
-    for(const sectionStr in itemData.itemMaterials) {
-        if (itemData.itemMaterials[sectionStr].length === 0) {
-            continue;
-        } 
-        const fileId = itemData.itemMaterials[sectionStr][0].fileId;
-        output.Lookup.push({
-            Filename: "TextureFileData.db2",
-            Field: "FileDataID",
-            SearchValue: fileId,
-            SaveReferences: [
-                {
-                    Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
-                    Field: "MaterialResourcesID",
-                }
-            ],
-            IgnoreFailure: false,
-        });
-
-        output.Add.push({
-            GenerateIds: [],
-            SaveReferences: [],
-            Filename: "ItemDisplayInfoMaterialRes.db2",
-            Record: [
-                {
-                    ColumnName: "ComponentSection",
-                    Value: parseInt(sectionStr, 10),
-                }, {
-                    ColumnName: "MaterialResourcesID",
-                    ReferenceId: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
-                }, {
-                    ColumnName: "ItemDisplayInfoID",
-                    ReferenceId: "_ItemDisplayInfo.Id",
-                }
-            ]
-        });
+    // Skip Cloaks here because texture data goes into component 1 slot
+    if (itemData.inventoryType !== 16)
+    {
+        for(const sectionStr in itemData.itemMaterials) {
+            if (itemData.itemMaterials[sectionStr].length === 0) {
+                continue;
+            } 
+            const fileId = itemData.itemMaterials[sectionStr][0].fileId;
+            output.Lookup.push({
+                Filename: "TextureFileData.db2",
+                Field: "FileDataID",
+                SearchValue: fileId,
+                SaveReferences: [
+                    {
+                        Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
+                        Field: "MaterialResourcesID",
+                    }
+                ],
+                IgnoreFailure: false,
+            });
+    
+            output.Add.push({
+                GenerateIds: [],
+                SaveReferences: [],
+                Filename: "ItemDisplayInfoMaterialRes.db2",
+                Record: [
+                    {
+                        ColumnName: "ComponentSection",
+                        Value: parseInt(sectionStr, 10),
+                    }, {
+                        ColumnName: "MaterialResourcesID",
+                        ReferenceId: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
+                    }, {
+                        ColumnName: "ItemDisplayInfoID",
+                        ReferenceId: "_ItemDisplayInfo.Id",
+                    }
+                ]
+            });
+        }
     }
 
     output.Add.push({
