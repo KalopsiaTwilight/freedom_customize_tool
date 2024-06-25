@@ -1,3 +1,4 @@
+import { InventoryType } from "../../models";
 import { inventoryTypeToItemClassId } from "../../utils";
 
 export async function previewCustomItem() {
@@ -115,12 +116,12 @@ export async function previewCustomItem() {
     }
 
     // Set Geovis overrides
-    if (item.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_HEAD && item.helmetGeoVisMale.length > 0) {
+    if (item.inventoryType === InventoryType.Head && item.helmetGeoVisMale.length > 0) {
         data.Item.HideGeosetMale = item.helmetGeoVisMale.map(
             x => ({ RaceId: x.race, GeosetGroup: x.group })
         )
     }
-    if (item.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_HEAD && item.helmetGeoVisFemale.length > 0) {
+    if (item.inventoryType === InventoryType.Head && item.helmetGeoVisFemale.length > 0) {
         data.Item.HideGeosetFemale = item.helmetGeoVisFemale.map(
             x => ({ RaceId: x.race, GeosetGroup: x.group })
         )

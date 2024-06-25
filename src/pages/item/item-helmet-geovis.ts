@@ -1,6 +1,7 @@
 import { Tooltip } from "bootstrap"
 
-import { GenderedItemGeoSetData, ItemGeoSetData } from "../../models";
+import { getGeoSetDataForGeoset } from "../../utils";
+import { GenderedItemGeoSetData, ItemGeoSetData, InventoryType, GeoSet } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
 import { getPlayerRaces, getRaceName } from "./wow-data-utils";
@@ -16,7 +17,7 @@ export async function reloadHelmetGeovisComponents() {
 
     $(domTarget).empty();
 
-    if (itemData.inventoryType !== window.WH.Wow.Item.INVENTORY_TYPE_HEAD) {
+    if (itemData.inventoryType !== InventoryType.Head) {
         $(domTarget).closest('.accordion-item').hide();
         return;
     }
@@ -27,8 +28,13 @@ export async function reloadHelmetGeovisComponents() {
     $("#ci_helmetgeovis_gender").val("");
     $("#ci_helmetgeovis_geosetgroup").empty();
     
-    for (const geosetId in window.WH.Wow.GeoSets) {
-        $("#ci_helmetgeovis_geosetgroup").append($("<option value='" + geosetId + "'>" + window.WH.Wow.GeoSets[geosetId].title + "</option>"))
+    for (const geoset in GeoSet) {
+        const geosetId = parseInt(geoset, 10);
+        if (isNaN(geosetId)) {
+            continue
+        };
+        const data = getGeoSetDataForGeoset(geosetId);
+        $("#ci_helmetgeovis_geosetgroup").append($("<option value='" + geosetId + "'>" + data.title + "</option>"))
     }
 
     // Combine helmetGeoVisMale and helmetGeoVisFemale into 1 container obj
@@ -59,8 +65,11 @@ export async function reloadHelmetGeovisComponents() {
     table.append("<thead><tr><th>Model Part<th>Disabled for</th><th></th></tr></thead>")
     const tbody = $("<tbody>");
     for(const group in data) {
+        const geoSetId = parseInt(group, 10);
+        const geoSetData = getGeoSetDataForGeoset(geoSetId);
+
         const row = $("<tr>");
-        row.append(`<td>${window.WH.Wow.GeoSets[parseInt(group)].title}</td>`)
+        row.append(`<td>${geoSetData.title}</td>`)
 
         const overrideCell = $("<td>");
         const opacityClass = (data[group].findIndex((x) => 
@@ -73,7 +82,7 @@ export async function reloadHelmetGeovisComponents() {
 
         const buttonCell = $("<td>");
         const removeButton = $("<button class='btn btn-sm btn-outline-danger'><i class='fa-solid fa-x'></i></button>");
-        removeButton.on('click', onClearSection(parseInt(group)))
+        removeButton.on('click', onClearSection(geoSetId))
         buttonCell.append(removeButton);
         row.append(buttonCell);
 
@@ -109,7 +118,7 @@ export async function reloadHelmetGeovisComponents() {
     $(domTarget).append(btnContainer);
 }
 
-function onClearSection(section: number) {
+function onClearSection(section: GeoSet) {
     return async () => {
         const itemData = await window.store.get('itemData');
         itemData.helmetGeoVisFemale = itemData.helmetGeoVisFemale.filter(x => x.group !== section);

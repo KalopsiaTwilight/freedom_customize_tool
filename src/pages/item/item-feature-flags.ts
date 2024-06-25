@@ -1,3 +1,6 @@
+import { itemFeatureFlagToName } from "../../utils";
+import { ItemFeatureFlag } from "../../models";
+
 import { previewCustomItem } from "./preview-item";
 
 export async function reloadFlagsComponents() {
@@ -6,8 +9,11 @@ export async function reloadFlagsComponents() {
     const domTarget = "#flagsSection .accordion-body";
 
     $(domTarget).empty();
-    for (const flag in window.WH.Wow.ItemFeatureFlags) {
+    for (const flag in ItemFeatureFlag) {
         const flagId = parseInt(flag, 10);
+        if (isNaN(flagId)) {
+            continue;
+        }
         const elem = $("<div class='form-check'>");
         const checkbox = $("<input class='form-check-input' type='checkbox' id='cb_flag_" + flag + "' />");
         if ((itemData.flags & flagId) > 0) {
@@ -15,7 +21,7 @@ export async function reloadFlagsComponents() {
         }
         checkbox.on('click', onFlagToggle(flagId))
         elem.append(checkbox);
-        elem.append("<label class='form-check-label' for='id='cb_flag_" + flag + "'>" + window.WH.Wow.ItemFeatureFlags[flag] + "</label>");
+        elem.append("<label class='form-check-label' for='id='cb_flag_" + flag + "'>" + itemFeatureFlagToName(flagId) + "</label>");
         $(domTarget).append(elem);
     }
 
@@ -27,7 +33,7 @@ export async function reloadFlagsComponents() {
     $(domTarget).append(btnContainer);
 }
 
-function onFlagToggle(flagId: number) {
+function onFlagToggle(flagId: ItemFeatureFlag) {
     return async function () {
         const itemData = await window.store.get('itemData');
         if ((itemData.flags & flagId) > 0) {

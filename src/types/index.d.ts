@@ -15,7 +15,6 @@ declare interface WebpOptions
 
 declare interface WoWDataCollection 
 {
-    ItemFeatureFlags: { [key: number]: string}
     Item: { 
         INVENTORY_TYPE_BACK: number;
         INVENTORY_TYPE_BAG: number;
@@ -48,20 +47,6 @@ declare interface WoWDataCollection
         INVENTORY_TYPE_WAIST: number;
         INVENTORY_TYPE_WRISTS: number;
     }
-    ComponentSections: { [key: number]: string}
-    GeoSets: { [key: number]: GeoSetData}
-}
-
-declare interface GeoSetData
-{
-    title: string;
-    options: GeoSetDataOption[];
-}
-
-declare interface GeoSetDataOption
-{
-    name: string;
-    value: number;
 }
 
 declare type LoadingOverlayActionType = "show" | "hide" | "resize" | "text" | "progress"

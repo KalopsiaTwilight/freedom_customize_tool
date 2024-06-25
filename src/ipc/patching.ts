@@ -1,12 +1,12 @@
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import log from "electron-log/main"
 import Store from "electron-store"
 import fs from "node:fs"
 import path from "node:path"
 import { exec, spawn } from "node:child_process"
 
-import { AppDataStore, ItemData, ItemGeoSetData, Patch, PatchResult } from "../models"
-import { inventoryTypeToItemId, inventoryTypeToItemSlot } from "../utils";
+import { AppDataStore, ItemData, ItemGeoSetData, Patch, InventoryType, ItemComponentSection } from "../models"
+import { inventoryTypeToItemId, inventoryTypeToItemDisplayType } from "../utils";
 import { CallApplyPatchChannel, OnPatchToolExitChannel } from "./channels";
 
 
@@ -81,7 +81,7 @@ function itemDataToPatch(itemData: ItemData): Patch
         }]
     })
     // Add geoset records for helmets
-    if (itemData.inventoryType === 1) {
+    if (itemData.inventoryType === InventoryType.Head) {
         const processGeoSetInstruction = (instructions: ItemGeoSetData[], referenceName: string) => {
             for (const instruction of instructions) {
                 output.Add.push({
@@ -166,12 +166,14 @@ function itemDataToPatch(itemData: ItemData): Patch
     }
     
     // Set Component 1 Texture if item is a cloak. 
-    if (itemData.inventoryType === 16 && itemData.itemMaterials[12] && itemData.itemMaterials[12].length) 
+    if (itemData.inventoryType === InventoryType.Back 
+        && itemData.itemMaterials[ItemComponentSection.Cloak] 
+        && itemData.itemMaterials[ItemComponentSection.Cloak].length) 
     {
         output.Lookup.push({
             Filename: "TextureFileData.db2",
             Field: "FileDataID",
-            SearchValue: itemData.itemMaterials[12][0].fileId,
+            SearchValue: itemData.itemMaterials[ItemComponentSection.Cloak][0].fileId,
             SaveReferences: [
                 {
                     Name: "_ComponentModel0.TextureId",
@@ -274,11 +276,11 @@ function itemDataToPatch(itemData: ItemData): Patch
             },
             {
                 ColumnName: "ModelType0",
-                Value: itemData.inventoryType === 16 ? 5 : 0
+                Value: itemData.inventoryType === InventoryType.Back ? 5 : 0
             },
             {
                 ColumnName: "ModelType1",
-                Value: itemData.inventoryType === 16 ? 4 : 0
+                Value: itemData.inventoryType === InventoryType.Back ? 4 : 0
             },
             {
                 ColumnName: "GeosetGroup0",
@@ -360,7 +362,7 @@ function itemDataToPatch(itemData: ItemData): Patch
         SaveReferences: [{ Name: "_ItemAppearance.Id", }],
         Record: [{
                 ColumnName: "DisplayType",
-                Value: (inventoryTypeToItemSlot(itemData.inventoryType)),
+                Value: (inventoryTypeToItemDisplayType(itemData.inventoryType)),
             }, {
                 ColumnName: "ItemDisplayInfoID",
                 ReferenceId: "_ItemDisplayInfo.Id",

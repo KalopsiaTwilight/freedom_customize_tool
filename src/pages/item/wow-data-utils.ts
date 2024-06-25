@@ -1,32 +1,63 @@
+import { InventoryType, ItemComponentSection, GeoSet } from "../../models";
+
 function getGeoSetsForInventoryType(inventoryType: number) {
     switch (inventoryType) {
-        case window.WH.Wow.Item.INVENTORY_TYPE_HEAD: return [27, 21];
-        case window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS: return [26];
-        case window.WH.Wow.Item.INVENTORY_TYPE_SHIRT: return [8, 10];
-        case window.WH.Wow.Item.INVENTORY_TYPE_CHEST: return [8, 10, 13, 22, 28];
-        case window.WH.Wow.Item.INVENTORY_TYPE_WAIST: return [18];
-        case window.WH.Wow.Item.INVENTORY_TYPE_LEGS: return [11, 9, 13];
-        case window.WH.Wow.Item.INVENTORY_TYPE_FEET: return [5, 20];
-        case window.WH.Wow.Item.INVENTORY_TYPE_HANDS: return [4, 23];
-        case window.WH.Wow.Item.INVENTORY_TYPE_BACK: return [15];
-        case window.WH.Wow.Item.INVENTORY_TYPE_TABARD: return [12];
+        case InventoryType.Head: return [GeoSet.Helmet, GeoSet.Head];
+        case InventoryType.Shoulders: return [GeoSet.Shoulders];
+        case InventoryType.Shirt: return [GeoSet.Sleeves, GeoSet.ShirtDoublet];
+        case InventoryType.Chest: return [
+            GeoSet.Sleeves, GeoSet.ShirtDoublet, GeoSet.LowerBody,
+            GeoSet.Torso, GeoSet.ArmUpper
+        ];
+        case InventoryType.Waist: return [GeoSet.Belt];
+        case InventoryType.Legs: return [GeoSet.PantDoublet, GeoSet.Legcuffs, GeoSet.LowerBody];
+        case InventoryType.Feet: return [GeoSet.Boots, GeoSet.Feet];
+        case InventoryType.Hands: return [GeoSet.Wrists, GeoSet.HandAttachments];
+        case InventoryType.Back: return [GeoSet.Cloak];
+        case InventoryType.Tabard: return [GeoSet.Tabard];
         default: return [];
     }
 }
 
-function getComponentSectionsForInventoryType(inventoryType: number) {
+function getComponentSectionsForInventoryType(inventoryType: InventoryType) {
     switch (inventoryType) {
-        //case window.WH.Wow.Item.INVENTORY_TYPE_HEAD: return [1,2];
-        case window.WH.Wow.Item.INVENTORY_TYPE_SHIRT: return [0,1,2,3,4,5,6];
-        case window.WH.Wow.Item.INVENTORY_TYPE_CHEST: return [0,1,2,3,4,5,6];
-        case window.WH.Wow.Item.INVENTORY_TYPE_WAIST: return [4,5];
-        case window.WH.Wow.Item.INVENTORY_TYPE_LEGS: return [5,6,8];
-        case window.WH.Wow.Item.INVENTORY_TYPE_FEET: return [6, 7];
-        case window.WH.Wow.Item.INVENTORY_TYPE_WRISTS: return [1];
-        case window.WH.Wow.Item.INVENTORY_TYPE_HANDS: return [1,2];
-        case window.WH.Wow.Item.INVENTORY_TYPE_TABARD: return [3, 4, 5];
-        case window.WH.Wow.Item.INVENTORY_TYPE_ROBE: return [1, 3, 4, 5, 6];
-        case window.WH.Wow.Item.INVENTORY_TYPE_BACK: return [12];
+        //case InventoryType.Head: return [1,2];
+        case InventoryType.Shirt: return [
+            ItemComponentSection.UpperArm, ItemComponentSection.LowerArm,
+            ItemComponentSection.Hand,
+            ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
+            ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg
+        ];
+        case InventoryType.Chest: return [
+            ItemComponentSection.UpperArm, ItemComponentSection.LowerArm,
+            ItemComponentSection.Hand,
+            ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
+            ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg
+        ];
+        case InventoryType.Waist: return [ 
+            ItemComponentSection.LowerTorso, ItemComponentSection.UpperLeg
+        ];
+        case InventoryType.Legs: return [ 
+            ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg,
+            ItemComponentSection.Accessory
+        ];
+        case InventoryType.Feet: return [ 
+            ItemComponentSection.LowerLeg, ItemComponentSection.Foot
+        ];
+        case InventoryType.Wrists: return [ ItemComponentSection.LowerArm ];
+        case InventoryType.Hands: return [ 
+            ItemComponentSection.LowerArm, ItemComponentSection.Hand
+        ];
+        case InventoryType.Tabard: return [
+            ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
+            ItemComponentSection.UpperLeg
+        ];
+        case InventoryType.Robe: return [
+            ItemComponentSection.LowerArm,
+            ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
+            ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg
+        ];;
+        case InventoryType.Back: return [ ItemComponentSection.Cloak ];
         default: return [];
     }
 }

@@ -1,5 +1,8 @@
+import { GeoSet } from "../../models"
+import { getGeoSetDataForGeoset } from "../../utils"
+
 import { previewCustomItem } from "./preview-item";
-import { getGeoSetsForInventoryType } from "./wow-data-utils";
+import { getGeoSetsForInventoryType} from "./wow-data-utils";
 
 export async function reloadGeosetDisplay() {
     const itemData = await window.store.get('itemData');
@@ -11,7 +14,7 @@ export async function reloadGeosetDisplay() {
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
     for (let i = 0; i < geoSets.length; i++) {
         const set = geoSets[i];
-        const geoSetData = window.WH.Wow.GeoSets[set];
+        const geoSetData = getGeoSetDataForGeoset(set);
         const formGroup = $("<div class='form-group mb-3' />");
         formGroup.append($("<label for='ci_geoset_" + set + "' class='form-label'>" + geoSetData.title + "</label>"));
         const inputGroup = $("<div class='input-group' />");
@@ -38,7 +41,7 @@ export async function reloadGeosetDisplay() {
     $(domTarget).append(btnContainer);
 }
 
-function onGeoSetDisplayChange(set: number) {
+function onGeoSetDisplayChange(set: GeoSet) {
     return async function () {  
         const itemData = await window.store.get('itemData');
         const geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
@@ -65,7 +68,7 @@ export async function randomizeGeoSetData() {
     const itemData = await window.store.get('itemData');
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
     for (let i = 0; i < geoSets.length; i++) {
-        const geoSetData = window.WH.Wow.GeoSets[geoSets[i]];
+        const geoSetData = getGeoSetDataForGeoset(geoSets[i]);
         const opts = geoSetData.options.filter(x => x.value >= 0);
         const option = opts[Math.floor(Math.random() * opts.length)];
         $("#ci_geoset_" + geoSets[i]).val(option.value);

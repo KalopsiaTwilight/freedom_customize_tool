@@ -3,7 +3,8 @@ import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
-import { TextureFileData } from "../../models";
+import { TextureFileData, ItemComponentSection, InventoryType } from "../../models";
+import { componentSectionToName } from "../../utils";
 
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
@@ -38,11 +39,11 @@ export async function reloadTextures() {
     $(domTarget).closest('.accordion-item').show();
 
     for (const section of sections) {
-        $("#ci_texture_componentsection").append($("<option value='" + section + "'>" + window.WH.Wow.ComponentSections[section] + "</option>"))
+        $("#ci_texture_componentsection").append($("<option value='" + section + "'>" + componentSectionToName(section) + "</option>"))
 
         const formGroup = $("<div class='form-group mb-3' />");
 
-        let label = window.WH.Wow.ComponentSections[section];
+        let label = componentSectionToName(section);
         formGroup.append($("<label for='ci_texture_" + section + "' class='form-label'>" + label + "</label>"));
 
         const input = $("<input id='ci_texture_" + section + "' class='form-control' readonly type='text' />");
@@ -135,7 +136,7 @@ export async function reloadTextures() {
     $(domTarget).append(btnContainer);
 }
 
-function onRemoveTexture(section: number) {
+function onRemoveTexture(section: ItemComponentSection) {
     return async function () {
         const itemData = await window.store.get('itemData');
         itemData.itemMaterials[section] = [];
@@ -225,12 +226,12 @@ export async function onSearchTexture() {
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
                 WHERE IDI.inventoryType ${
-                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                    itemData.inventoryType === InventoryType.Chest ?
                         "IN (4,5,20)" : "= " + itemData.inventoryType 
                 }
             )`
     }
-    if (onlyForSect && itemData.inventoryType !== window.WH.Wow.Item.INVENTORY_TYPE_BACK) {
+    if (onlyForSect && itemData.inventoryType !== InventoryType.Back) {
         const section = parseInt($("#ci_texture_componentsection").val().toString());
         fromAndWhere += `
             AND MI.fileId IN (
@@ -371,7 +372,7 @@ async function hardRandomizeTextures() {
     await window.store.set('itemData', itemData);
 }
 
-function onRandomizeTexture(section: number) {
+function onRandomizeTexture(section: ItemComponentSection) {
     return async () => {
         $.LoadingOverlay('show');
         const itemData = await window.store.get('itemData');
@@ -394,7 +395,7 @@ function onRandomizeTexture(section: number) {
     }
 }
 
-function onHardRandomizeTexture(section: number) {
+function onHardRandomizeTexture(section: ItemComponentSection) {
     return async () => {
         $.LoadingOverlay('show');
         const itemData = await window.store.get('itemData');
@@ -417,7 +418,7 @@ function onHardRandomizeTexture(section: number) {
     }
 }
 
-async function getRandomTextures(section: number): Promise<TextureFileData[] | null> {
+async function getRandomTextures(section: ItemComponentSection): Promise<TextureFileData[] | null> {
     const itemData = await window.store.get('itemData');
     let data: TextureFileData[] | null = null;
 
@@ -433,11 +434,11 @@ async function getRandomTextures(section: number): Promise<TextureFileData[] | n
                     FROM item_to_displayid IDI
                     JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
                     WHERE IDI.inventoryType ${
-                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        itemData.inventoryType === InventoryType.Chest ?
                             "IN (4,5,20)" : "= " + itemData.inventoryType 
                     }
                 )
-                ${ itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK ? '' : `AND fileId IN (
+                ${ itemData.inventoryType === InventoryType.Back ? '' : `AND fileId IN (
                     SELECT fileID
                     FROM componentsection_to_texturefile CTF
                     WHERE CTF.componentSection = ${section}

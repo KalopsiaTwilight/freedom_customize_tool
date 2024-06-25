@@ -1,4 +1,4 @@
-import { ModelResourceData } from "../../models";
+import { ModelResourceData, InventoryType } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
 import { getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
@@ -33,22 +33,22 @@ export async function reloadComponentModels() {
     $(domTargets["1"]).empty()
 
     const unSupportedTypes = [
-        window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
-        window.WH.Wow.Item.INVENTORY_TYPE_SHIRT,
-        window.WH.Wow.Item.INVENTORY_TYPE_TABARD
+        InventoryType.Wrists,
+        InventoryType.Shirt,
+        InventoryType.Tabard,
     ]
     if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
         $(domTargets["0"]).closest('.accordion-item').hide();
         $(domTargets["1"]).closest('.accordion-item').hide();
         return;
     }
-    else if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_SHOULDERS) {
+    else if (itemData.inventoryType === InventoryType.Shoulders) {
         $("#component1Title").text("Left Shoulderpad");
         $("#component2Title").text("Right Shoulderpad");
         $(domTargets["0"]).closest('.accordion-item').show();
         $(domTargets["1"]).closest('.accordion-item').show();
     } 
-    else if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK) {
+    else if (itemData.inventoryType === InventoryType.Back) {
         $("#component1Title").text("<Component Not Available for Capes>");
         $("#component2Title").text("Component 1");
         $(domTargets["0"]).closest('.accordion-item').hide();
@@ -239,7 +239,7 @@ export async function onSearchComponentModel() {
                 SELECT itemDisplayId 
                 FROM item_to_displayid
                 WHERE inventoryType ${
-                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                    itemData.inventoryType === InventoryType.Chest ?
                         "IN (4,5,20)" : "= " + itemData.inventoryType 
                 }
             )`
@@ -319,7 +319,7 @@ export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
     let data: ModelResourceData[]  =[];
 
-    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK && slot === "0") {
+    if (itemData.inventoryType === InventoryType.Back && slot === "0") {
         return;
     }
 
@@ -334,7 +334,7 @@ export async function randomizeComponentModel(slot: string) {
                     SELECT itemDisplayId 
                     FROM item_to_displayid
                     WHERE inventoryType ${
-                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        itemData.inventoryType === InventoryType.Chest ?
                             "IN (4,5,20)" : "= " + itemData.inventoryType 
                     }
                 )

@@ -2,11 +2,9 @@ import { Modal, Tooltip } from "bootstrap"
 
 import fallbackImg from "../../assets/unknown.webp"
 import { notifyError } from "../../utils/alerts";
-import { TextureFileData } from "../../models";
+import { InventoryType, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
-
-
 
 export async function reloadComponentTextures() {
     const itemData = await window.store.get('itemData');
@@ -31,9 +29,9 @@ export async function reloadComponentTextures() {
     $(domTargets["1"]).empty();
 
     const unSupportedTypes = [
-        window.WH.Wow.Item.INVENTORY_TYPE_WRISTS,
-        window.WH.Wow.Item.INVENTORY_TYPE_SHIRT,
-        window.WH.Wow.Item.INVENTORY_TYPE_TABARD
+        InventoryType.Wrists,
+        InventoryType.Shirt,
+        InventoryType.Tabard
     ]
     if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
         return;
@@ -174,7 +172,7 @@ export async function onSearchComponentTexture() {
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
                 WHERE IDI.inventoryType ${
-                    itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                    itemData.inventoryType === InventoryType.Chest ?
                         "IN (4,5,20)" : "= " + itemData.inventoryType 
                 }
             )`
@@ -269,7 +267,7 @@ export async function onRandomizeComponent2Texture() {
 export async function randomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
 
-    if (itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_BACK && slot === "0") {
+    if (itemData.inventoryType === InventoryType.Back && slot === "0") {
         return;
     }
 
@@ -286,7 +284,7 @@ export async function randomizeComponentTexture(slot: string) {
                     FROM item_to_displayid IDI
                     JOIN displayid_to_texturefile DITF ON DITF.displayId = IDI.itemDisplayId
                     WHERE IDI.inventoryType ${
-                        itemData.inventoryType === window.WH.Wow.Item.INVENTORY_TYPE_CHEST ?
+                        itemData.inventoryType === InventoryType.Chest ?
                             "IN (4,5,20)" : "= " + itemData.inventoryType 
                     }
                 )
