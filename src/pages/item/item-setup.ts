@@ -185,20 +185,24 @@ function onClearComponent(idStr: string) {
 
 function onRandomizeComponent(idStr: string) {
     return async () => {
+        $.LoadingOverlay("show");
         await randomizeComponentModel(idStr);
         await randomizeComponentTexture(idStr);
         await previewCustomItem();
         await reloadComponentModels();
         await reloadComponentTextures();
+        $.LoadingOverlay("hide");
     }
 }
 
 function onHardRandomizeComponent(idStr: string) {
     return async () => {
+        $.LoadingOverlay("show");
         await hardRandomizeComponentModel(idStr);
         await hardRandomizeComponentTexture(idStr);
         await previewCustomItem();
         await reloadComponentModels();
         await reloadComponentTextures();
+        $.LoadingOverlay("hide");
     }
 }
