@@ -1,4 +1,4 @@
-import { GeoSet } from "../../models"
+import { GeoSet, InventoryType } from "../../models"
 import { getGeoSetDataForGeoset } from "../../utils"
 
 import { previewCustomItem } from "./preview-item";
@@ -11,7 +11,17 @@ export async function reloadGeosetDisplay() {
 
     $(domTarget).empty();
 
+
     let geoSets = getGeoSetsForInventoryType(itemData.inventoryType);
+
+    if (geoSets.length === 0) {
+        $(domTarget).closest('.accordion-item').hide();
+        return;
+    } else {
+        $(domTarget).closest('.accordion-item').show();
+    }
+
+
     for (let i = 0; i < geoSets.length; i++) {
         const set = geoSets[i];
         const geoSetData = getGeoSetDataForGeoset(set);
