@@ -2,8 +2,8 @@ import { InventoryType, ItemComponentSection, GeoSet } from "../../models";
 
 function getGeoSetsForInventoryType(inventoryType: number) {
     switch (inventoryType) {
-        case InventoryType.Head: return [GeoSet.Helmet, GeoSet.Head];
-        case InventoryType.Shoulders: return [GeoSet.Shoulders];
+        case InventoryType.Head: return [];
+        case InventoryType.Shoulders: return [];
         case InventoryType.Shirt: return [GeoSet.Sleeves, GeoSet.ShirtDoublet];
         case InventoryType.Chest: return [
             GeoSet.Sleeves, GeoSet.ShirtDoublet, GeoSet.LowerBody,
