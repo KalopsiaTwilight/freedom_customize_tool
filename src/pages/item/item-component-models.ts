@@ -1,7 +1,9 @@
 import { ModelResourceData, InventoryType } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { previewCustomItem } from "./preview-item";
-import { getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
+import { 
+    componentSlotSupportedForInventoryType, getRaceName, getWowHeadThumbForDisplayId, noComponentSupportedInventoryTypes 
+} from "./wow-data-utils";
 
 import { Modal, Tooltip } from "bootstrap"
 
@@ -32,12 +34,7 @@ export async function reloadComponentModels() {
     $(domTargets["0"]).empty()
     $(domTargets["1"]).empty()
 
-    const unSupportedTypes = [
-        InventoryType.Wrists,
-        InventoryType.Shirt,
-        InventoryType.Tabard,
-    ]
-    if (unSupportedTypes.indexOf(itemData.inventoryType) !== -1) {
+    if (noComponentSupportedInventoryTypes.indexOf(itemData.inventoryType) !== -1) {
         $(domTargets["0"]).closest('.accordion-item').hide();
         $(domTargets["1"]).closest('.accordion-item').hide();
         return;
@@ -58,7 +55,7 @@ export async function reloadComponentModels() {
         $("#component1Title").text("Component 1");
         $("#component2Title").text("Component 2");
         $(domTargets["0"]).closest('.accordion-item').show();
-        $(domTargets["1"]).closest('.accordion-item').show();
+        $(domTargets["1"]).closest('.accordion-item').hide();
     }
 
 
@@ -319,12 +316,11 @@ function prevPage() {
 
 export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
-    let data: ModelResourceData[]  =[];
-
-    if (itemData.inventoryType === InventoryType.Back && slot === "0") {
+    if (!componentSlotSupportedForInventoryType(itemData.inventoryType, slot)) {
         return;
     }
 
+    let data: ModelResourceData[]  =[];
     const maxTries = 10;
     let nrTries = 0;
     while (!data.length && nrTries < maxTries) {
@@ -383,8 +379,11 @@ export async function randomizeComponentModel(slot: string) {
 
 export async function hardRandomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
-    let data: ModelResourceData[]  =[];
+    if (!componentSlotSupportedForInventoryType(itemData.inventoryType, slot)) {
+        return;
+    }
 
+    let data: ModelResourceData[]  =[];
     const maxTries = 10;
     let nrTries = 0;
     while (!data.length && nrTries < maxTries) {

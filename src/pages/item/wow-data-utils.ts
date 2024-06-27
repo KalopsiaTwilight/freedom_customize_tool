@@ -143,3 +143,26 @@ export {
     getWowHeadThumbForDisplayId,
     getPlayerRaces
 }
+
+export const noComponentSupportedInventoryTypes = [
+    InventoryType.Wrists,
+    InventoryType.Shirt,
+    InventoryType.Tabard,
+]
+export const component2SupportedInventoryTypes = [
+    InventoryType.Back,
+    InventoryType.Shoulders
+]
+
+export function componentSlotSupportedForInventoryType(inventoryType: InventoryType, slot: string) {
+    if (inventoryType === InventoryType.Back && slot === "0") {
+        return false;
+    }
+    if (noComponentSupportedInventoryTypes.indexOf(inventoryType) !== -1) {
+        return false;
+    }
+    if (slot === "1" && component2SupportedInventoryTypes.indexOf(inventoryType) === -1) {
+        return false;
+    }
+    return true;
+}

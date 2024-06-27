@@ -4,6 +4,7 @@ import { notifyError } from "../../utils/alerts";
 import { InventoryType, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
+import { componentSlotSupportedForInventoryType } from "./wow-data-utils";
 
 const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
@@ -270,7 +271,7 @@ export async function onRandomizeComponent2Texture() {
 export async function randomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
 
-    if (itemData.inventoryType === InventoryType.Back && slot === "0") {
+    if (!componentSlotSupportedForInventoryType(itemData.inventoryType, slot)) {
         return;
     }
 
@@ -333,7 +334,10 @@ export async function randomizeComponentTexture(slot: string) {
 
 export async function hardRandomizeComponentTexture(slot: string) {
     const itemData = await window.store.get('itemData');
-
+    if (!componentSlotSupportedForInventoryType(itemData.inventoryType, slot)) {
+        return;
+    }
+    
     let data: TextureFileData | null = null;
     const maxTries = 10;
     let nrTries = 0;
