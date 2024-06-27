@@ -2,6 +2,7 @@ import { Modal } from "bootstrap";
 
 import { InventoryType, ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
 import { notifyError } from "../../utils/alerts";
+import { isArmorInventoryType } from "../../utils";
 
 import { reloadAllSections } from "./item-setup";
 import { randomizeComponentModel, reloadComponentModels } from "./item-component-models";
@@ -94,8 +95,13 @@ function prevPage() {
 
 export async function loadItem(inventoryType: InventoryType, displayId: number) {
     $.LoadingOverlay("show");
+
+    const wowHeadUri = isArmorInventoryType(inventoryType) 
+        ? `${window.EXPRESS_URI}/zam/modelviewer/live/meta/armor/${inventoryType}/${displayId}.json`
+        : `${window.EXPRESS_URI}/zam/modelviewer/live/meta/item/${displayId}.json`
+
     $.ajax({
-        url: window.EXPRESS_URI + "/zam/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",
+        url: wowHeadUri,
         method: "GET",
         error: function () {
             $.LoadingOverlay("hide");
@@ -176,6 +182,9 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
                     itemData.itemComponentModels[componentId].models.push(model);
                 }
                 let textureId = (componentId === "0") ? data.Textures["2"] : data.Textures2["2"];
+                if (!textureId) {
+                    continue;
+                }
                 const resp = await window.db.get(`
                     SELECT * FROM texturefiles 
                     WHERE fileId = ?1
