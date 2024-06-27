@@ -7,7 +7,7 @@ import { getGeoSetsForInventoryType} from "./wow-data-utils";
 export async function reloadGeosetDisplay() {
     const itemData = await window.store.get('itemData');
 
-    const domTarget = "#geosetSection";
+    const domTarget = "#geosetSection .accordion-body";
 
     $(domTarget).empty();
 

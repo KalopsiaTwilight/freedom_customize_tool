@@ -9,7 +9,7 @@ import * as sqlite3 from "sqlite3";
 
 import { setupDbIpc, setupPatchingIpc } from './ipc';
 import { CallFolderSelectDialog, CallOpenLogFileChannel, OnFirstStartChannel } from './ipc/channels';
-import { AppDataStore } from './models';
+import { AppDataStore, ArmorSubclass, InventoryType, ItemRarity } from './models';
 import { setUpStoreIpc } from './ipc/store';
 import { sleep } from './utils';
 
@@ -179,7 +179,14 @@ async function setupIpc() {
         }
       },
       itemData: {
-        name: "My Awesome Item",
+        metadata: {
+          name: "My Awesome Item",
+          fileIconId: 0,
+          fileIconName: "inv_misc_questionmark.blp",
+          rarity: ItemRarity.Legendary,
+          sheatheType: 0,
+          subClass: ArmorSubclass.Cloth
+        },
         itemMaterials: {},
         itemComponentModels: {
           "0": {
@@ -201,7 +208,7 @@ async function setupIpc() {
         helmetGeoVisMale: [],
         helmetGeoVisFemale: [],
         flags: 0,
-        inventoryType: 1,
+        inventoryType: InventoryType.Head,
         geoSetGroup: [0, 0, 0, 0, 0]
       }
     }

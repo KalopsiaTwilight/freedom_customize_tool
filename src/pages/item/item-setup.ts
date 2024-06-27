@@ -1,5 +1,5 @@
 import { debounce } from "../../utils";
-import { CharacterModelData } from "../../models";
+import { CharacterModelData, ItemData } from "../../models";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onSearchTexture, reloadTextures } from "./item-texture";
@@ -10,6 +10,7 @@ import { onSetParticleColors, reloadParticleColorComponents } from "./item-parti
 import { onAddGeoSetOverride, reloadHelmetGeovisComponents } from "./item-helmet-geovis";
 import { reloadFlagsComponents } from "./item-feature-flags";
 import { reloadGeosetDisplay } from "./item-geoset-display";
+import { hardRandomizeItemMetadata, onClearItemMetadata, onSearchItemMetadata, randomizeItemMetadata, reloadItemMetadata } from "./item-metadata";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
 import { previewCustomItem } from "./preview-item";
 
@@ -17,13 +18,37 @@ let windowResizeFn: () => void;
 
 export default async function load() {
     const itemData = await window.store.get('itemData');
-    $("#ci_name").val(itemData.name);
-    $("#ci_name").on("change", async () => { 
-        const itemData = await window.store.get('itemData');
-        itemData.name = $("#ci_name").val().toString();
-        await window.store.set("itemData", itemData);
-    }) 
 
+    setUpEventHandlers();
+    await reloadAllSections(itemData.inventoryType)
+
+    // Load character
+    const settings = await window.store.get('settings');
+    $("#ci_model_gender").val(settings.previewCharacter.gender);
+    $("#ci_model_race").val(settings.previewCharacter.race);
+    reloadCharacterModel(settings.previewCharacter);
+
+    windowResizeFn = onWindowResize(settings.previewCharacter);
+    $(window).on("resize", windowResizeFn);
+}
+
+function onWindowResize(defaultChar: CharacterModelData) {
+    return debounce(() => {
+        const currentRace = parseInt($("#ci_model_race").val().toString(), 10);
+        const currentGender = parseInt($("#ci_model_gender").val().toString(), 10);
+        if (currentGender != defaultChar.gender || currentRace != defaultChar.race) {
+            reloadCharacterModel({
+                race: currentRace,
+                gender: currentGender,
+                customizations: []
+            });
+        } else {
+            reloadCharacterModel(defaultChar);
+        }
+    })
+}
+
+function setUpEventHandlers() {
     $("#ci_inventoryslot").on("change", onInventorySlotChange);
 
     $("#ci_texture_textureFile").on("keyup", debounce(() => {
@@ -37,6 +62,10 @@ export default async function load() {
     $("#ci_componentmodel_modelfile").on("keyup", debounce(() => {
         $("#ci_preview_page").val(0);
         onSearchComponentModel();
+    }));
+    $("#ci_itemIcon_filename").on("keyup", debounce(() => {
+        $("#ci_preview_page").val(0);
+        onSearchItemMetadata();
     }));
 
     $("#ci_item_search").on("keyup", debounce(onSearchItem));
@@ -84,32 +113,41 @@ export default async function load() {
         window.api.applyItemPatch();
     });
 
-    await reloadAllSections(itemData.inventoryType)
+    $("#ci_name").on("change", debounce(async () => { 
+        const itemData = await window.store.get('itemData');
+        itemData.metadata.name = $("#ci_name").val().toString();
+        await window.store.set("itemData", itemData);
+    })) 
 
-    // Load character
-    const settings = await window.store.get('settings');
-    $("#ci_model_gender").val(settings.previewCharacter.gender);
-    $("#ci_model_race").val(settings.previewCharacter.race);
-    reloadCharacterModel(settings.previewCharacter);
-
-    windowResizeFn = onWindowResize(settings.previewCharacter);
-    $(window).on("resize", windowResizeFn);
-}
-
-function onWindowResize(defaultChar: CharacterModelData) {
-    return debounce(() => {
-        const currentRace = parseInt($("#ci_model_race").val().toString(), 10);
-        const currentGender = parseInt($("#ci_model_gender").val().toString(), 10);
-        if (currentGender != defaultChar.gender || currentRace != defaultChar.race) {
-            reloadCharacterModel({
-                race: currentRace,
-                gender: currentGender,
-                customizations: []
-            });
-        } else {
-            reloadCharacterModel(defaultChar);
-        }
+    $("#btnEditItemIcon").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchItemMetadata();
     })
+
+    $("#btnSoftRandomizeItemIcon").on('click', async () => {
+        await randomizeItemMetadata();
+        await reloadItemMetadata();
+    })
+    $("#btnHardRandomizeItemIcon").on('click', async () => {
+        await hardRandomizeItemMetadata();
+        await reloadItemMetadata();
+    })
+    $("#btnClearItemIcon").on('click', onClearItemMetadata);
+    $("#ci_rarity").on('change', async () => {
+        const itemData = await window.store.get('itemData');
+        itemData.metadata.rarity = parseInt($("#ci_rarity").val().toString(), 10);
+        await window.store.set('itemData', itemData);
+    });
+    $("#ci_subclass").on('change', async () => {
+        const itemData = await window.store.get('itemData');
+        itemData.metadata.subClass = parseInt($("#ci_subclass").val().toString(), 10);
+        await window.store.set('itemData', itemData);
+    });
+    $("#ci_sheatheType").on('change', async () => {
+        const itemData = await window.store.get('itemData');
+        itemData.metadata.sheatheType = parseInt($("#ci_sheatheType").val().toString(), 10);
+        await window.store.set('itemData', itemData);
+    });
 }
 
 export function unload() {
@@ -118,6 +156,7 @@ export function unload() {
 
 export async function reloadAllSections(inventorySlot: number) {
     $("#ci_inventoryslot").val(inventorySlot);
+    await reloadItemMetadata();
     await reloadGeosetDisplay();
     await reloadTextures();
     await reloadComponentModels();

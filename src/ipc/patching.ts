@@ -71,13 +71,30 @@ function itemDataToPatch(itemData: ItemData): Patch
     };
 
     const itemId = inventoryTypeToItemId(itemData.inventoryType);
-    // Update Item?
+    // Update item metadata
+    output.Update.push({
+        Filename: "Item.db2",
+        RecordId: itemId,
+        Record: [{
+            ColumnName: "IconFileDataID",
+            Value: itemData.metadata.fileIconId
+        }, {
+            ColumnName: "SheatheType",
+            Value: itemData.metadata.sheatheType
+        }, {
+            ColumnName: "SubclassID",
+            Value: itemData.metadata.subClass
+        }]
+    })
     output.Update.push({
         Filename: "ItemSparse.db2",
         RecordId: itemId,
         Record: [{
             ColumnName: "Display_lang",
-            Value: itemData.name
+            Value: itemData.metadata.name
+        }, {
+            ColumnName: "OverallQualityID",
+            Value: itemData.metadata.rarity
         }]
     })
     // Add geoset records for helmets

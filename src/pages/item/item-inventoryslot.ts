@@ -1,9 +1,13 @@
+import { ArmorSubclass, InventoryType } from "../../models";
+import { isArmorInventoryType } from "../../utils";
 
 import { reloadAllSections } from "./item-setup";
 import { previewCustomItem } from "./preview-item";
 
 export async function onInventorySlotChange() {
     const itemData = await window.store.get('itemData');
+
+    const oldInventoryType = itemData.inventoryType;
 
     itemData.itemMaterials = {};
     itemData.itemComponentModels = {
@@ -26,6 +30,14 @@ export async function onInventorySlotChange() {
     itemData.helmetGeoVisMale = [];
     itemData.helmetGeoVisFemale = [];
     itemData.geoSetGroup = [0,0,0,0,0];
+
+    if (isArmorInventoryType(itemData.inventoryType)) {
+        itemData.metadata.sheatheType = 0;
+        itemData.metadata.subClass = ArmorSubclass.Cloth
+    }
+    if (itemData.inventoryType == InventoryType.Shield) {
+        itemData.metadata.subClass = ArmorSubclass.Shield
+    }
 
     await window.store.set('itemData', itemData);
 

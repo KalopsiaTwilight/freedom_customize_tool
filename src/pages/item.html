@@ -2,10 +2,6 @@
     <div class="col-md-6 d-flex flex-column">
         <h4>Item Options</h4>
         <div class="form-group mb-3">
-            <label for="ci_name" class="form-label">Item Name</label>
-            <input type="text" class="form-control" id="ci_name">
-        </div>
-        <div class="form-group mb-3">
             <label for="ci_inventoryslot" class="form-label">Inventory Slot</label>
             <div class="input-group">
                 <select id="ci_inventoryslot" class="form-select">
@@ -32,14 +28,88 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#basicsSection" aria-expanded="true" aria-controls="basicsSection">
+                        data-bs-target="#metadataSection" aria-expanded="true" aria-controls="metadataSection">
+                        Item Properties
+                    </button>
+                </h2>
+                <div id="metadataSection" class="accordion-collapse collapse" data-bs-parent="#sectionsaccordion">
+                    <div class="accordion-body">
+                        <div class="form-group mb-3">
+                            <label for="ci_name" class="form-label">Item Name</label>
+                            <input type="text" class="form-control" id="ci_name">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="ci_iconFileId" class="form-label">Item Icon</label>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="item-icon-container me-3">
+                                    <img class='item-icon' />
+                                    <img class='item-icon-border' />
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="ci_iconFileId">
+                                    <button id="btnEditItemIcon" class='btn btn-outline-primary' data-bs-toggle='modal'
+                                        data-bs-target='#pickItemIconModal'>
+                                        <i class='fa-solid fa-pencil'></i>
+                                    </button>
+                                    <button id="btnSoftRandomizeItemIcon" class='btn btn-outline-secondary'>
+                                        <i class='fa-solid fa-shuffle'></i>
+                                    </button>
+                                    <button id="btnHardRandomizeItemIcon" class='btn btn-outline-secondary'>
+                                        <i class='fa-solid fa-dice'></i>
+                                    </button>
+                                    <button id="btnClearItemIcon" class='btn btn-outline-danger'>
+                                        <i class='fa-solid fa-x'></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="ci_rarity" class="form-label">Rarity</label>
+                            <div class="input-group">
+                                <select id="ci_rarity" class="form-select">
+                                    <option value="2">Uncommon</option>
+                                    <option value="3">Rare</option>
+                                    <option value="4">Epic</option>
+                                    <option value="5">Legendary</option>
+                                    <option value="6">Artifact</option>
+                                    <option value="7">Heirloom</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="ci_subclass" class="form-label">Subclass</label>
+                            <div class="input-group">
+                                <select id="ci_subclass" class="form-select"></select>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="ci_sheatheType" class="form-label">Sheathe Type</label>
+                            <div class="input-group">
+                                <select id="ci_sheatheType" class="form-select">
+                                    <option value="0">Back (One hand weapons hidden)</option>
+                                    <option value="1">Back</option>
+                                    <option value="2">Back (Upside down)</option>
+                                    <option value="3">Hip</option>
+                                    <option value="4">Bow</option>
+                                    <option value="5">Gun/Crossbow</option>
+                                    <option value="6">Hidden (Drawn from the back)</option>
+                                    <option value="7">Hidden 2 (Drawn from the back)</option>
+                                    <option value="8">Hidden (Drawn from the hip)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#geosetSection" aria-expanded="true" aria-controls="geosetSection">
                         Display Style
                     </button>
                 </h2>
-                <div id="basicsSection" class="accordion-collapse collapse" data-bs-parent="#inventorySlotSection">
+                <div id="geosetSection" class="accordion-collapse collapse" data-bs-parent="#sectionsaccordion">
                     <div class="accordion-body">
-                        <div id="geosetSection">
-                        </div>
                     </div>
                 </div>
             </div>
@@ -59,8 +129,8 @@
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button id="component1Title" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#component1Section" aria-expanded="true"
+                    <button id="component1Title" class="accordion-button collapsed" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#component1Section" aria-expanded="true"
                         aria-controls="component1Section">
                         Component 1
                     </button>
@@ -81,8 +151,8 @@
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header">
-                    <button id="component2Title" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#component2Section" aria-expanded="true"
+                    <button id="component2Title" class="accordion-button collapsed" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#component2Section" aria-expanded="true"
                         aria-controls="component2Section">
                         Component 2
                     </button>
@@ -122,8 +192,7 @@
                         Helmet - Model Part Visibility Overrides
                     </button>
                 </h2>
-                <div id="geoSetOverrideSection" class="accordion-collapse collapse"
-                    data-bs-parent="#sectionsaccordion">
+                <div id="geoSetOverrideSection" class="accordion-collapse collapse" data-bs-parent="#sectionsaccordion">
                     <div class="accordion-body">
                         <button id="addGsOverride" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#addGeosetOverrideModal">Add Model Part Visibility Override</button>
@@ -144,7 +213,8 @@
             </div>
         </div>
         <div class="d-flex">
-            <button type="button" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#loadItemModal">Load
+            <button type="button" class="btn btn-primary me-3" data-bs-toggle="modal"
+                data-bs-target="#loadItemModal">Load
                 Existing Item</button>
             <button id="randomizeItemBtn" type="button" class="btn btn-warning me-3">Soft Randomize Item</button>
         </div>
@@ -258,7 +328,7 @@
                     <input id="ci_texture_textureFile" type="search" class="form-control" autocomplete="false"
                         placeholder="Search for a texture file by name, id or item!">
                 </div>
-                
+
                 <div id="ci_texture_resultsPreview">
 
                 </div>
@@ -515,6 +585,28 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button id="loadCharacterBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Load
                     Character</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pickItemIconModal" tabindex="-1" aria-labelledby="pickItemIconModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class=" modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="pickItemIconModalLabel">Pick Item Icon</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Search Options</h5>
+                <div class="form-group mb-3">
+                    <input id="ci_itemIcon_filename" type="search" class="form-control" autocomplete="false"
+                        placeholder="Search for an icon file by name or id!">
+                </div>
+                <div id="ci_itemIcon_resultsPreview">
+
+                </div>
             </div>
         </div>
     </div>

@@ -14,3 +14,41 @@ body {
 .tooltip-wide > .tooltip-inner {
   max-width: 600px !important;
 }
+
+.item-icon-container
+{
+  position: relative;
+  width: 44px;
+  height: 44px;
+}
+
+.item-icon-container .item-icon
+{
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.item-icon-container .item-icon-border
+{
+  position: absolute;
+}
+
+.item-icon-container-lg
+{
+  position: relative;
+  width: 68px;
+  height: 68px;
+}
+
+.item-icon-container-lg .item-icon
+{
+  position: absolute;
+  top: 6px;
+  left: 6px;
+}
+
+.item-icon-container-lg .item-icon-border
+{
+  position: absolute;
+}

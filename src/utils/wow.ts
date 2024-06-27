@@ -1,4 +1,6 @@
-import { GeoSet, GeoSetData, InventoryType, ItemComponentSection, ItemFeatureFlag } from "../models"
+import { 
+    ArmorSubclass, GeoSet, GeoSetData, InventoryType, ItemComponentSection, ItemFeatureFlag, SheatheStyle, WeaponSubclass 
+} from "../models"
 
 export function inventoryTypeToItemDisplayType(type: InventoryType) {
     switch(type) {
@@ -625,5 +627,27 @@ export function getGeoSetDataForGeoset(set: GeoSet): GeoSetData {
             title: "Horn decoration (HM Tauren)",
             options: []
         });
+    }
+}
+
+export function armorSubClassToName(subClass: ArmorSubclass) {
+    return ArmorSubclass[subClass];
+}
+
+export function weaponSubClassToName(subClass: WeaponSubclass) {
+    switch(subClass) {
+        case WeaponSubclass.AxeOneHand: return "Axe (One-Hand)";
+        case WeaponSubclass.AxeTwoHand: return "Axe (Two-Hand)";
+        case WeaponSubclass.MaceOneHand: return "Mace (One-Hand)";
+        case WeaponSubclass.MaceTwoHand: return "Mace (Two-Hand)";
+        case WeaponSubclass.SwordOneHand: return "Sword (One-Hand)";
+        case WeaponSubclass.SwordTwoHand: return "Sword (Two-Hand)";
+        default: return WeaponSubclass[subClass];
+    }
+}
+
+export function sheatheStyleToName(sheatheStyle: SheatheStyle) {
+    switch (sheatheStyle) {
+        default: return SheatheStyle[sheatheStyle];
     }
 }

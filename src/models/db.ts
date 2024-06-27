@@ -26,6 +26,11 @@ export interface TextureFileData {
     materialResourceId: number,
 }
 
+export interface IconFileData {
+    fileId: number;
+    fileName: string;
+}
+
 export interface DbResponse<T> {
     error?: Error,
     result?: T
