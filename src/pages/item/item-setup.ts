@@ -67,9 +67,10 @@ function setUpEventHandlers() {
         $("#ci_preview_page").val(0);
         onSearchItemMetadata();
     }));
-
-    $("#ci_item_search").on("keyup", debounce(onSearchItem));
-    $("#loadItemBtn").on("click", loadItem);
+    $("#ci_item_search").on("keyup", debounce(() => {
+        $("#ci_preview_page").val(0);
+        onSearchItem();
+    }));
 
     $("#setParticleOverride").on("click", onSetParticleColors);
 
@@ -122,6 +123,11 @@ function setUpEventHandlers() {
     $("#btnEditItemIcon").on('click', () => {
         $("#ci_preview_page").val(0);
         onSearchItemMetadata();
+    })
+
+    $("#btnLoadExisting").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchItem();
     })
 
     $("#btnSoftRandomizeItemIcon").on('click', async () => {

@@ -1,4 +1,6 @@
-import { ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
+import { Modal } from "bootstrap";
+
+import { InventoryType, ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
 import { notifyError } from "../../utils/alerts";
 
 import { reloadAllSections } from "./item-setup";
@@ -7,41 +9,90 @@ import { randomizeComponentTexture, reloadComponentTextures } from "./item-compo
 import { randomizeGeoSetData, reloadGeosetDisplay } from "./item-geoset-display";
 import { randomizeTextures, reloadTextures } from "./item-texture";
 import { previewCustomItem } from "./preview-item";
+import { getWowHeadThumbForDisplayId } from "./wow-data-utils";
+import { fallbackImg } from "./consts";
 
 export async function onSearchItem() {
-    const resp = await window.db.all(`
-        SELECT * FROM item_to_displayid 
+    const itemData = await window.store.get('itemData');
+    const page = parseInt($("#ci_preview_page").val().toString());
+    const pageSize = 4;
+    
+    let whereAndFrom = `
+        FROM item_to_displayid 
         WHERE itemName like '%'|| ?1 || '%'
         OR itemId LIKE '%' || ?1 || '%'
-        LIMIT 5`,
+    `;
+
+    const resp = await window.db.all<ItemToDisplayIdData>(`
+        SELECT * ${whereAndFrom}
+        ORDER BY itemId DESC
+        LIMIT ${pageSize}
+        OFFSET ${page * pageSize}`,
         $("#ci_item_search").val()
     );
     if (resp.error) {
         throw resp.error;
     }
-    const data = resp.result as ItemToDisplayIdData[];
-    $("#ci_item_searchResults").empty();
-    for (const item of data) {
-        const itemElem = $(" <a class='dropdown-item d-flex align-items-center gap-2 py-2' href='#'>")
-        itemElem.text(item.itemName);
-        itemElem.on("click", function () {
-            $("#ci_item_search").val(item.itemName);
-            $("#ci_item_displayId").val(item.itemDisplayId);
-            $("#ci_item_inventoryType").val(item.inventoryType);
+    const total = await window.db.get<{total: number}>(
+        `SELECT COUNT(*) total ${whereAndFrom}`,
+        $("#ci_item_search").val()
+    );
 
-            $("#ci_item_searchResults").empty();
-            $("#loadItemBtn").removeAttr('disabled');
+
+    $("#ci_item_resultsPreview").empty();
+    const row = $("<div class='row'>");
+    for (const item of resp.result) {
+        const col = $("<div class='col-6 mb-3'>");
+        const linkElem = $("<a role='button' class='d-flex flex-column align-items-center border'>");
+        const imgUri = getWowHeadThumbForDisplayId(item.itemDisplayId);
+        const img = $(`<img src="${imgUri}" width=200 height=200 />`);
+        linkElem.append(img);
+        img.on('error', function () {
+            $(this).attr('src', fallbackImg);
+        })
+        linkElem.append(`<p>${item.itemName}</p>`)
+        linkElem.on("click", function () {
+            loadItem(item.inventoryType, item.itemDisplayId);
+            Modal.getOrCreateInstance("#loadItemModal").hide();
         });
-        const li = $("<li>");
-        li.append(itemElem);
-        $("#ci_item_searchResults").append(li);
+        col.append(linkElem);
+        row.append(col);
     }
+    $("#ci_item_resultsPreview").append(row);
+    const bottomContainer = $("<div class='d-flex justify-content-between align-items-center'>");
+    const leftArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-left'></i></button>")
+    if (page === 0) {
+        leftArrow.attr('disabled', 'disabled');
+    } else {
+        leftArrow.on('click', prevPage);
+    }
+    const rightArrow = $("<button class='btn btn-light'><i class='fa-solid fa-arrow-right'></i></button>")
+    if (page === Math.ceil(total.result.total/pageSize)-1) {
+        rightArrow.attr('disabled', 'disabled');
+    } else {
+        rightArrow.on('click', nextPage)
+    }
+    bottomContainer.append(leftArrow);
+    bottomContainer.append(`<p class="text-center mb-0">Showing results ${page * pageSize + 1}-${Math.min((page+1) * pageSize, total.result.total)} out of ${total.result.total}</p>`);
+    bottomContainer.append(rightArrow);
+    $("#ci_item_resultsPreview").append(bottomContainer);
 }
 
-export async function loadItem() {
-    let inventoryType = parseInt($("#ci_item_inventoryType").val().toString(), 10);
-    let displayId = parseInt($("#ci_item_displayId").val().toString(), 10)
+function nextPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage + 1);
+    onSearchItem();
+    $(this).parent().find("button").attr('disabled', 'disabled');
+}
 
+function prevPage() {
+    const curPage = parseInt($("#ci_preview_page").val().toString());
+    $("#ci_preview_page").val(curPage - 1);
+    onSearchItem();
+    $(this).parent().find("button").attr('disabled', 'disabled');
+}
+
+export async function loadItem(inventoryType: InventoryType, displayId: number) {
     $.LoadingOverlay("show");
     $.ajax({
         url: window.EXPRESS_URI + "/zam/modelviewer/live/meta/armor/" + inventoryType + "/" + displayId + ".json",

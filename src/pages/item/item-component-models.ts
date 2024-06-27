@@ -1,13 +1,12 @@
 import { ModelResourceData, InventoryType } from "../../models";
 import { notifyError } from "../../utils/alerts";
+import { fallbackImg } from "./consts";
 import { previewCustomItem } from "./preview-item";
 import { 
     componentSlotSupportedForInventoryType, getRaceName, getWowHeadThumbForDisplayId, noComponentSupportedInventoryTypes 
 } from "./wow-data-utils";
 
 import { Modal, Tooltip } from "bootstrap"
-
-const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 export async function reloadComponentModels() {
     const itemData = await window.store.get('itemData');

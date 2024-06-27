@@ -5,8 +5,7 @@ import { InventoryType, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
 import { componentSlotSupportedForInventoryType } from "./wow-data-utils";
-
-const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+import { fallbackImg } from "./consts";
 
 export async function reloadComponentTextures() {
     const itemData = await window.store.get('itemData');

@@ -3,8 +3,7 @@ import { Modal, Tooltip } from "bootstrap";
 import { notifyError } from "../../utils/alerts";
 import { armorSubClassToName, isArmorInventoryType, weaponSubClassToName } from "../../utils";
 import { ArmorSubclass, IconFileData, WeaponSubclass } from "../../models";
-
-const fallbackImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+import { fallbackImg } from "./consts";
 
 export async function reloadItemMetadata() {
     const itemData = await window.store.get('itemData');
