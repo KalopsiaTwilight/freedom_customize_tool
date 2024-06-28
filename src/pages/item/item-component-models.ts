@@ -265,7 +265,7 @@ export async function onSearchComponentModel() {
         img.on('error', function () {
             $(this).attr('src', fallbackImg);
         })
-        linkElem.append(`<p>${item.fileName}</p>`)
+        linkElem.append(`<p class="text-truncate" style="max-width: 90%">${item.fileName}</p>`)
         linkElem.on("click", function () {
             onAddComponentModel(item.modelResourceId);
             Modal.getOrCreateInstance("#addComponentModelModal").hide();

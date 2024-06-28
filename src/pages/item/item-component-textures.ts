@@ -203,7 +203,7 @@ export async function onSearchComponentTexture() {
         img.on('error', function () {
             $(this).attr('src', fallbackImg);
         })
-        linkElem.append(`<p>${texture.fileName}</p>`)
+        linkElem.append(`<p class="text-truncate" style="max-width: 90%">${texture.fileName}</p>`)
         linkElem.on("click", function () {
             onAddComponentTexture(texture.fileName, texture.fileId);
             Modal.getOrCreateInstance("#addComponentTextureModal").hide();

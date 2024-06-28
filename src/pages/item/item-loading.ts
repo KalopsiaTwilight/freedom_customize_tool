@@ -53,7 +53,7 @@ export async function onSearchItem() {
         img.on('error', function () {
             $(this).attr('src', fallbackImg);
         })
-        linkElem.append(`<p>${item.itemName}</p>`)
+        linkElem.append(`<p class="text-truncate" style="max-width: 90%">${item.itemName}</p>`)
         linkElem.on("click", function () {
             loadItem(item.inventoryType, item.itemDisplayId);
             Modal.getOrCreateInstance("#loadItemModal").hide();
