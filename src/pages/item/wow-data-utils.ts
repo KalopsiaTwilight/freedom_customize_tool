@@ -24,13 +24,11 @@ function getComponentSectionsForInventoryType(inventoryType: InventoryType) {
         //case InventoryType.Head: return [1,2];
         case InventoryType.Shirt: return [
             ItemComponentSection.UpperArm, ItemComponentSection.LowerArm,
-            ItemComponentSection.Hand,
             ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
             ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg
         ];
         case InventoryType.Chest: return [
             ItemComponentSection.UpperArm, ItemComponentSection.LowerArm,
-            ItemComponentSection.Hand,
             ItemComponentSection.UpperTorso, ItemComponentSection.LowerTorso,
             ItemComponentSection.UpperLeg, ItemComponentSection.LowerLeg
         ];
