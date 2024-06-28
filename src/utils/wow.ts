@@ -81,6 +81,7 @@ export function isArmorInventoryType(type: InventoryType) {
         case InventoryType.Waist:
         case InventoryType.Wrists:
         case InventoryType.HeldInOffHand:
+        case InventoryType.Shield:
             return true;
         default:
             return false;
