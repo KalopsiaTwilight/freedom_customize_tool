@@ -19,7 +19,7 @@
                     <option value="13">One Handed Weapon</option>
                     <option value="17">Two Handed Weapon</option>
                     <option value="14">Shield</option>
-                    <option value="23">Off Hand Item</option>
+                    <option value="23">Held in Off Hand</option>
                     <option value="15">Ranged</option>
                 </select>
             </div>
@@ -310,11 +310,10 @@
                 </div>
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="ci_texture_onlyForIs">
-                        <label class="form-check-label" for="ci_texture_onlyForIs">
-                            Only show textures used by items in the appropriate slot
-                        </label>
+                    <div class="form-group">
+                        <label for="ci_texture_inventorySlotFilter" class="form-label">Only show textures for Inventory Type:</label>
+                        <select id="ci_texture_inventorySlotFilter" class="form-select">
+                        </select>
                     </div>
                 </div>
                 <div class="form-group mt-3 mb-3">
@@ -349,12 +348,13 @@
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
                     <div class="form-group">
-                        <label for="ci_item_inventorySlotFilter" class="form-label">Only show items for inventoryslot:</label>
+                        <label for="ci_item_inventorySlotFilter" class="form-label">Only show items for Inventory Type:</label>
                         <select id="ci_item_inventorySlotFilter" class="form-select">
                         </select>
                     </div>
                 </div>
                 <div class="form-group mb-3">
+                    <label for="ci_item_search" class="form-label">Search:</label>
                     <input id="ci_item_search" type="search" class="form-control" autocomplete="false"
                         placeholder="Search for an item by name or id!">
                 </div>
@@ -378,14 +378,12 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="ci_componentmodel_onlyForIs">
-                        <label class="form-check-label" for="ci_componentmodel_onlyForIs">
-                            Only show models used by items in the appropriate slot
-                        </label>
-                    </div>
+                    <label for="ci_componentmodel_inventorySlotFilter" class="form-label">Only show models for for Inventory Type:</label>
+                    <select id="ci_componentmodel_inventorySlotFilter" class="form-select">
+                    </select>
                 </div>
                 <div class="form-group mb-3">
+                    <label for="ci_componentmodel_modelfile" class="form-label">Search:</label>
                     <input id="ci_componentmodel_modelfile" type="search" class="form-control" autocomplete="false"
                         placeholder="Search for a model file by name, id or item!">
                 </div>
@@ -408,14 +406,12 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="ci_componenttexture_onlyForIs">
-                        <label class="form-check-label" for="ci_componenttexture_onlyForIs">
-                            Only show textures used by items in the appropriate slot
-                        </label>
-                    </div>
+                    <label for="ci_componenttexture_inventorySlotFilter" class="form-label">Only show textures for Inventory Type:</label>
+                    <select id="ci_componenttexture_inventorySlotFilter" class="form-select">
+                    </select>
                 </div>
                 <div class="form-group mb-3">
+                    <label for="ci_componenttexture_file" class="form-label">Search:</label>
                     <input id="ci_componenttexture_file" type="search" class="form-control" autocomplete="false"
                         placeholder="Search for a texture file by name, id or item!">
                 </div>
@@ -564,32 +560,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="loadCharacterModal" tabindex="-1" aria-labelledby="loadCharacterModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="loadCharacterModalLabel">Load Character</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group mb-3">
-                    <label for="ci_character_select" class="form-label">Character to load</label>
-                    <div class="input-group">
-                        <select id="ci_character_select" class="form-select">
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="loadCharacterBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Load
-                    Character</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="pickItemIconModal" tabindex="-1" aria-labelledby="pickItemIconModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -601,14 +571,12 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="ci_itemIcon_onlyForIs">
-                        <label class="form-check-label" for="ci_itemIcon_onlyForIs">
-                            Only show icons used by items in the appropriate slot
-                        </label>
-                    </div>
+                    <label for="ci_itemIcon_inventorySlotFilter" class="form-label">Only show items for Inventory Type:</label>
+                    <select id="ci_itemIcon_inventorySlotFilter" class="form-select">
+                    </select>
                 </div>
                 <div class="form-group mb-3">
+                    <label for="ci_itemIcon_filename" class="form-label">Search:</label>
                     <input id="ci_itemIcon_filename" type="search" class="form-control" autocomplete="false"
                         placeholder="Search for an icon file by name or id!">
                 </div>

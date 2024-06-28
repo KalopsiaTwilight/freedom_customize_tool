@@ -14,16 +14,18 @@ import { getWowHeadThumbForDisplayId } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
 
 export async function onSearchItem() {
-    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
     
     let whereAndFrom = `
         FROM item_to_displayid 
-        WHERE itemName like '%'|| ?1 || '%'
-        OR itemId LIKE '%' || ?1 || '%'
+        WHERE (itemName like '%'|| ?1 || '%'
+        OR itemId LIKE '%' || ?1 || '%')
     `;
-
+    const inventoryTypeFilter = parseInt($("#ci_item_inventorySlotFilter").val().toString(), 10);
+    if (inventoryTypeFilter >= 0) {
+        whereAndFrom += `AND inventoryType = ${inventoryTypeFilter}`
+    }
     const resp = await window.db.all<ItemToDisplayIdData>(`
         SELECT * ${whereAndFrom}
         ORDER BY itemId DESC

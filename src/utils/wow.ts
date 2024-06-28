@@ -652,3 +652,16 @@ export function sheatheStyleToName(sheatheStyle: SheatheStyle) {
         default: return SheatheStyle[sheatheStyle];
     }
 }
+
+export function inventoryTypeToName(inventoryType: InventoryType) {
+    switch(inventoryType) {
+        case InventoryType.OneHand: return "One Handed Weapon";
+        case InventoryType.TwoHand: return "Two Handed Weapon";
+        case InventoryType.MainHand: return "Main Hand Only";
+        case InventoryType.OffHand: return "Off Hand Only";
+        case InventoryType.HeldInOffHand: return "Held in Off Hand";
+        case InventoryType.ProfessionAccesory: return "Profession Accesory";
+        case InventoryType.ProfessionTool: return "Profession Tool";
+        default: return InventoryType[inventoryType];
+    }
+}

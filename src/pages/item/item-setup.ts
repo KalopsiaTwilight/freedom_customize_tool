@@ -1,5 +1,5 @@
-import { debounce } from "../../utils";
-import { CharacterModelData, ItemData } from "../../models";
+import { debounce, inventoryTypeToName } from "../../utils";
+import { CharacterModelData, InventoryType, ItemData } from "../../models";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onSearchTexture, reloadTextures } from "./item-texture";
@@ -92,19 +92,24 @@ function setUpEventHandlers() {
     $("#btnHardRandomizeComponent2").on("click", onHardRandomizeComponent("1"));
     $("#btnClearComponent2").on("click", onClearComponent("1"))
 
-    $("#ci_componentmodel_onlyForIs").on('click', () => {
-        $("#ci_preview_page").val(0);
-        onSearchComponentModel();
-    })
-    $("#ci_componenttexture_onlyForIs").on('click', () => {
-        $("#ci_preview_page").val(0);
-        onSearchComponentTexture();
-    })
-    $("#ci_texture_onlyForIs").on('click', () => {
+
+    $("#ci_texture_inventorySlotFilter").on('change', () => {
         $("#ci_preview_page").val(0);
         onSearchTexture();
     })
-    $("#ci_itemIcon_onlyForIs").on('click', () => {
+    $("#ci_item_inventorySlotFilter").on('change', () => {
+        $("#ci_preview_page").val(0);
+        onSearchItem();
+    })
+    $("#ci_componentmodel_inventorySlotFilter").on('change', () => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentModel();
+    })
+    $("#ci_componenttexture_inventorySlotFilter").on('change', () => {
+        $("#ci_preview_page").val(0);
+        onSearchComponentTexture();
+    })
+    $("#ci_itemIcon_inventorySlotFilter").on('change', () => {
         $("#ci_preview_page").val(0);
         onSearchItemMetadata();
     })
@@ -176,6 +181,7 @@ export async function reloadAllSections(inventorySlot: number) {
     await reloadParticleColorComponents();
     await reloadFlagsComponents();
     await reloadHelmetGeovisComponents();
+    reloadItemSlotDropdownFilters(inventorySlot);
 }
 
 function onClearComponent(idStr: string) {
@@ -216,5 +222,29 @@ function onHardRandomizeComponent(idStr: string) {
         await reloadComponentModels();
         await reloadComponentTextures();
         $.LoadingOverlay("hide");
+    }
+}
+
+function reloadItemSlotDropdownFilters(inventoryType: InventoryType) {
+    const filterTargets = [
+        "#ci_texture_inventorySlotFilter",
+        "#ci_item_inventorySlotFilter",
+        "#ci_componentmodel_inventorySlotFilter",
+        "#ci_componenttexture_inventorySlotFilter",
+        "#ci_itemIcon_inventorySlotFilter"
+    ]
+
+    for(const target of filterTargets) {
+        $(target).empty();
+        $(target).append('<option value="-1"></option>');
+        const currentItemOption = `<option value="${inventoryType}">${inventoryTypeToName(inventoryType)}</option>`;
+        $(target).append(currentItemOption);
+        for(const val in InventoryType) {
+            const inventoryTypeId = parseInt(val, 10);
+            if (isNaN(inventoryTypeId) || inventoryTypeId === inventoryType) {
+                continue;
+            }
+            $(target).append(`<option value='${inventoryTypeId}'>${inventoryTypeToName(inventoryTypeId)}</option>`)
+        }
     }
 }

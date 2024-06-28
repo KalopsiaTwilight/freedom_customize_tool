@@ -186,7 +186,6 @@ async function onAddTexture(materialResourceId: number ) {
 }
 
 export async function onSearchTexture() {
-    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
     const onlyAppropriate = $("#ci_texture_onlyForIs").is(':checked');
@@ -218,21 +217,17 @@ export async function onSearchTexture() {
             GROUP BY MI2.materialResourceId
         )
     `;    
-    if (onlyAppropriate) {
+    const inventoryTypeFilter = parseInt($("#ci_texture_inventorySlotFilter").val().toString(), 10);
+    if (inventoryTypeFilter >= 0) {
         fromAndWhere += `               
             AND MI.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
-                WHERE IDI.inventoryType ${
-                    itemData.inventoryType === InventoryType.Chest ?
-                        "IN (4,5,20)" :
-                    itemData.inventoryType === InventoryType.OneHand ? 
-                        "IN (13, 21, 22)" : "= " + itemData.inventoryType
-                }
+                WHERE IDI.inventoryType = ${inventoryTypeFilter}
             )`
     }
-    if (onlyForSect && itemData.inventoryType !== InventoryType.Back) {
+    if (onlyForSect) {
         const section = parseInt($("#ci_texture_componentsection").val().toString());
         fromAndWhere += `
             AND MI.fileId IN (

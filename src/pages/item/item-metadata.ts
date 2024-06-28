@@ -2,22 +2,23 @@ import { Modal, Tooltip } from "bootstrap";
 
 import { notifyError } from "../../utils/alerts";
 import { armorSubClassToName, isArmorInventoryType, weaponSubClassToName } from "../../utils";
-import { ArmorSubclass, IconFileData, InventoryType, WeaponSubclass } from "../../models";
+import { ArmorSubclass, IconFileData, WeaponSubclass } from "../../models";
 import { fallbackImg } from "./consts";
 
 export async function reloadItemMetadata() {
     const itemData = await window.store.get('itemData');
 
+    // Load Item Icon
     $("#ci_name").val(itemData.metadata.name);
     $("#ci_iconFileId").val(itemData.metadata.fileIconName);
-
     const imgSrc = `${window.EXPRESS_URI}/zam/images/wow/icons/medium/${itemData.metadata.fileIconName.replace('.blp', '.jpg')}`
     $(".item-icon-container .item-icon").attr('src', imgSrc);
     $(".item-icon-container .item-icon-border").attr('src', `${window.EXPRESS_URI}/zam/images/Icon/medium/border/default.png`)
 
+    // Load Rarity
     $("#ci_rarity").val(itemData.metadata.rarity);
 
-
+    // Load Subclass&SheatheType
     $("#ci_subclass").empty();
     if (isArmorInventoryType(itemData.inventoryType)) {
         $("#ci_sheatheType").attr('disabled', 'disabled');
@@ -61,7 +62,6 @@ async function onSetFileIcon(fileName: string, fileId: number) {
 }
 
 export async function onSearchItemMetadata() {
-    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 40;
 
@@ -70,18 +70,13 @@ export async function onSearchItemMetadata() {
         WHERE (IF.fileName LIKE '%' || ?1 || '%' 
         OR    IF.fileId LIKE '%' || ?1 || '%') 
     `;
-    const onlyAppropriate = $("#ci_itemIcon_onlyForIs").is(':checked');
-    if (onlyAppropriate) {
+    const inventoryTypeFilter = parseInt($("#ci_itemIcon_inventorySlotFilter").val().toString(), 10);
+    if (inventoryTypeFilter >= 0) {
         fromAndWhere += `               
         AND IF.fileId IN (
             SELECT ITIF.fileId
             FROM inventoryslot_to_iconfile ITIF
-            WHERE ITIF.inventoryType ${
-                itemData.inventoryType === InventoryType.Chest ?
-                    "IN (4,5,20)" :
-                itemData.inventoryType === InventoryType.OneHand ? 
-                    "IN (13, 21, 22)" : "= " + itemData.inventoryType
-            }
+            WHERE ITIF.inventoryType = ${inventoryTypeFilter}
         )`
     }
     const resp = await window.db.all<IconFileData>(`

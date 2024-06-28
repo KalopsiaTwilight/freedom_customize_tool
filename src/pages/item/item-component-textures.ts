@@ -134,10 +134,8 @@ async function onAddComponentTexture(fileName: string, fileId: number) {
 }
 
 export async function onSearchComponentTexture() {
-    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
-    const onlyAppropriate = $("#ci_componenttexture_onlyForIs").is(':checked');
 
     const ctes = `
         WITH matchingItems AS
@@ -166,18 +164,14 @@ export async function onSearchComponentTexture() {
             HAVING COUNT(*) = 1
         )
     `;
-    if (onlyAppropriate) {
+    const inventoryTypeFilter = parseInt($("#ci_componenttexture_inventorySlotFilter").val().toString(), 10);
+    if (inventoryTypeFilter >= 0) {
         fromAndWhere += `               
             AND MI.fileId IN (
                 SELECT DITF.fileId
                 FROM item_to_displayid IDI
                 JOIN displayid_to_texturefile DITF ON IDI.itemDisplayId = DITF.displayId
-                WHERE IDI.inventoryType ${
-                    itemData.inventoryType === InventoryType.Chest ?
-                        "IN (4,5,20)" :
-                    itemData.inventoryType === InventoryType.OneHand ? 
-                        "IN (13, 21, 22)" : "= " + itemData.inventoryType
-                }
+                WHERE IDI.inventoryType = ${inventoryTypeFilter}
             )`
     }
     const resp = await window.db.all<TextureFileData>(`

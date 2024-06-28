@@ -198,9 +198,7 @@ async function onAddComponentModel(modelResourceId: number) {
 }
 
 export async function onSearchComponentModel() {
-    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
-    const onlyAppropriate = $("#ci_componentmodel_onlyForIs").is(':checked');
 
     const pageSize = 4;
     const ctes = `
@@ -229,17 +227,13 @@ export async function onSearchComponentModel() {
             GROUP BY MI2.modelResourceId
         )
     `;
-    if (onlyAppropriate) {
+    const inventoryTypeFilter = parseInt($("#ci_componentmodel_inventorySlotFilter").val().toString(), 10);
+    if (inventoryTypeFilter >= 0) {
         fromAndFilterQuery += `               
             AND MI.displayId IN (
                 SELECT itemDisplayId 
                 FROM item_to_displayid
-                WHERE inventoryType ${
-                    itemData.inventoryType === InventoryType.Chest ?
-                        "IN (4,5,20)" :                        
-                    itemData.inventoryType === InventoryType.OneHand ? 
-                        "IN (13, 21, 22)" : "= " + itemData.inventoryType
-                }
+                WHERE inventoryType = ${inventoryTypeFilter}
             )`
     }
     const resp = await window.db.all<ModelResourceData>(`
