@@ -2,7 +2,7 @@ import { Modal, Tooltip } from "bootstrap";
 
 import { notifyError } from "../../utils/alerts";
 import { armorSubClassToName, isArmorInventoryType, weaponSubClassToName } from "../../utils";
-import { ArmorSubclass, IconFileData, WeaponSubclass } from "../../models";
+import { ArmorSubclass, IconFileData, InventoryType, WeaponSubclass } from "../../models";
 import { fallbackImg } from "./consts";
 
 export async function reloadItemMetadata() {
@@ -61,14 +61,29 @@ async function onSetFileIcon(fileName: string, fileId: number) {
 }
 
 export async function onSearchItemMetadata() {
+    const itemData = await window.store.get('itemData');
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 40;
 
     let fromAndWhere = `
         FROM iconFiles IF
-        WHERE IF.fileName LIKE '%' || ?1 || '%' 
-        OR    IF.fileId LIKE '%' || ?1 || '%' 
+        WHERE (IF.fileName LIKE '%' || ?1 || '%' 
+        OR    IF.fileId LIKE '%' || ?1 || '%') 
     `;
+    const onlyAppropriate = $("#ci_itemIcon_onlyForIs").is(':checked');
+    if (onlyAppropriate) {
+        fromAndWhere += `               
+        AND IF.fileId IN (
+            SELECT ITIF.fileId
+            FROM inventoryslot_to_iconfile ITIF
+            WHERE ITIF.inventoryType ${
+                itemData.inventoryType === InventoryType.Chest ?
+                    "IN (4,5,20)" :
+                itemData.inventoryType === InventoryType.OneHand ? 
+                    "IN (13, 21, 22)" : "= " + itemData.inventoryType
+            }
+        )`
+    }
     const resp = await window.db.all<IconFileData>(`
         SELECT *
         ${fromAndWhere}

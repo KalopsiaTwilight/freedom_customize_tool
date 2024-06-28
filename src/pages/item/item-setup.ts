@@ -104,6 +104,12 @@ function setUpEventHandlers() {
         $("#ci_preview_page").val(0);
         onSearchTexture();
     })
+    $("#ci_itemIcon_onlyForIs").on('click', () => {
+        $("#ci_preview_page").val(0);
+        onSearchItemMetadata();
+    })
+
+
     $("#ci_texture_onlyForSect").on('click', () => {
         $("#ci_preview_page").val(0);
         onSearchTexture();
