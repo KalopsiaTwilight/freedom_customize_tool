@@ -113,7 +113,7 @@ function setUpEventHandlers() {
     })
 
 
-    $("#ci_texture_onlyForSect").on('click', () => {
+    $("#ci_texture_componentsectionFilter").on('change', () => {
         $("#ci_preview_page").val(0);
         onSearchTexture();
     })

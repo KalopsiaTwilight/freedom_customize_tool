@@ -32,14 +32,11 @@ export async function reloadTextures() {
     $("#ci_texture_race").val("0");
     $("#ci_texture_class").val("0");
     $("#addTextureBtn").attr('disabled', 'true');
-    $("#ci_texture_componentsection").empty();
 
 
     $(domTarget).closest('.accordion-item').show();
 
     for (const section of sections) {
-        $("#ci_texture_componentsection").append($("<option value='" + section + "'>" + componentSectionToName(section) + "</option>"))
-
         const formGroup = $("<div class='form-group mb-3' />");
 
         let label = componentSectionToName(section);
@@ -63,9 +60,9 @@ export async function reloadTextures() {
         editButton.on("click", function () {
             $("#ci_preview_page").val(0);
             $("#ci_texture_textureFile").val("");
-            $("#ci_texture_componentsection").val(section)
+            $("#ci_texture_componentsectionFilter").val(-1)
+            $("#ci_texture_componentsection").val(section);
             $("#ci_texture_onlyForIs").prop('checked', false);
-            $("#ci_texture_onlyForSect").prop('checked', false);
             onSearchTexture();
         })
         inputGroup.append(editButton);
@@ -188,8 +185,6 @@ async function onAddTexture(materialResourceId: number ) {
 export async function onSearchTexture() {
     const page = parseInt($("#ci_preview_page").val().toString());
     const pageSize = 4;
-    const onlyAppropriate = $("#ci_texture_onlyForIs").is(':checked');
-    const onlyForSect = $("#ci_texture_onlyForSect").is(':checked');
 
     const ctes = `
     WITH matchingItems AS
@@ -227,13 +222,13 @@ export async function onSearchTexture() {
                 WHERE IDI.inventoryType = ${inventoryTypeFilter}
             )`
     }
-    if (onlyForSect) {
-        const section = parseInt($("#ci_texture_componentsection").val().toString());
+    const sectionFilter = parseInt($("#ci_texture_componentsectionFilter").val().toString());
+    if (sectionFilter >= 0) {
         fromAndWhere += `
             AND MI.fileId IN (
                 SELECT fileID
                 FROM componentsection_to_texturefile CTF
-                WHERE CTF.componentSection = ${section}
+                WHERE CTF.componentSection = ${sectionFilter}
             )
         `
     }
