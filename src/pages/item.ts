@@ -16,6 +16,10 @@ $.LoadingOverlay("hide");
 export async function loadPage() {
     $.LoadingOverlay("show");
     $("#pageContent").html(html);
+
+    window.api.setMenuItemDisabled(0, 0, false);
+    window.api.setMenuItemDisabled(0, 1, false);
+
     if (!window.ZamModelViewer) {
         window.ipcRenderer.on(OnPatchToolExitChannel, async (_, output: PatchResult) => {
             if (output.resultCode != 0) {

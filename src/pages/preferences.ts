@@ -1,5 +1,3 @@
-import log from "electron-log"
-
 import html from "./preferences.html"
 
 export async function loadPage() {
@@ -37,6 +35,9 @@ export async function loadPage() {
     $("#pref_openLogBtn").on("click", () => {
         window.api.openLogFile();
     });
+
+    window.api.setMenuItemDisabled(0, 0);
+    window.api.setMenuItemDisabled(0, 1);
 
     $.LoadingOverlay("hide");
 }

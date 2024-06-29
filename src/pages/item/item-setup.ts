@@ -1,5 +1,6 @@
 import { debounce, inventoryTypeToName } from "../../utils";
-import { CharacterModelData, InventoryType, ItemData } from "../../models";
+import { CharacterModelData, InventoryType } from "../../models";
+import { OnOpenChannel, OnSaveChannel } from "../../ipc/channels";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
 import { onSearchTexture, reloadTextures } from "./item-texture";
@@ -13,6 +14,7 @@ import { reloadGeosetDisplay } from "./item-geoset-display";
 import { hardRandomizeItemMetadata, onClearItemMetadata, onSearchItemMetadata, randomizeItemMetadata, reloadItemMetadata } from "./item-metadata";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
 import { previewCustomItem } from "./preview-item";
+
 
 let windowResizeFn: () => void;
 
@@ -73,11 +75,7 @@ function setUpEventHandlers() {
     }));
 
     $("#setParticleOverride").on("click", onSetParticleColors);
-
     $("#addHelmetGeoVis").on("click", onAddGeoSetOverride);
-
-    $("#exportBtn").on("click", exportToFile);
-    $("#loadFileBtn").on("click", loadFile);
 
     $("#ci_model_gender").on("change", onModelGenderChange)
     $("#ci_model_race").on("change", onModelRaceChange)
@@ -165,10 +163,15 @@ function setUpEventHandlers() {
         itemData.metadata.sheatheType = parseInt($("#ci_sheatheType").val().toString(), 10);
         await window.store.set('itemData', itemData);
     });
+
+    window.ipcRenderer.on(OnSaveChannel, exportToFile);
+    window.ipcRenderer.on(OnOpenChannel, loadFile);
 }
 
 export function unload() {
     $(window).off("resize", windowResizeFn);
+    window.ipcRenderer.off(OnSaveChannel);
+    window.ipcRenderer.off(OnOpenChannel);
 }
 
 export async function reloadAllSections(inventorySlot: number) {

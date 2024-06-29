@@ -112,6 +112,7 @@ declare interface ElectronApi {
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
     selectFolder: () => Promise<string[] | undefined>
     openLogFile: () => Promise<void>
+    setMenuItemDisabled: (menuIndex: number, itemIndex: number, disabled = true) => Promise<void>
 }
 
 declare interface DbApi {
@@ -122,6 +123,7 @@ declare interface DbApi {
 
 declare interface ElectronIpcRenderer {
     on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
+    off: (channel: string) => void;
 }
 
 type StoreApiKey = keyof AppDataStore;

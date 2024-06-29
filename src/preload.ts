@@ -3,14 +3,20 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { 
 	CallDbAllChannel, CallDbExecChannel, CallDbGetChannel, CallApplyPatchChannel,
-	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialog, CallOpenLogFileChannel 
+	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialogChannel, CallOpenLogFileChannel, CallSetMenuDisabledChannel, CallGetExpressUriChannel 
 } from "./ipc/channels"
 
 contextBridge.exposeInMainWorld("api", {
-	getExpressAppUrl: () => ipcRenderer.invoke("get-express-app-url"),
-	applyItemPatch: () => ipcRenderer.invoke(CallApplyPatchChannel),
-	selectFolder: () => ipcRenderer.invoke(CallFolderSelectDialog),
-	openLogFile: () => ipcRenderer.invoke(CallOpenLogFileChannel),
+	getExpressAppUrl: () => 
+		ipcRenderer.invoke(CallGetExpressUriChannel),
+	applyItemPatch: () => 
+		ipcRenderer.invoke(CallApplyPatchChannel),
+	selectFolder: () => 
+		ipcRenderer.invoke(CallFolderSelectDialogChannel),
+	openLogFile: () => 
+		ipcRenderer.invoke(CallOpenLogFileChannel),
+	setMenuItemDisabled: (menuIndex: number, itemIndex: number, disabled = true) => 
+		ipcRenderer.invoke(CallSetMenuDisabledChannel, menuIndex, itemIndex, disabled)
 });
 
 contextBridge.exposeInMainWorld("db", {
@@ -27,5 +33,8 @@ contextBridge.exposeInMainWorld("store", {
 contextBridge.exposeInMainWorld("ipcRenderer", {
 	on: (channel: string, listener: (event: any, ...args: any[]) => void) => {
 		ipcRenderer.on(channel, listener);
+	},
+	off: (channel: string) => {
+		ipcRenderer.removeAllListeners(channel);
 	}
 });
