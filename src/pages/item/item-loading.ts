@@ -98,7 +98,7 @@ function prevPage() {
 export async function loadItem(inventoryType: InventoryType, displayId: number) {
     $.LoadingOverlay("show");
 
-    const wowHeadUri = isArmorInventoryType(inventoryType) 
+    const wowHeadUri = (isArmorInventoryType(inventoryType) && inventoryType !== InventoryType.Shield && inventoryType !== InventoryType.HeldInOffHand) 
         ? `${window.EXPRESS_URI}/zam/modelviewer/live/meta/armor/${inventoryType}/${displayId}.json`
         : `${window.EXPRESS_URI}/zam/modelviewer/live/meta/item/${displayId}.json`
 
@@ -111,6 +111,15 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
         success: async function (data: ZamItemData) {
             const itemData = await window.store.get('itemData');
             itemData.inventoryType = inventoryType;
+            if (itemData.inventoryType === InventoryType.Robe) {
+                itemData.inventoryType = InventoryType.Chest;
+            }
+            else if (itemData.inventoryType === InventoryType.MainHand || itemData.inventoryType === InventoryType.OffHand) {
+                itemData.inventoryType = InventoryType.OneHand;
+            }
+            else if (itemData.inventoryType === InventoryType.RangedRight || itemData.inventoryType === InventoryType.Thrown) {
+                itemData.inventoryType = InventoryType.Ranged;
+            }
             itemData.geoSetGroup = data.Item.GeosetGroup;
             
             // Load textures
@@ -230,7 +239,7 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
             }
 
             await window.store.set('itemData', itemData);
-            await reloadAllSections(inventoryType);
+            await reloadAllSections(itemData.inventoryType);
             $.LoadingOverlay("hide");
             await previewCustomItem();
         }
