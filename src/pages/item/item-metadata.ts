@@ -2,7 +2,7 @@ import { Modal, Tooltip } from "bootstrap";
 
 import { notifyError } from "../../utils/alerts";
 import { armorSubClassToName, isArmorInventoryType, weaponSubClassToName } from "../../utils";
-import { ArmorSubclass, IconFileData, WeaponSubclass } from "../../models";
+import { ArmorSubclass, IconFileData, InventoryType, WeaponSubclass } from "../../models";
 import { fallbackImg } from "./consts";
 
 export async function reloadItemMetadata() {
@@ -21,7 +21,6 @@ export async function reloadItemMetadata() {
     // Load Subclass&SheatheType
     $("#ci_subclass").empty();
     if (isArmorInventoryType(itemData.inventoryType)) {
-        $("#ci_sheatheType").attr('disabled', 'disabled');
         $("#ci_subclass").attr('disabled', 'disabled');
         for(const subClass in ArmorSubclass) {
             const subClassId = parseInt(subClass, 10);
@@ -29,6 +28,12 @@ export async function reloadItemMetadata() {
                 continue;
             }
             $("#ci_subclass").append(`<option value='${subClassId}'>${armorSubClassToName(subClassId)}</option>`)
+        }
+
+        if (itemData.inventoryType !== InventoryType.Shield && itemData.inventoryType !== InventoryType.HeldInOffHand) {  
+            $("#ci_sheatheType").attr('disabled', 'disabled');
+        } else {
+            $("#ci_sheatheType").removeAttr('disabled');
         }
     } else {
         $("#ci_sheatheType").removeAttr('disabled');
