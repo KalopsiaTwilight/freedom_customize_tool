@@ -54,7 +54,7 @@ export async function reloadComponentModels() {
         $("#component1Title").text("Component 1");
         $("#component2Title").text("Component 2");
         $(domTargets["0"]).closest('.accordion-item').show();
-        $(domTargets["1"]).closest('.accordion-item').hide();
+        $(domTargets["1"]).closest('.accordion-item').show();
     }
 
 
