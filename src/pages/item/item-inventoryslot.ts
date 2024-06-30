@@ -38,6 +38,9 @@ export async function onInventorySlotChange() {
     if (itemData.inventoryType == InventoryType.Shield) {
         itemData.metadata.subClass = ArmorSubclass.Shield
     }
+    if (itemData.inventoryType == InventoryType.HeldInOffHand) {
+        itemData.metadata.subClass = 0;
+    }
 
     await window.store.set('itemData', itemData);
 

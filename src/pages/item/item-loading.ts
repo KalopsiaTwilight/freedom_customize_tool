@@ -120,6 +120,19 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
             else if (itemData.inventoryType === InventoryType.RangedRight || itemData.inventoryType === InventoryType.Thrown) {
                 itemData.inventoryType = InventoryType.Ranged;
             }
+
+            if (isArmorInventoryType(inventoryType)) {
+                if (inventoryType === InventoryType.HeldInOffHand) {
+                    itemData.metadata.subClass = 0;
+                } 
+                else if (inventoryType === InventoryType.Shield) {
+                    itemData.metadata.subClass = 6;
+                }
+                else {
+                    itemData.metadata.subClass = 1;
+                }
+            }
+
             itemData.geoSetGroup = data.Item.GeosetGroup;
             
             // Load textures
