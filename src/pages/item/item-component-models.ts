@@ -1,4 +1,4 @@
-import { ModelResourceData, InventoryType } from "../../models";
+import { ModelResourceData, InventoryType, ExtendedModelResourceData } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { fallbackImg } from "./consts";
 import { previewCustomItem } from "./preview-item";
@@ -204,16 +204,16 @@ export async function onSearchComponentModel() {
     const ctes = `
         WITH matchingItems AS
         (
-            SELECT MR1.*
+            SELECT MR1.*, DIMR.displayId
             FROM modelresources MR1
+            JOIN displayid_to_modelresource DIMR ON DIMR.displayId = (SELECT MIN(displayId) FROM displayid_to_modelresource WHERE modelResourceId = MR1.modelResourceId)
             WHERE 
             (
                 MR1.fileName like '%'|| ?1 || '%' 
                 OR MR1.fileId LIKE '%' || ?1 || '%'
-                OR MR1.fileId IN (
-                    SELECT DIMR.fileId
+                OR DIMR.displayId IN (
+                    SELECT IDI.itemDisplayId
                     FROM item_to_displayid IDI
-                    JOIN displayid_to_modelresource DIMR ON DIMR.displayId = IDI.itemDisplayId
                     WHERE IDI.itemName LIKE '%' || ?1 || '%'
                 )
             )
@@ -236,7 +236,7 @@ export async function onSearchComponentModel() {
                 WHERE inventoryType = ${inventoryTypeFilter}
             )`
     }
-    const resp = await window.db.all<ModelResourceData>(`
+    const resp = await window.db.all<ExtendedModelResourceData>(`
         ${ctes}
         SELECT * 
         ${fromAndFilterQuery}
@@ -319,9 +319,10 @@ export async function randomizeComponentModel(slot: string) {
     while (!data.length && nrTries < maxTries) {
         const resp = await window.db.all<ModelResourceData>(`
             WITH mrIds as (
-                SELECT DISTINCT modelResourceId
-                FROM modelresources
-                WHERE displayId IN (
+                SELECT DISTINCT MR.modelResourceId
+                FROM modelresources MR
+                JOIN displayid_to_modelresource DIMR ON DIMR.displayId = (SELECT MIN(displayId) FROM displayid_to_modelresource WHERE modelResourceId = MR.modelResourceId)
+                WHERE DIMR.displayId IN (
                     SELECT itemDisplayId 
                     FROM item_to_displayid
                     WHERE inventoryType ${

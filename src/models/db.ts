@@ -9,11 +9,14 @@ export interface ModelResourceData {
     fileName: string, 
     filePath: string,
     fileId: number,
-    displayId: number,
     modelResourceId: number,
     raceId: number,
     genderId: number,
     extraData: number
+}
+
+export interface ExtendedModelResourceData extends ModelResourceData {
+    displayId: number
 }
 
 export interface TextureFileData {
