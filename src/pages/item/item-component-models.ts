@@ -309,10 +309,6 @@ function prevPage() {
 
 export async function randomizeComponentModel(slot: string) {
     const itemData = await window.store.get('itemData');
-    if (!componentSlotSupportedForInventoryType(itemData.inventoryType, slot)) {
-        return;
-    }
-
     let data: ModelResourceData[]  =[];
     const maxTries = 10;
     let nrTries = 0;

@@ -10,7 +10,7 @@ import { randomizeComponentTexture, reloadComponentTextures } from "./item-compo
 import { randomizeGeoSetData, reloadGeosetDisplay } from "./item-geoset-display";
 import { randomizeTextures, reloadTextures } from "./item-texture";
 import { previewCustomItem } from "./preview-item";
-import { getWowHeadThumbForDisplayId } from "./wow-data-utils";
+import { componentSlotSupportedForInventoryType, getWowHeadThumbForDisplayId } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
 
 export async function onSearchItem() {
@@ -328,12 +328,17 @@ export async function exportToFile() {
 
 export async function onRandomizeItem() {
     $.LoadingOverlay("show");
+    const itemData = await window.store.get('itemData');
     await randomizeGeoSetData();
     await randomizeTextures();
-    await randomizeComponentModel("0");
-    await randomizeComponentModel("1");
-    await randomizeComponentTexture("0");
-    await randomizeComponentTexture("1");
+    if (componentSlotSupportedForInventoryType(itemData.inventoryType, "0")) {
+        await randomizeComponentModel("0");
+        await randomizeComponentTexture("0");
+    }
+    if (componentSlotSupportedForInventoryType(itemData.inventoryType, "1")) {
+        await randomizeComponentModel("1");
+        await randomizeComponentTexture("1");
+    }
 
     await reloadGeosetDisplay();
     await reloadTextures();
