@@ -28,7 +28,7 @@ export async function loadPage() {
                 const itemData = await window.store.get('itemData');
                 const itemId = inventoryTypeToItemId(itemData.inventoryType);
                 const itemName = "Custom Item TestItem - " + inventoryTypeToItemSlotName(itemData.inventoryType)
-                notifySuccess(`Succesfully applied patch! Add item ${itemId} [${itemName}] to your character to view the item in-game!`);
+                notifySuccess(`Add item ${itemId} [${itemName}] to your character to view the item in-game!`, 'Succesfully applied patch!', false);
             }
             $.LoadingOverlay("hide");
         })
