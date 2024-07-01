@@ -1,6 +1,6 @@
 {
   "name": "freedom_customize_tool",
-  "productName": "freedom_customize_tool",
+  "productName": "Freedom Customization Tool",
   "version": "1.0.0",
   "description": "Desktop application to allow for the creation of custom stuff on Freedom",
   "main": ".webpack/main",
