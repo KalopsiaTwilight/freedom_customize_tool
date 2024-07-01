@@ -26,13 +26,14 @@ $(async function () {
     setTheme(pref.useDarkMode);
     
     window.ipcRenderer.on(OnFirstStartChannel, (_, obj: any) => {
-        $("#firstTimeConfigModal").modal('show');
+        const modal = bootstrap.Modal.getOrCreateInstance($("#firstTimeConfigModal")[0]);
         $("#ftc_wowPath").val(obj.suggestedDir);
         if (obj.launchWoWAfterPatch) {
             $("#ftc_launchWoWAfterPatch").attr('checked', 'true');
         }
         $("#ftc_model_race").val(obj.previewCharacter.race);
         $("#ftc_model_gender").val(obj.previewCharacter.gender);
+        modal.show();
     });
 
     $("#ftc_openFolder").on("click", async function () {
