@@ -1,8 +1,14 @@
+import { ArmorSubclass, ItemRarity, SheatheStyle, WeaponSubclass } from "./item";
+
 export interface ItemToDisplayIdData {
     itemId: number;
     inventoryType: number;
     itemName: string;
-    itemDisplayId: number
+    itemDisplayId: number;
+    iconFileId: number;
+    rarity: ItemRarity;
+    subClassId: ArmorSubclass | WeaponSubclass,
+    sheatheType: SheatheStyle
 };
 
 export interface ModelResourceData {

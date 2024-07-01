@@ -1,6 +1,6 @@
 import { Modal } from "bootstrap";
 
-import { InventoryType, ItemData, ItemToDisplayIdData, TextureFileData } from "../../models";
+import { IconFileData, InventoryType, ItemData, ItemToDisplayIdData, ModelResourceData, TextureFileData } from "../../models";
 import { notifyError } from "../../utils/alerts";
 import { isArmorInventoryType } from "../../utils";
 
@@ -55,7 +55,7 @@ export async function onSearchItem() {
         })
         linkElem.append(`<p class="text-truncate" style="max-width: 90%">${item.itemName}</p>`)
         linkElem.on("click", function () {
-            loadItem(item.inventoryType, item.itemDisplayId);
+            loadItem(item);
             Modal.getOrCreateInstance("#loadItemModal").hide();
         });
         col.append(linkElem);
@@ -95,12 +95,13 @@ function prevPage() {
     $(this).parent().find("button").attr('disabled', 'disabled');
 }
 
-export async function loadItem(inventoryType: InventoryType, displayId: number) {
+export async function loadItem(dbItemData: ItemToDisplayIdData) {
     $.LoadingOverlay("show");
+    const { inventoryType, itemDisplayId } = dbItemData;
 
     const wowHeadUri = (isArmorInventoryType(inventoryType) && inventoryType !== InventoryType.Shield && inventoryType !== InventoryType.HeldInOffHand) 
-        ? `${window.EXPRESS_URI}/zam/modelviewer/live/meta/armor/${inventoryType}/${displayId}.json`
-        : `${window.EXPRESS_URI}/zam/modelviewer/live/meta/item/${displayId}.json`
+        ? `${window.EXPRESS_URI}/zam/modelviewer/live/meta/armor/${inventoryType}/${itemDisplayId}.json`
+        : `${window.EXPRESS_URI}/zam/modelviewer/live/meta/item/${itemDisplayId}.json`
 
     $.ajax({
         url: wowHeadUri,
@@ -121,6 +122,8 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
                 itemData.inventoryType = InventoryType.Ranged;
             }
 
+            itemData.metadata.rarity = dbItemData.rarity;
+            itemData.metadata.sheatheType = dbItemData.sheatheType;
             if (isArmorInventoryType(inventoryType)) {
                 if (inventoryType === InventoryType.HeldInOffHand) {
                     itemData.metadata.subClass = 0;
@@ -131,7 +134,29 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
                 else {
                     itemData.metadata.subClass = 1;
                 }
+            } else {
+                itemData.metadata.subClass = dbItemData.subClassId;
             }
+
+            // Load file icon
+            if (dbItemData.iconFileId > 0) 
+            {
+                const iconResp = await window.db.get<IconFileData>(`
+                    SELECT * FROM iconFiles 
+                    WHERE fileId = ?1
+                    LIMIT 1`, 
+                    dbItemData.iconFileId
+                );
+                if (iconResp.error) {
+                    throw iconResp.error;
+                }
+                itemData.metadata.fileIconId = iconResp.result.fileId;
+                itemData.metadata.fileIconName = iconResp.result.fileName;
+            } else {
+                itemData.metadata.fileIconId = 0;
+                itemData.metadata.fileIconName = 'inv_misc_questionmark.blp';
+            }
+
 
             itemData.geoSetGroup = data.Item.GeosetGroup;
             
@@ -185,7 +210,7 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
             for (const componentId in data.ComponentModels) {
                 const models = data.ModelFiles[data.ComponentModels[componentId]];
                 for (const modelData of models) {
-                    const resp = await window.db.get(`
+                    const resp = await window.db.get<ModelResourceData>(`
                         SELECT * FROM modelresources 
                         WHERE fileId = ?1
                         LIMIT 1`, 
@@ -194,7 +219,7 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
                     if (resp.error) {
                         throw resp.error;
                     }
-                    const data = resp.result as TextureFileData;
+                    const data = resp.result;
                     const model = {
                         fileName: data.fileName,
                         fileId: data.fileId,
@@ -258,7 +283,7 @@ export async function loadItem(inventoryType: InventoryType, displayId: number) 
         }
     })
     $("#ci_item_search").val("");
-    $("#ci_item_displayId").val("");
+    $("#ci_item_itemDisplayId").val("");
     $("#ci_item_inventoryType").val("");
     $("#loadItemBtn").attr('disabled', 'true');
 }
