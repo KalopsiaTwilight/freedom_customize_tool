@@ -20,7 +20,6 @@ declare const EXPRESS_APP_WEBPACK_ENTRY: string;
 
 let mainWindow: BrowserWindow | null;
 
-const isReleaseVer = app.getPath("exe").endsWith(`${name}.exe`);
 let firstTimeStart = false;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -63,7 +62,7 @@ if (handleSquirrelEvent()) {
     }
   });
   
-  if (!firstTimeStart && isReleaseVer) {
+  if (!firstTimeStart && app.isPackaged) {
     const updateRootUri = "https://freedom-customize-tool-updates.vercel.app";
     const url = `${updateRootUri}/update/${process.platform}/${app.getVersion()}`
     autoUpdater.setFeedURL({ url });
@@ -205,7 +204,7 @@ async function setupIpc() {
   log.info("Initializing app data store from path: " + store.path);
   setUpStoreIpc(store);
 
-  const dbPath = isReleaseVer
+  const dbPath = app.isPackaged
     ? path.join(process.resourcesPath, "app.db")
     : "./src/packaged/app.db";
   const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, err => {
@@ -215,7 +214,7 @@ async function setupIpc() {
   });
   setupDbIpc(db);
 
-  const toolPath = isReleaseVer
+  const toolPath = app.isPackaged
     ? path.join(process.resourcesPath, "DBXPatchTool.exe")
     : path.resolve("../WDBXEditor2/publish/DBXPatchTool.exe");
   setupPatchingIpc(mainWindow, toolPath, store);
@@ -254,7 +253,7 @@ function setUpMenu() {
       submenu: [
         { role: 'reload' },
         { role: 'forceReload' },
-        ...(isReleaseVer 
+        ...(app.isPackaged 
             ? [{ type: 'separator' }] 
             : [{ role: 'toggleDevTools' },{ type: 'separator' }]) as Electron.MenuItemConstructorOptions[],
         { role: 'resetZoom' },
@@ -291,7 +290,7 @@ async function createWindow(): Promise<void> {
 
   // Start express server
   try {
-    const expressPath = isReleaseVer
+    const expressPath = app.isPackaged
       ? path.join(process.resourcesPath, "express_app.js")
       : "./.webpack/main/express_app.js";
 
@@ -323,9 +322,9 @@ async function createWindow(): Promise<void> {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          `script-src 'self' http://localhost:${expressPort} ${isReleaseVer ? '' : "'unsafe-eval'"};`,
-          `connect-src http://localhost:${expressPort} ${isReleaseVer ? '' : 'ws://localhost:8249'};`,
-          `object-src 'none'; style-src-elem http://wow.zamimg.com file://wow.zamimg.com ${isReleaseVer ? '' : "'unsafe-inline'"};`,
+          `script-src 'self' http://localhost:${expressPort} ${app.isPackaged ? '' : "'unsafe-eval'"};`,
+          `connect-src 'self' http://localhost:${expressPort} ${app.isPackaged ? '' : 'ws://localhost:8249'};`,
+          `object-src 'none'; style-src-elem http://wow.zamimg.com file://wow.zamimg.com 'unsafe-inline';`,
           `img-src 'self' blob: data: http://localhost:${expressPort};`
         ] 
       }
