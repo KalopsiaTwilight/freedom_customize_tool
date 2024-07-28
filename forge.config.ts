@@ -16,7 +16,8 @@ const config: ForgeConfig = {
     extraResource: [
       "./.webpack/x64/main/express_app.js",
       "./src/packaged/app.db",
-      "../WDBXEditor2/publish/DBXPatchTool.exe"
+      "./tools/DBXPatchTool.exe",
+      "./tools/BLPConverter.exe"
     ]
   },
   rebuildConfig: {},
