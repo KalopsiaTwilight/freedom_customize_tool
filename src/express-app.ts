@@ -81,7 +81,7 @@ app.post('/customItem', (req: express.Request<{}, {}, ZamItemData>, res) => {
     if (itemData.Textures && itemData.Textures["2"] && itemData.Textures["2"] > 6000000) {
         usedImgs.push(itemData.Textures["2"]);
     }
-    if (itemData.Textures && itemData.Textures2["2"] && itemData.Textures2["2"] > 6000000) {
+    if (itemData.Textures2 && itemData.Textures2["2"] && itemData.Textures2["2"] > 6000000) {
         usedImgs.push(itemData.Textures2["2"]);
     }
     for (const key in imgs) {
