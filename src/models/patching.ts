@@ -15,7 +15,7 @@ export interface AddRecordInstruction {
     RecordIdReference?: string
     Record: ColumnData[]
     SaveReferences: ReferenceColumnData[]
-    GenerateIds: RefenceColumnIdData[]
+    GenerateIds: GenerateColumnIdData[]
 }
 
 export interface LookupRecordInstruction {
@@ -39,11 +39,12 @@ export interface ReferenceColumnData {
     Field?: string
 }
 
-export interface RefenceColumnIdData {
-    FileName?: string
+export interface GenerateColumnIdData {
     Name: string
     Field: string
     OverrideExisting: boolean
+    FileName?: string
+    StartFrom?: number;
 }
 
 export interface ColumnData {

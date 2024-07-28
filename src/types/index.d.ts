@@ -111,8 +111,12 @@ declare interface ElectronApi {
     applyItemPatch: () => Promise<void>
     setupConfig: (wowPath: string, startWoWAfterPatch: boolean) => Promise<void>
     selectFolder: () => Promise<string[] | undefined>
+    selectFile: (filters: Electron.FileFilter[] = []) => Promise<string[] | undefined>
     openLogFile: () => Promise<void>
     setMenuItemDisabled: (menuIndex: number, itemIndex: number, disabled = true) => Promise<void>
+    loadFile: (path: string) => Promise<string>
+    convertToWebp: (data: string) => Promise<string>
+    convertToPng: (data: string) => Promise<string>
 }
 
 declare interface DbApi {

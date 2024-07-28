@@ -112,6 +112,7 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
         success: async function (data: ZamItemData) {
             const itemData = await window.store.get('itemData');
             itemData.inventoryType = inventoryType;
+            itemData.customTextures = [];
             if (itemData.inventoryType === InventoryType.Robe) {
                 itemData.inventoryType = InventoryType.Chest;
             }

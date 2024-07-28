@@ -577,5 +577,93 @@
     </div>
 </div>
 
+<div class="modal fade" id="addCustomTextureModal" tabindex="-1" aria-labelledby="addCustomTextureModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addCustomTextureModalLabel">Add Custom Texture</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label for="ci_ctexture_file" class="form-label">Image File</label>
+                    <div class="input-group">
+                        <button id="ci_ctexture_selectFileBtn" class="btn btn-outline-secondary" type="button"><i class="fa-solid fa-folder-open"></i></button>
+                        <input type="text" class="form-control" id="ci_ctexture_file" disabled>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_ctexture_race" class="form-label">Apply for Race</label>
+                    <div class="input-group">
+                        <select id="ci_ctexture_race" class="form-select">
+                            <option value="0">All</option>
+                            <option value="1">Human</option>
+                            <option value="2">Orc</option>
+                            <option value="3">Dwarf</option>
+                            <option value="4">Night Elf</option>
+                            <option value="5">Undead</option>
+                            <option value="6">Tauren</option>
+                            <option value="7">Gnome</option>
+                            <option value="8">Troll</option>
+                            <option value="9">Goblin</option>
+                            <option value="10">Blood Elf</option>
+                            <option value="11">Draenei</option>
+                            <option value="22">Worgen</option>
+                            <option value="24">Pandaren</option>
+                            <option value="27">Nightborne</option>
+                            <option value="28">Highmountain Tauren</option>
+                            <option value="29">Void Elf</option>
+                            <option value="30">Lightforged Draenei</option>
+                            <option value="31">Zandalari Troll</option>
+                            <option value="32">Kul Tiran</option>
+                            <option value="34">Dark Iron Dwarf</option>
+                            <option value="35">Vulpera</option>
+                            <option value="36">Mag'har Orc</option>
+                            <option value="37">Mechagnome</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_ctexture_gender" class="form-label">Apply for Gender</label>
+                    <div class="input-group">
+                        <select id="ci_ctexture_gender" class="form-select">
+                            <option value="3">Both</option>
+                            <option value="0">Male</option>
+                            <option value="1">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_ctexture_class" class="form-label">Apply for Class</label>
+                    <div class="input-group">
+                        <select id="ci_ctexture_class" class="form-select">
+                            <option value="0">All</option>
+                            <option value="1">Warrior</option>
+                            <option value="2">Paladin</option>
+                            <option value="3">Hunter</option>
+                            <option value="4">Rogue</option>
+                            <option value="5">Priest</option>
+                            <option value="6">Death Knight</option>
+                            <option value="7">Shaman</option>
+                            <option value="8">Mage</option>
+                            <option value="9">Warlock</option>
+                            <option value="10">Monk</option>
+                            <option value="11">Druid</option>
+                            <option value="12">Demon Hunter</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="ci_ctexture_for" />
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="uploadCustomTextureBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save
+                    changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <input id="ci_component_id" type="hidden" />
 <input id="ci_preview_page" type="hidden" />

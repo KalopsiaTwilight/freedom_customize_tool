@@ -7,7 +7,8 @@ export interface ItemData {
     helmetGeoVisMale: ItemGeoSetData[]
     helmetGeoVisFemale: ItemGeoSetData[]
     flags: number
-    geoSetGroup: number[]
+    geoSetGroup: number[],
+    customTextures: CustomTextureData[],
 }
 
 export interface ItemMetadata 
@@ -20,7 +21,7 @@ export interface ItemMetadata
     sheatheType: SheatheStyle;
 }
 
-export interface ItemMaterialData {
+export interface ItemFileData {
     fileName: string;
     fileId: number;
     gender: number;
@@ -28,7 +29,7 @@ export interface ItemMaterialData {
     class: number;
 }
 
-export interface ItemComponentModelModelData extends ItemMaterialData {
+export interface ItemComponentModelModelData extends ItemFileData {
     extraData: number;
 }
 
@@ -50,7 +51,7 @@ export interface GenderedItemGeoSetData extends ItemGeoSetData {
 }
 
 export interface ItemMaterialContainer {
-    [key:string]: ItemMaterialData[]
+    [key:string]: ItemFileData[]
 }
 
 export interface ItemComponentModelContainer {
@@ -248,4 +249,14 @@ export enum SheatheStyle
     Hidden = 6,
     Hidden2 = 7,
     HiddenHip = 8,
+}
+
+export interface CustomTextureData 
+{
+    id: number,
+    fileName: string,
+    data: string,
+    gender: number;
+    race: number;
+    class: number;
 }

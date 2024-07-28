@@ -3,7 +3,7 @@ import { CharacterModelData, InventoryType } from "../../models";
 import { OnOpenChannel, OnSaveChannel } from "../../ipc/channels";
 
 import { onInventorySlotChange } from "./item-inventoryslot";
-import { onSearchTexture, reloadTextures } from "./item-texture";
+import { onSearchTexture, onSubmitSectionTextureUpload, reloadTextures } from "./item-texture";
 import { exportToFile, loadFile, loadItem, onRandomizeItem, onSearchItem } from "./item-loading";
 import { hardRandomizeComponentTexture, onSearchComponentTexture, randomizeComponentTexture, reloadComponentTextures } from "./item-component-textures";
 import { hardRandomizeComponentModel, onSearchComponentModel, randomizeComponentModel, reloadComponentModels } from "./item-component-models";
@@ -163,6 +163,25 @@ function setUpEventHandlers() {
         itemData.metadata.sheatheType = parseInt($("#ci_sheatheType").val().toString(), 10);
         await window.store.set('itemData', itemData);
     });
+
+    $("#ci_ctexture_selectFileBtn").on('click', async () => {
+        const files = await window.api.selectFile([ {
+            'extensions': ['png'],
+            'name': 'PNG files'
+        }]);
+        if (!files) {
+            return;
+        }
+        $("#ci_ctexture_file").val(files[0]);
+        $("#uploadCustomTextureBtn").removeAttr('disabled');
+    })
+
+    $("#uploadCustomTextureBtn").on('click', async () => {
+        const forTxt = $("#ci_ctexture_for").val().toString();
+        if (forTxt.startsWith("section")) {
+            await onSubmitSectionTextureUpload();
+        }
+    })
 
     window.ipcRenderer.on(OnSaveChannel, exportToFile);
     window.ipcRenderer.on(OnOpenChannel, loadFile);

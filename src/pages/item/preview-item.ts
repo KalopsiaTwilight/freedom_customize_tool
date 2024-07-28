@@ -1,5 +1,6 @@
 import { InventoryType } from "../../models";
 import { inventoryTypeToItemClassId } from "../../utils";
+import { uploadCustomTexture } from "./shared";
 
 export async function previewCustomItem() {
     if (!window.model) {
@@ -125,6 +126,10 @@ export async function previewCustomItem() {
         data.Item.HideGeosetFemale = item.helmetGeoVisFemale.map(
             x => ({ RaceId: x.race, GeosetGroup: x.group })
         )
+    }
+
+    for(const customTexture of item.customTextures) {
+        await uploadCustomTexture(customTexture);
     }
 
     window.model.setCustomItem(item.inventoryType, data);

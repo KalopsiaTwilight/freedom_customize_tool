@@ -30,6 +30,7 @@ export async function onInventorySlotChange() {
     itemData.helmetGeoVisMale = [];
     itemData.helmetGeoVisFemale = [];
     itemData.geoSetGroup = [0,0,0,0,0];
+    itemData.customTextures = [];
 
     if (isArmorInventoryType(itemData.inventoryType)) {
         itemData.metadata.sheatheType = 0;

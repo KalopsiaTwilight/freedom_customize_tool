@@ -3,7 +3,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { 
 	CallDbAllChannel, CallDbExecChannel, CallDbGetChannel, CallApplyPatchChannel,
-	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialogChannel, CallOpenLogFileChannel, CallSetMenuDisabledChannel, CallGetExpressUriChannel 
+	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialogChannel, CallOpenLogFileChannel, CallSetMenuDisabledChannel, CallGetExpressUriChannel, CallFileSelectDialogChannel, CallLoadFileChannel, CallConvertToWebpChannel, CallConvertToPngChannel 
 } from "./ipc/channels"
 
 contextBridge.exposeInMainWorld("api", {
@@ -11,12 +11,20 @@ contextBridge.exposeInMainWorld("api", {
 		ipcRenderer.invoke(CallGetExpressUriChannel),
 	applyItemPatch: () => 
 		ipcRenderer.invoke(CallApplyPatchChannel),
+	selectFile: (filters: Electron.FileFilter[] = []) => 
+		ipcRenderer.invoke(CallFileSelectDialogChannel, filters),
 	selectFolder: () => 
 		ipcRenderer.invoke(CallFolderSelectDialogChannel),
 	openLogFile: () => 
 		ipcRenderer.invoke(CallOpenLogFileChannel),
 	setMenuItemDisabled: (menuIndex: number, itemIndex: number, disabled = true) => 
-		ipcRenderer.invoke(CallSetMenuDisabledChannel, menuIndex, itemIndex, disabled)
+		ipcRenderer.invoke(CallSetMenuDisabledChannel, menuIndex, itemIndex, disabled),
+	loadFile: (path: string) =>
+		ipcRenderer.invoke(CallLoadFileChannel, path),
+	convertToWebp: (data: string) => 
+		ipcRenderer.invoke(CallConvertToWebpChannel, data),
+	convertToPng: (data: string) => 
+		ipcRenderer.invoke(CallConvertToPngChannel, data)
 });
 
 contextBridge.exposeInMainWorld("db", {

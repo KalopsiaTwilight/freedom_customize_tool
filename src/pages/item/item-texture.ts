@@ -2,12 +2,13 @@
 import { Modal, Tooltip } from "bootstrap"
 
 import { notifyError } from "../../utils/alerts";
-import { TextureFileData, ItemComponentSection, InventoryType } from "../../models";
+import { TextureFileData, ItemComponentSection, InventoryType, ItemFileData } from "../../models";
 import { componentSectionToName } from "../../utils";
 
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
+import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, uploadTextureFile } from "./shared";
 
 export async function reloadTextures() {
     const itemData = await window.store.get('itemData');
@@ -67,6 +68,16 @@ export async function reloadTextures() {
         })
         inputGroup.append(editButton);
 
+        const uploadTextureButton = $("<button class='btn btn-outline-secondary'"
+            + "data-bs-toggle='modal' data-bs-target='#addCustomTextureModal'>"
+            + "<i class='fa-solid fa-upload'></i></button>");
+        uploadTextureButton.on("click", onUploadTexture(section));
+        inputGroup.append(uploadTextureButton);
+
+        const downloadTextureButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-download'></i></button>");
+        downloadTextureButton.on("click", onDownloadTexture(section));
+        inputGroup.append(downloadTextureButton);
+
         const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
         softRandomizeButton.on("click", onRandomizeTexture(section));
         inputGroup.append(softRandomizeButton);
@@ -82,6 +93,8 @@ export async function reloadTextures() {
         $(domTarget).append(formGroup);
 
         new Tooltip(editButton[0], { title: 'Edit' });
+        new Tooltip(uploadTextureButton[0], { title: 'Upload Texture'});
+        new Tooltip(downloadTextureButton[0], { title: 'Download Texture'});
         new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
         new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove' })
@@ -508,4 +521,69 @@ async function testZamSupportTexture(fileId: number) {
     const uri = `${window.EXPRESS_URI}/zam/modelviewer/live/textures/${fileId}.webp`
     const resp = await fetch(uri);
     return resp.ok;
+}
+
+export async function onSubmitSectionTextureUpload() {
+    const section = parseInt($("#ci_ctexture_for").val().toString().split("_").pop())
+    const filePath = $("#ci_ctexture_file").val().toString();
+    const race = parseInt($("#ci_ctexture_race").val().toString());
+    const gender = parseInt($("#ci_ctexture_gender").val().toString());
+    const classId = parseInt($("#ci_ctexture_class").val().toString());
+    const data = await uploadTextureFile(filePath, gender, race, classId);
+    
+    const itemData = await window.store.get('itemData');
+    if (itemData.customTextures) {
+        itemData.customTextures.push(data);
+    } else {
+        itemData.customTextures = [data];
+    }
+    const usesCustomTextures = itemData.itemMaterials[section].every(x => isCustomTexture(x.fileId))
+
+    const fileData: ItemFileData = {
+        class: data.class,
+        fileId: data.id,
+        fileName: data.fileName,
+        gender: data.gender,
+        race: data.race
+    };
+
+    if (usesCustomTextures) {
+        itemData.itemMaterials[section] = itemData.itemMaterials[section].filter(
+            x => (data.class === 0 ? false : x.class !== 0) || x.gender !== data.gender || x.race !== data.race
+        )
+        itemData.itemMaterials[section] = itemData.itemMaterials[section].filter(
+            x => (data.gender === 3 ? false : x.gender !== 3) || x.class !== data.class || x.race !== data.race
+        )
+        itemData.itemMaterials[section] = itemData.itemMaterials[section].filter(
+            x => (data.race === 0 ? false : x.race !== 0) || x.class !== data.class || x.gender !== data.gender
+        )
+        itemData.itemMaterials[section].push(fileData)
+    } else {
+        itemData.itemMaterials[section] = [fileData];
+    }
+
+    await window.store.set('itemData', freeUnusedCustomTextures(itemData));
+    await reloadTextures();
+    await previewCustomItem();
+}
+
+function onUploadTexture(section: number) {
+    return () => {
+        $("#ci_ctexture_for").val("section_" + section);
+        $("#uploadCustomTextureBtn").attr('disabled', 'disabled');
+        $("#ci_ctexture_file").val();
+        $("#ci_ctexture_class").val(0);
+        $("#ci_ctexture_gender").val(3);
+        $("#ci_ctexture_race").val(0);
+    }
+}
+
+function onDownloadTexture(section: number) {
+    return async () => {
+        const itemData = await window.store.get('itemData');
+        for(const textureData of itemData.itemMaterials[section])
+        {
+            await downloadTextureFile(textureData.fileId)
+        }
+    }
 }

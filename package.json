@@ -66,6 +66,7 @@
     "gasparesganga-jquery-loading-overlay": "^2.1.7",
     "jquery": "^3.7.1",
     "node-fetch": "^3.3.2",
+    "sharp": "^0.33.4",
     "sqlite3": "^5.1.7"
   }
 }

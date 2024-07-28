@@ -1,22 +1,24 @@
 import { BrowserWindow, ipcMain } from "electron";
 import log from "electron-log/main"
 import Store from "electron-store"
+import { exec, spawn } from "node:child_process"
 import fs from "node:fs"
 import path from "node:path"
-import { exec, spawn } from "node:child_process"
+import util from "node:util";
+import { EOL } from "node:os";
 
 import { AppDataStore, ItemData, ItemGeoSetData, Patch, InventoryType, ItemComponentSection } from "../models"
 import { inventoryTypeToItemId, inventoryTypeToItemDisplayType } from "../utils";
 import { CallApplyPatchChannel, OnPatchToolExitChannel } from "./channels";
 
 
-let patchToolPath = "";
+let toolsPath = "";
 let appStore: Store<AppDataStore>;
 let mainWindow: BrowserWindow;
 
 export const setupPatchingIpc = (renderWindow: BrowserWindow, toolPath: string, store: Store<AppDataStore>) => {
     mainWindow = renderWindow;
-    patchToolPath = toolPath;
+    toolsPath = toolPath;
     appStore = store;
     ipcMain.handle(CallApplyPatchChannel, applyPatch);
 }
@@ -27,11 +29,32 @@ async function applyPatch() {
 
     const patch = itemDataToPatch(itemData);
     
+    // Write Texture files
+    const execAsync = util.promisify(exec);
+    const customFilesPath = path.join(settings.freedomWoWRootDir, "files\\freedom_customize_tool");
+    if (!fs.existsSync(customFilesPath)) {
+        await util.promisify(fs.mkdir)(customFilesPath);
+    }
+    let customFileMapping = "";
+    const customFileMappingPath = path.join(settings.freedomWoWRootDir, "mappings\\freedom_customize_tool.txt");
+    const blpConverterExePath = path.join(toolsPath, "BLPConverter.exe")
+    for (const customTexture of itemData.customTextures) {
+        const pngFileName = path.join(customFilesPath, customTexture.id + ".png");
+        await fs.promises.writeFile(pngFileName, customTexture.data, 'base64');
+        await execAsync(`"${blpConverterExePath}" /R "${pngFileName}"`);
+        customFileMapping += `${customTexture.id};freedom_customize_tool/${customTexture.id}.blp${EOL}`
+        // todo: delete png file?
+    }
+    await fs.promises.writeFile(customFileMappingPath, customFileMapping, 'utf-8');
+    
+    // Write Custom Item JSON file
     const patchPath = path.join(process.resourcesPath, "custom_item.json")
+    log.debug("Writing custom patch json to: ", patchPath);
     await fs.promises.writeFile(patchPath, JSON.stringify(patch));
 
-    const clientFilesPath = path.join(settings.freedomWoWRootDir, "files\\dbfilesclient");
-    const child = exec(`"${patchToolPath}" "${patchPath}" "${clientFilesPath}"`, {
+    const dbclientFilesPath = path.join(settings.freedomWoWRootDir, "files\\dbfilesclient");
+    const patchToolExePath = path.join(toolsPath, "DBXPatchTool.exe")
+    const child = exec(`"${patchToolExePath}" "${patchPath}" "${dbclientFilesPath}"`, {
         cwd: process.resourcesPath,
         windowsHide: true
     })
@@ -336,23 +359,66 @@ function itemDataToPatch(itemData: ItemData): Patch
     if (itemData.inventoryType !== 16)
     {
         for(const sectionStr in itemData.itemMaterials) {
+            const textures = itemData.itemMaterials[sectionStr];
             if (itemData.itemMaterials[sectionStr].length === 0) {
                 continue;
             } 
-            const fileId = itemData.itemMaterials[sectionStr][0].fileId;
-            output.Lookup.push({
-                Filename: "TextureFileData.db2",
-                Field: "FileDataID",
-                SearchValue: fileId,
-                SaveReferences: [
-                    {
-                        Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
-                        Field: "MaterialResourcesID",
-                    }
-                ],
-                IgnoreFailure: false,
-            });
-    
+
+            if (textures[0].fileId >= 6000000) {
+                for(const texture of textures) {
+                    output.Add.push({
+                        Filename: "TextureFileData.db2",
+                        RecordId: texture.fileId,
+                        GenerateIds: [{
+                            Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
+                            Field: "MaterialResourcesID",
+                            OverrideExisting: false,
+                            StartFrom: 770000
+                        }],
+                        Record: [
+                            {
+                                ColumnName: "MaterialResourcesID",
+                                ReferenceId: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`
+                            }
+                        ],
+                        SaveReferences: []
+                    })
+                    output.Add.push({
+                        Filename: "ComponentTextureFileData.db2",
+                        GenerateIds: [],
+                        RecordId: texture.fileId,
+                        Record: [
+                            {
+                                ColumnName: "GenderIndex",
+                                Value: texture.gender
+                            }, 
+                            {
+                                ColumnName: "ClassID",
+                                Value: texture.class
+                            }, 
+                            {
+                                ColumnName: "RaceID",
+                                Value: texture.race
+                            }, 
+                        ],
+                        SaveReferences: []
+                    })
+                }
+            } else {
+                output.Lookup.push({
+                    Filename: "TextureFileData.db2",
+                    Field: "FileDataID",
+                    SearchValue: textures[0].fileId,
+                    SaveReferences: [
+                        {
+                            Name: `_ItemMaterial_${sectionStr}_.MaterialResourcesId`,
+                            Field: "MaterialResourcesID",
+                        }
+                    ],
+                    IgnoreFailure: false,
+                });
+            }
+
             output.Add.push({
                 GenerateIds: [],
                 SaveReferences: [],
