@@ -1,11 +1,12 @@
 import { Modal, Tooltip } from "bootstrap"
 
 import { notifyError } from "../../utils/alerts";
-import { InventoryType, TextureFileData } from "../../models";
+import { InventoryType, ItemFileData, TextureFileData } from "../../models";
 
 import { previewCustomItem } from "./preview-item";
 import { componentSlotSupportedForInventoryType } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
+import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, uploadTextureFile } from "./shared";
 
 export async function reloadComponentTextures() {
     const itemData = await window.store.get('itemData');
@@ -66,6 +67,15 @@ export async function reloadComponentTextures() {
         })
         $(inputGroup).append(editButton)
 
+        const uploadTextureButton = $("<button class='btn btn-outline-secondary'>"
+            + "<i class='fa-solid fa-upload'></i></button>");
+        uploadTextureButton.on("click", onUploadTexture(idStr));
+        inputGroup.append(uploadTextureButton);
+
+        const downloadTextureButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-download'></i></button>");
+        downloadTextureButton.on("click", onDownloadTexture(idStr));
+        inputGroup.append(downloadTextureButton);
+
         const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
         softRandomizeButton.on("click", async () => {
             $.LoadingOverlay("show");
@@ -95,6 +105,8 @@ export async function reloadComponentTextures() {
         $(domTargets[idStr]).append(formGroup)
 
         new Tooltip(editButton[0], { title: 'Edit' });
+        new Tooltip(uploadTextureButton[0], { title: 'Upload Texture'});
+        new Tooltip(downloadTextureButton[0], { title: 'Download Texture'});
         new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
         new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove'})
@@ -376,4 +388,43 @@ async function testZamSupportTexture(fileId: number) {
     const uri = `${window.EXPRESS_URI}/zam/modelviewer/live/textures/${fileId}.webp`
     const resp = await fetch(uri);
     return resp.ok;
+}
+
+function onUploadTexture(componentId: string) {
+    return async () => {
+        const files = await window.api.selectFile([ {
+            'extensions': ['png'],
+            'name': 'PNG files'
+        }]);
+        if (!files) {
+            return;
+        }
+
+        const filePath = files[0];
+        const data = await uploadTextureFile(filePath);
+
+        const itemData = await window.store.get('itemData');
+        if (itemData.customTextures) {
+            itemData.customTextures.push(data);
+        } else {
+            itemData.customTextures = [data];
+        }
+
+        itemData.itemComponentModels[componentId].texture = {
+            id: data.id,
+            name: data.fileName
+        };
+
+        await window.store.set('itemData', freeUnusedCustomTextures(itemData));
+        await reloadComponentTextures();
+        await previewCustomItem();
+    }
+}
+
+function onDownloadTexture(componentId: string) {
+    return async () => {
+        const itemData = await window.store.get('itemData');
+        const texture = itemData.itemComponentModels[componentId].texture;
+        await downloadTextureFile(texture.id)
+    }
 }

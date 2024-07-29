@@ -210,35 +210,75 @@ function itemDataToPatch(itemData: ItemData): Patch
         && itemData.itemMaterials[ItemComponentSection.Cloak] 
         && itemData.itemMaterials[ItemComponentSection.Cloak].length) 
     {
-        output.Lookup.push({
-            Filename: "TextureFileData.db2",
-            Field: "FileDataID",
-            SearchValue: itemData.itemMaterials[ItemComponentSection.Cloak][0].fileId,
-            SaveReferences: [
-                {
+        if (itemData.itemMaterials[ItemComponentSection.Cloak][0].fileId >= 6000000) {
+            output.Add.push({
+                Filename: "TextureFileData.db2",
+                RecordId: itemData.itemMaterials[ItemComponentSection.Cloak][0].fileId,
+                GenerateIds: [{
                     Name: "_ComponentModel0.TextureId",
                     Field: "MaterialResourcesID",
-                }
-            ],
-            IgnoreFailure: true,
-        })
+                    OverrideExisting: false,
+                    StartFrom: 770000
+                }],
+                Record: [
+                    {
+                        ColumnName: "MaterialResourcesID",
+                        ReferenceId: `_ComponentModel0.TextureId`
+                    }
+                ],
+                SaveReferences: []
+            })
+        } else {
+            output.Lookup.push({
+                Filename: "TextureFileData.db2",
+                Field: "FileDataID",
+                SearchValue: itemData.itemMaterials[ItemComponentSection.Cloak][0].fileId,
+                SaveReferences: [
+                    {
+                        Name: "_ComponentModel0.TextureId",
+                        Field: "MaterialResourcesID",
+                    }
+                ],
+                IgnoreFailure: true,
+            })
+        }
     }
 
     // Component 1 texture
     if (itemData.itemComponentModels["0"].texture.id > 0)
     {
-        output.Lookup.push({
-            Filename: "TextureFileData.db2",
-            Field: "FileDataID",
-            SearchValue: itemData.itemComponentModels["0"].texture.id,
-            SaveReferences: [
-                {
+        if (itemData.itemComponentModels["0"].texture.id >= 6000000) {
+            output.Add.push({
+                Filename: "TextureFileData.db2",
+                RecordId: itemData.itemComponentModels["0"].texture.id,
+                GenerateIds: [{
                     Name: "_ComponentModel0.TextureId",
                     Field: "MaterialResourcesID",
-                }
-            ],
-            IgnoreFailure: true,
-        })
+                    OverrideExisting: false,
+                    StartFrom: 770000
+                }],
+                Record: [
+                    {
+                        ColumnName: "MaterialResourcesID",
+                        ReferenceId: `_ComponentModel0.TextureId`
+                    }
+                ],
+                SaveReferences: []
+            })
+        } else {
+            output.Lookup.push({
+                Filename: "TextureFileData.db2",
+                Field: "FileDataID",
+                SearchValue: itemData.itemComponentModels["0"].texture.id,
+                SaveReferences: [
+                    {
+                        Name: "_ComponentModel0.TextureId",
+                        Field: "MaterialResourcesID",
+                    }
+                ],
+                IgnoreFailure: true,
+            })
+        }
     }
 
     // Component 2 model
@@ -258,21 +298,41 @@ function itemDataToPatch(itemData: ItemData): Patch
         })
     }
     
-    // Component 1 texture
+    // Component 2 texture
     if (itemData.itemComponentModels["1"].texture.id > 0)
     {
-        output.Lookup.push({
-            Filename: "TextureFileData.db2",
-            Field: "FileDataID",
-            SearchValue: itemData.itemComponentModels["1"].texture.id,
-            SaveReferences: [
-                {
+        if (itemData.itemComponentModels["1"].texture.id >= 6000000) {
+            output.Add.push({
+                Filename: "TextureFileData.db2",
+                RecordId: itemData.itemComponentModels["1"].texture.id,
+                GenerateIds: [{
                     Name: "_ComponentModel1.TextureId",
                     Field: "MaterialResourcesID",
-                }
-            ],
-            IgnoreFailure: true,
-        })
+                    OverrideExisting: false,
+                    StartFrom: 770000
+                }],
+                Record: [
+                    {
+                        ColumnName: "MaterialResourcesID",
+                        ReferenceId: `_ComponentModel1.TextureId`
+                    }
+                ],
+                SaveReferences: []
+            })
+        } else {
+            output.Lookup.push({
+                Filename: "TextureFileData.db2",
+                Field: "FileDataID",
+                SearchValue: itemData.itemComponentModels["1"].texture.id,
+                SaveReferences: [
+                    {
+                        Name: "_ComponentModel1.TextureId",
+                        Field: "MaterialResourcesID",
+                    }
+                ],
+                IgnoreFailure: true,
+            })
+        }
     }
 
     // Create display info record

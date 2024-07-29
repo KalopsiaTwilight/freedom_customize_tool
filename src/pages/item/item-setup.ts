@@ -177,10 +177,7 @@ function setUpEventHandlers() {
     })
 
     $("#uploadCustomTextureBtn").on('click', async () => {
-        const forTxt = $("#ci_ctexture_for").val().toString();
-        if (forTxt.startsWith("section")) {
-            await onSubmitSectionTextureUpload();
-        }
+        await onSubmitSectionTextureUpload();
     })
 
     window.ipcRenderer.on(OnSaveChannel, exportToFile);

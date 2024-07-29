@@ -1,6 +1,6 @@
 import { CustomTextureData, ItemData, ItemFileData } from "../../models";
 
-export async function uploadTextureFile(filePath: string, gender: number, race: number, classId: number): Promise<CustomTextureData> 
+export async function uploadTextureFile(filePath: string, gender: number = 3, race: number = 0, classId: number = 0): Promise<CustomTextureData> 
 {
     const fileData = await window.api.loadFile(filePath);
     const pngData = await window.api.convertToPng(fileData);

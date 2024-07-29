@@ -58,7 +58,9 @@ app.use('/zam', proxy("wow.zamimg.com", {
     }
 }))
 
-app.use(express.json());
+app.use(express.json({
+    limit: "5mb"
+}));
 let itemData: ZamItemData;
 let imgs: { [key:string]: string } = { };
 app.post('/customItem', (req: express.Request<{}, {}, ZamItemData>, res) => {
