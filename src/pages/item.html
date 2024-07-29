@@ -290,14 +290,16 @@
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
                     <div class="form-group">
-                        <label for="ci_texture_inventorySlotFilter" class="form-label">Only show textures for Inventory Type:</label>
+                        <label for="ci_texture_inventorySlotFilter" class="form-label">Only show textures for Inventory
+                            Type:</label>
                         <select id="ci_texture_inventorySlotFilter" class="form-select">
                         </select>
                     </div>
                 </div>
 
                 <div class="form-group mb-3">
-                    <label for="ci_texture_componentsectionFilter" class="form-label">Only show textures for Section:</label>
+                    <label for="ci_texture_componentsectionFilter" class="form-label">Only show textures for
+                        Section:</label>
                     <div class="input-group">
                         <select id="ci_texture_componentsectionFilter" class="form-select">
                             <option value="-1"></option>
@@ -337,7 +339,8 @@
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
                     <div class="form-group">
-                        <label for="ci_item_inventorySlotFilter" class="form-label">Only show items for Inventory Type:</label>
+                        <label for="ci_item_inventorySlotFilter" class="form-label">Only show items for Inventory
+                            Type:</label>
                         <select id="ci_item_inventorySlotFilter" class="form-select">
                         </select>
                     </div>
@@ -367,7 +370,8 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <label for="ci_componentmodel_inventorySlotFilter" class="form-label">Only show models for for Inventory Type:</label>
+                    <label for="ci_componentmodel_inventorySlotFilter" class="form-label">Only show models for for
+                        Inventory Type:</label>
                     <select id="ci_componentmodel_inventorySlotFilter" class="form-select">
                     </select>
                 </div>
@@ -395,7 +399,8 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <label for="ci_componenttexture_inventorySlotFilter" class="form-label">Only show textures for Inventory Type:</label>
+                    <label for="ci_componenttexture_inventorySlotFilter" class="form-label">Only show textures for
+                        Inventory Type:</label>
                     <select id="ci_componenttexture_inventorySlotFilter" class="form-select">
                     </select>
                 </div>
@@ -560,7 +565,8 @@
             <div class="modal-body">
                 <h5>Search Options</h5>
                 <div class="form-group mt-3 mb-3">
-                    <label for="ci_itemIcon_inventorySlotFilter" class="form-label">Only show items for Inventory Type:</label>
+                    <label for="ci_itemIcon_inventorySlotFilter" class="form-label">Only show items for Inventory
+                        Type:</label>
                     <select id="ci_itemIcon_inventorySlotFilter" class="form-select">
                     </select>
                 </div>
@@ -589,7 +595,8 @@
                 <div class="form-group mb-3">
                     <label for="ci_ctexture_file" class="form-label">Image File</label>
                     <div class="input-group">
-                        <button id="ci_ctexture_selectFileBtn" class="btn btn-outline-secondary" type="button"><i class="fa-solid fa-folder-open"></i></button>
+                        <button id="ci_ctexture_selectFileBtn" class="btn btn-outline-secondary" type="button"><i
+                                class="fa-solid fa-folder-open"></i></button>
                         <input type="text" class="form-control" id="ci_ctexture_file" disabled>
                     </div>
                 </div>
@@ -659,6 +666,46 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button id="uploadCustomTextureBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save
+                    changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="hueShiftTextureModal" tabindex="-1" aria-labelledby="hueShiftTextureModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="hueShiftTextureModalLabel">Colorize Texture</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Controls</h5>
+                <div class="form-group mb-3">
+                    <label for="ci_hst_hue" class="form-label">Hue</label>
+                    <input type="range" class="form-range" min="0" max="360" id="ci_hst_hue">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_hst_saturation" class="form-label">Saturation</label>
+                    <input type="range" class="form-range" min="0" max="5" step="0.1" id="ci_hst_saturation">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_hst_brightness" class="form-label">Brightness</label>
+                    <input type="range" class="form-range" min="0" max="2.5" step="0.1" id="ci_hst_brightness">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="ci_hst_lightness" class="form-label">Lightness</label>
+                    <input type="range" class="form-range" min="0" max="50" id="ci_hst_lightness">
+                </div>
+
+                <h5>Preview</h5>
+                <div id="ci_hst_preview"></div>
+                <input type="hidden" id="ci_hst_texture_id" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="colorizeTexture" type="button" class="btn btn-primary" data-bs-dismiss="modal">Save
                     changes</button>
             </div>
         </div>

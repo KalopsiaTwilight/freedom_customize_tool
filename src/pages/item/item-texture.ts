@@ -8,7 +8,7 @@ import { componentSectionToName } from "../../utils";
 import { previewCustomItem } from "./preview-item";
 import { getClassName, getComponentSectionsForInventoryType, getRaceName } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
-import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, uploadTextureFile } from "./shared";
+import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, updateColorizePreview, uploadTextureFile } from "./shared";
 
 export async function reloadTextures() {
     const itemData = await window.store.get('itemData');
@@ -78,6 +78,12 @@ export async function reloadTextures() {
         downloadTextureButton.on("click", onDownloadTexture(section));
         inputGroup.append(downloadTextureButton);
 
+        const colorizeTextureButton = $("<button class='btn btn-outline-secondary'"
+        + "data-bs-toggle='modal' data-bs-target='#hueShiftTextureModal'>"
+        + "<i class='fa-solid fa-palette'></i></button>");
+        colorizeTextureButton.on("click", onColorizeTexture(section));
+        inputGroup.append(colorizeTextureButton);
+
         const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
         softRandomizeButton.on("click", onRandomizeTexture(section));
         inputGroup.append(softRandomizeButton);
@@ -94,6 +100,7 @@ export async function reloadTextures() {
 
         new Tooltip(editButton[0], { title: 'Edit' });
         new Tooltip(uploadTextureButton[0], { title: 'Upload Texture'});
+        new Tooltip(colorizeTextureButton[0], { title: 'Colorize Texture'} )
         new Tooltip(downloadTextureButton[0], { title: 'Download Texture'});
         new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
         new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
@@ -585,5 +592,22 @@ function onDownloadTexture(section: number) {
         {
             await downloadTextureFile(textureData.fileId)
         }
+    }
+}
+
+function onColorizeTexture(section: number) {
+    return async () => {
+        const itemData = await window.store.get('itemData');
+        let textureIds = "";
+        for(const textureData of itemData.itemMaterials[section])
+        {
+            textureIds += textureData.fileId + ","
+        }
+        $("#ci_hst_texture_id").val(textureIds.slice(0, -1));
+        $("#ci_hst_hue").val(0);
+        $("#ci_hst_saturation").val(1);
+        $("#ci_hst_brightness").val(1);
+        $("#ci_hst_lightness").val(0);
+        await updateColorizePreview();
     }
 }

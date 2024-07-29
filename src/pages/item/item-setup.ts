@@ -14,6 +14,7 @@ import { reloadGeosetDisplay } from "./item-geoset-display";
 import { hardRandomizeItemMetadata, onClearItemMetadata, onSearchItemMetadata, randomizeItemMetadata, reloadItemMetadata } from "./item-metadata";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
 import { previewCustomItem } from "./preview-item";
+import { freeUnusedCustomTextures, isCustomTexture, onSubmitColorize, updateColorizePreview } from "./shared";
 
 
 let windowResizeFn: () => void;
@@ -176,9 +177,11 @@ function setUpEventHandlers() {
         $("#uploadCustomTextureBtn").removeAttr('disabled');
     })
 
-    $("#uploadCustomTextureBtn").on('click', async () => {
-        await onSubmitSectionTextureUpload();
-    })
+    $("#uploadCustomTextureBtn").on('click', onSubmitSectionTextureUpload)
+
+    $("#ci_hst_hue, #ci_hst_brightness, #ci_hst_saturation, #ci_hst_lightness").on("change", updateColorizePreview)
+
+    $("#colorizeTexture").on("click", onSubmitColorize)
 
     window.ipcRenderer.on(OnSaveChannel, exportToFile);
     window.ipcRenderer.on(OnOpenChannel, loadFile);

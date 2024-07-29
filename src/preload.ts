@@ -1,9 +1,10 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from "electron";
+import { Color } from "sharp"
 import { 
 	CallDbAllChannel, CallDbExecChannel, CallDbGetChannel, CallApplyPatchChannel,
-	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialogChannel, CallOpenLogFileChannel, CallSetMenuDisabledChannel, CallGetExpressUriChannel, CallFileSelectDialogChannel, CallLoadFileChannel, CallConvertToWebpChannel, CallConvertToPngChannel 
+	CallGetStoreKeyChannel, CallSetStoreKeyChannel, CallFolderSelectDialogChannel, CallOpenLogFileChannel, CallSetMenuDisabledChannel, CallGetExpressUriChannel, CallFileSelectDialogChannel, CallLoadFileChannel, CallConvertToWebpChannel, CallConvertToPngChannel, CallColorizeChannel 
 } from "./ipc/channels"
 
 contextBridge.exposeInMainWorld("api", {
@@ -24,7 +25,9 @@ contextBridge.exposeInMainWorld("api", {
 	convertToWebp: (data: string) => 
 		ipcRenderer.invoke(CallConvertToWebpChannel, data),
 	convertToPng: (data: string) => 
-		ipcRenderer.invoke(CallConvertToPngChannel, data)
+		ipcRenderer.invoke(CallConvertToPngChannel, data),
+	colorizeImg: (data: string, hue = 0, brightness = 1, saturation = 0, lightness = 1) => 
+		ipcRenderer.invoke(CallColorizeChannel, data, brightness, saturation, hue, lightness),
 });
 
 contextBridge.exposeInMainWorld("db", {

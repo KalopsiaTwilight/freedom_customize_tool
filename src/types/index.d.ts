@@ -117,6 +117,7 @@ declare interface ElectronApi {
     loadFile: (path: string) => Promise<string>
     convertToWebp: (data: string) => Promise<string>
     convertToPng: (data: string) => Promise<string>
+    colorizeImg: (data: string, hue = 0, brightness = 0, saturation = 0, lightness = 0) => Promise<string>;
 }
 
 declare interface DbApi {

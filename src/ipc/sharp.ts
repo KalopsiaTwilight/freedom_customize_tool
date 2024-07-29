@@ -1,8 +1,9 @@
 import { BrowserWindow, ipcMain } from "electron";
+import log from "electron-log";
 import sharp from "sharp";
 
 
-import { CallConvertToPngChannel, CallConvertToWebpChannel } from "./channels";
+import { CallConvertToPngChannel, CallConvertToWebpChannel, CallColorizeChannel } from "./channels";
 
 export const setupSharpIpc = (mainWindow: BrowserWindow) => {
   ipcMain.handle(CallConvertToWebpChannel, async (_, base64Data: string) => {
@@ -13,6 +14,21 @@ export const setupSharpIpc = (mainWindow: BrowserWindow) => {
       })
       .toBuffer();
     return webpBuffer.toString('base64');
+  })
+
+  ipcMain.handle(CallColorizeChannel, async (_, base64Data: string, brightness: number, saturation: number, hue: number, lightness: number) => {
+    let imgBuffer = Buffer.from(base64Data, 'base64');
+
+    const pngBuffer = await sharp(imgBuffer)
+      .png({ })
+      .modulate({
+        brightness,
+        saturation,
+        hue,
+        lightness
+      })
+      .toBuffer();
+    return pngBuffer.toString('base64');
   })
 
   ipcMain.handle(CallConvertToPngChannel, async (_, base64Data: string) => {

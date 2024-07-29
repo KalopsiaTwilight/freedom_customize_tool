@@ -20,6 +20,7 @@ export const CallGetExpressUriChannel = "get:expressUri"
 
 export const CallConvertToWebpChannel = "sharp:towebp"
 export const CallConvertToPngChannel = "sharp:topng"
+export const CallColorizeChannel = "sharp:colorize"
 
 export const OnFirstStartChannel = "on:first-start"
 export const OnSaveChannel = "on:save"

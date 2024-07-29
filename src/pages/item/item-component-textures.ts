@@ -6,7 +6,7 @@ import { InventoryType, ItemFileData, TextureFileData } from "../../models";
 import { previewCustomItem } from "./preview-item";
 import { componentSlotSupportedForInventoryType } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
-import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, uploadTextureFile } from "./shared";
+import { downloadTextureFile, freeUnusedCustomTextures, isCustomTexture, updateColorizePreview, uploadTextureFile } from "./shared";
 
 export async function reloadComponentTextures() {
     const itemData = await window.store.get('itemData');
@@ -75,6 +75,12 @@ export async function reloadComponentTextures() {
         const downloadTextureButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-download'></i></button>");
         downloadTextureButton.on("click", onDownloadTexture(idStr));
         inputGroup.append(downloadTextureButton);
+
+        const colorizeTextureButton = $("<button class='btn btn-outline-secondary'"
+        + "data-bs-toggle='modal' data-bs-target='#hueShiftTextureModal'>"
+        + "<i class='fa-solid fa-palette'></i></button>");
+        colorizeTextureButton.on("click", onColorizeTexture(idStr));
+        inputGroup.append(colorizeTextureButton);
 
         const softRandomizeButton = $("<button class='btn btn-outline-secondary'><i class='fa-solid fa-shuffle'></i></button>");
         softRandomizeButton.on("click", async () => {
@@ -426,5 +432,17 @@ function onDownloadTexture(componentId: string) {
         const itemData = await window.store.get('itemData');
         const texture = itemData.itemComponentModels[componentId].texture;
         await downloadTextureFile(texture.id)
+    }
+}
+
+function onColorizeTexture(idStr: string) {
+    return async () => {
+        const itemData = await window.store.get('itemData');
+        $("#ci_hst_texture_id").val(itemData.itemComponentModels[idStr].texture.id);
+        $("#ci_hst_hue").val(0);
+        $("#ci_hst_saturation").val(1);
+        $("#ci_hst_brightness").val(1);
+        $("#ci_hst_lightness").val(0);
+        await updateColorizePreview();
     }
 }
