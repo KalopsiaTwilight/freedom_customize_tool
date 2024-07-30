@@ -181,8 +181,14 @@ function setUpEventHandlers() {
 
     $("#uploadCustomTextureBtn").on('click', onSubmitSectionTextureUpload);
 
-    $("#ci_hst_hue, #ci_hst_brightness, #ci_hst_saturation, #ci_hst_lightness").on("change", updateColorizePreview);
-
+    $("#ci_hst_hue, #ci_hst_brightness, #ci_hst_saturation, #ci_hst_lightness").on("change", function () {
+        $("#" + this.id + "_text").val($(this).val())
+        updateColorizePreview();
+    });
+    $("#ci_hst_hue_text, #ci_hst_brightness_text, #ci_hst_saturation_text, #ci_hst_lightness_text").on("change", function () {
+        $("#" + this.id.slice(0, -5)).val($(this).val())
+        updateColorizePreview();
+    });
     $("#colorizeTexture").on("click", onSubmitColorize);
 
     

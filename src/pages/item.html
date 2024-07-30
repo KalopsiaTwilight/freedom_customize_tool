@@ -682,21 +682,57 @@
             </div>
             <div class="modal-body">
                 <h5>Controls</h5>
-                <div class="form-group mb-3">
-                    <label for="ci_hst_hue" class="form-label">Hue</label>
-                    <input type="range" class="form-range" min="0" max="360" id="ci_hst_hue">
+                <div class="row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <label for="ci_hst_hue" class="form-label">Hue</label>
+                            <input type="range" class="form-range" min="0" max="360" id="ci_hst_hue">
+                        </div>
+                    </div>
+                    <div class="col-3 d-flex align-items-end justify-content-around">
+                        <div class="form-group">
+                            <input id="ci_hst_hue_text" type="number" min="0" max="360" step="1" class="form-control">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="ci_hst_saturation" class="form-label">Saturation</label>
-                    <input type="range" class="form-range" min="0" max="5" step="0.1" id="ci_hst_saturation">
+                <div class="row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <label for="ci_hst_saturation" class="form-label">Saturation</label>
+                            <input type="range" class="form-range" min="0" max="5" step="0.1" id="ci_hst_saturation">
+                        </div>
+                    </div>
+                    <div class="col-3 d-flex align-items-end justify-content-around">
+                        <div class="form-group">
+                            <input id="ci_hst_saturation_text" type="number" min="0" max="5" step="0.1" class="form-control">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="ci_hst_brightness" class="form-label">Brightness</label>
-                    <input type="range" class="form-range" min="0" max="2.5" step="0.1" id="ci_hst_brightness">
+                <div class="row">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <label for="ci_hst_brightness" class="form-label">Brightness</label>
+                            <input type="range" class="form-range" min="0" max="2.5" step="0.1" id="ci_hst_brightness">
+                        </div>
+                    </div>
+                    <div class="col-3 d-flex align-items-end justify-content-around">
+                        <div class="form-group">
+                            <input id="ci_hst_brightness_text" type="number" min="0" max="2.5" step="0.1" class="form-control">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="ci_hst_lightness" class="form-label">Lightness</label>
-                    <input type="range" class="form-range" min="0" max="50" id="ci_hst_lightness">
+                <div class="row mb-3">
+                    <div class="col-9">
+                        <div class="form-group">
+                            <label for="ci_hst_lightness" class="form-label">Lightness</label>
+                            <input type="range" class="form-range" min="0" max="50" id="ci_hst_lightness">
+                        </div>
+                    </div>
+                    <div class="col-3 d-flex align-items-end justify-content-around">
+                        <div class="form-group">
+                            <input id="ci_hst_lightness_text" type="number" min="0" max="50" step="1" class="form-control">
+                        </div>
+                    </div>
                 </div>
 
                 <h5>Preview</h5>

@@ -445,9 +445,13 @@ function onColorizeTexture(idStr: string) {
         const itemData = await window.store.get('itemData');
         $("#ci_hst_texture_id").val(itemData.itemComponentModels[idStr].texture.id);
         $("#ci_hst_hue").val(0);
+        $("#ci_hst_hue_text").val(0);
         $("#ci_hst_saturation").val(1);
+        $("#ci_hst_saturation_text").val(1);
         $("#ci_hst_brightness").val(1);
+        $("#ci_hst_brightness_text").val(1);
         $("#ci_hst_lightness").val(0);
+        $("#ci_hst_lightness_text").val(0);
         await updateColorizePreview();
     }
 }
