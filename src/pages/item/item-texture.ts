@@ -492,7 +492,7 @@ async function getCompletelyRandomTextures(): Promise<TextureFileData[] | null> 
 
     const maxTries = 10;
     let nrTries = 0;
-    while (!data.length && nrTries < maxTries) {
+    while (!data && nrTries < maxTries) {
         const resp = await window.db.all<TextureFileData>(`
             WITH mrIds as (
                 SELECT DISTINCT materialResourceId
