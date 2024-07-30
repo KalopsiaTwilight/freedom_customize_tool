@@ -39,8 +39,8 @@ export async function reloadComponentModels() {
         return;
     }
     else if (itemData.inventoryType === InventoryType.Shoulders) {
-        $("#component1Title").text("Left Shoulderpad");
-        $("#component2Title").text("Right Shoulderpad");
+        $("#component1Title").text("Left Shoulder Pad");
+        $("#component2Title").text("Right Shoulder Pad");
         $(domTargets["0"]).closest('.accordion-item').show();
         $(domTargets["1"]).closest('.accordion-item').show();
     } 
