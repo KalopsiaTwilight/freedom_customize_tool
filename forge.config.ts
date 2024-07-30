@@ -12,7 +12,9 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     icon: "./app_icon.ico",
-    asar: true,
+    asar: {
+      unpack: "**/node_modules/{sharp,@img}/**/*"
+    },
     extraResource: [
       "./.webpack/x64/main/express_app.js",
       "./src/packaged/app.db",
@@ -54,6 +56,13 @@ const config: ForgeConfig = {
         ],
       },
     }),
+    {
+      name: "@timfish/forge-externals-plugin",
+      config: {
+        "externals": ["sharp"],
+        "includeDeps": true
+      }
+    },
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
     new FusesPlugin({
