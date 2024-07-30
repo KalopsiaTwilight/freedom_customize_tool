@@ -177,8 +177,15 @@ export async function randomizeItemMetadata() {
     while (!data && nrTries < maxTries) {
         const resp = await window.db.get<IconFileData>(`
             SELECT *
-            FROM iconFiles
-            WHERE fileId >= ROUND(? * (SELECT MAX(fileId) FROM iconFiles) + 0.5)
+            FROM iconFiles IF
+            JOIN inventoryslot_to_iconfile II ON IF.fileId = II.fileId 
+            WHERE IF.fileId >= ROUND(? * (SELECT MAX(fileId) FROM iconFiles) + 0.5)
+            AND II.inventoryType ${
+                itemData.inventoryType === InventoryType.Chest ?
+                    "IN (4,5,20)" :
+                itemData.inventoryType === InventoryType.OneHand ? 
+                    "IN (13, 21, 22)" : "= " + itemData.inventoryType
+            }
             LIMIT 1`, 
             Math.random()
         );
