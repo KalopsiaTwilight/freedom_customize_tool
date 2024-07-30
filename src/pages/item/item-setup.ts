@@ -1,3 +1,5 @@
+import { Tooltip } from "bootstrap";
+
 import { debounce, inventoryTypeToName } from "../../utils";
 import { CharacterModelData, InventoryType } from "../../models";
 import { OnOpenChannel, OnSaveChannel } from "../../ipc/channels";
@@ -14,7 +16,7 @@ import { reloadGeosetDisplay } from "./item-geoset-display";
 import { hardRandomizeItemMetadata, onClearItemMetadata, onSearchItemMetadata, randomizeItemMetadata, reloadItemMetadata } from "./item-metadata";
 import { onModelGenderChange, onModelRaceChange, reloadCharacterModel } from "./character-model";
 import { previewCustomItem } from "./preview-item";
-import { freeUnusedCustomTextures, isCustomTexture, onSubmitColorize, updateColorizePreview } from "./shared";
+import { onSubmitColorize, updateColorizePreview } from "./shared";
 
 
 let windowResizeFn: () => void;
@@ -177,11 +179,17 @@ function setUpEventHandlers() {
         $("#uploadCustomTextureBtn").removeAttr('disabled');
     })
 
-    $("#uploadCustomTextureBtn").on('click', onSubmitSectionTextureUpload)
+    $("#uploadCustomTextureBtn").on('click', onSubmitSectionTextureUpload);
 
-    $("#ci_hst_hue, #ci_hst_brightness, #ci_hst_saturation, #ci_hst_lightness").on("change", updateColorizePreview)
+    $("#ci_hst_hue, #ci_hst_brightness, #ci_hst_saturation, #ci_hst_lightness").on("change", updateColorizePreview);
 
-    $("#colorizeTexture").on("click", onSubmitColorize)
+    $("#colorizeTexture").on("click", onSubmitColorize);
+
+    
+    new Tooltip($("#btnEditItemIcon")[0], { title: 'Edit' });
+    new Tooltip($("#btnSoftRandomizeItemIcon")[0], { title: 'Soft Randomize' });
+    new Tooltip($("#btnHardRandomizeItemIcon")[0], { title: 'Hard Randomize' });
+    new Tooltip($("#btnClearItemIcon")[0], { title: 'Remove'})
 
     window.ipcRenderer.on(OnSaveChannel, exportToFile);
     window.ipcRenderer.on(OnOpenChannel, loadFile);
