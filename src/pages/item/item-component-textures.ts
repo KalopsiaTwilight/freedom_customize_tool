@@ -116,6 +116,11 @@ export async function reloadComponentTextures() {
         new Tooltip(softRandomizeButton[0], { title: 'Soft Randomize' });
         new Tooltip(hardRandomizeButton[0], { title: 'Hard Randomize' });
         new Tooltip(removeButton[0], { title: 'Remove'})
+
+        if (data.texture.id < 0) {
+            colorizeTextureButton.attr('disabled', 'disabled');
+            downloadTextureButton.attr('disabled', 'disabled');
+        }
     }
 }
 

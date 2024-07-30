@@ -132,6 +132,9 @@ export async function reloadTextures() {
             tooltipP.append(tooltipLink);
             $(domTarget).append(tooltipP)
             new Tooltip(tooltipLink[0], { title: tooltipText, html: true });
+        } else {
+            colorizeTextureButton.attr('disabled', 'disabled');
+            downloadTextureButton.attr('disabled', 'disabled');
         }
     }
 
