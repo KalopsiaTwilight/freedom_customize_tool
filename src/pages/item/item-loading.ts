@@ -151,8 +151,13 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
                 if (iconResp.error) {
                     throw iconResp.error;
                 }
-                itemData.metadata.fileIconId = iconResp.result.fileId;
-                itemData.metadata.fileIconName = iconResp.result.fileName;
+                if (iconResp.result) {
+                    itemData.metadata.fileIconId = iconResp.result.fileId;
+                    itemData.metadata.fileIconName = iconResp.result.fileName;
+                } else {
+                    itemData.metadata.fileIconId = 0;
+                    itemData.metadata.fileIconName = 'inv_misc_questionmark.blp';
+                }
             } else {
                 itemData.metadata.fileIconId = 0;
                 itemData.metadata.fileIconName = 'inv_misc_questionmark.blp';
@@ -176,6 +181,9 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
                         throw resp.error;
                     }
                     const data = resp.result as TextureFileData;
+                    if (!data) {
+                        continue;
+                    }
                     const textureData = {
                         fileName: data.fileName,
                         fileId: data.fileId,
@@ -221,6 +229,9 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
                         throw resp.error;
                     }
                     const data = resp.result;
+                    if (!data) {
+                        continue;
+                    }
                     const model = {
                         fileName: data.fileName,
                         fileId: data.fileId,
@@ -245,6 +256,9 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
                     throw resp.error;
                 }
                 const dbData = resp.result as TextureFileData;
+                if (!dbData) {
+                    continue;
+                }
                 const textureData = {
                     name: dbData.fileName,
                     id: dbData.fileId
