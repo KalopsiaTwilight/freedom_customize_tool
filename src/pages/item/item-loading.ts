@@ -10,7 +10,7 @@ import { randomizeComponentTexture, reloadComponentTextures } from "./item-compo
 import { randomizeGeoSetData, reloadGeosetDisplay } from "./item-geoset-display";
 import { randomizeTextures, reloadTextures } from "./item-texture";
 import { previewCustomItem } from "./preview-item";
-import { componentSlotSupportedForInventoryType, getWowHeadThumbForDisplayId } from "./wow-data-utils";
+import { componentSlotSupportedForInventoryType, getRaceName, getWowHeadThumbForDisplayId } from "./wow-data-utils";
 import { fallbackImg } from "./consts";
 
 export async function onSearchItem() {
@@ -283,12 +283,12 @@ export async function loadItem(dbItemData: ItemToDisplayIdData) {
             if (data.Item.HideGeosetMale !== null) {
                 itemData.helmetGeoVisMale = data.Item.HideGeosetMale.map(
                     x => ({ race: x.RaceId, group: x.GeosetGroup })
-                )
+                ).filter(x => getRaceName(x.race) !== "Unknown")
             }
             if (data.Item.HideGeosetFemale !== null) {
                 itemData.helmetGeoVisFemale = data.Item.HideGeosetFemale.map(
                     x => ({ race: x.RaceId, group: x.GeosetGroup })
-                )
+                ).filter(x => getRaceName(x.race) !== "Unknown")
             }
 
             await window.store.set('itemData', itemData);
