@@ -15,6 +15,16 @@
         "cwd": "${workspaceFolder}"
       },
       {
+        "type": "node",
+        "request": "launch",
+        "name": "Debug Scratchpad",
+        "runtimeExecutable": "yarn",
+        "runtimeArgs": [
+          "scratchpad",
+        ],
+        "cwd": "${workspaceFolder}"
+      },
+      {
         "name": "Debug Renderer",
         "port": 9223,
         "request": "attach",
